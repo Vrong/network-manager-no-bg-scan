@@ -1,4 +1,11 @@
-network-manager (1.2.0-0ubuntu1) yakkety; urgency=medium
+network-manager (1.2.0-0ubuntu0.16.04.2) xenial; urgency=medium
+
+  * debian/patches: lp1574347-re-read-link-type-if-the-name-changed.diff
+    - Fix Wi-Fi network list disappearing problem (LP: #1574347)
+
+ -- Aron Xu <happyaron@ubuntu.com>  Thu, 12 May 2016 14:48:57 +0800
+
+network-manager (1.2.0-0ubuntu0.16.04.1) xenial; urgency=medium
 
   * Rebase to upstream stable release. (lp: #1576726)
 
