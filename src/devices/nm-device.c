@@ -280,11 +280,11 @@ typedef struct _NMDevicePrivate {
 	NMIP4Config *   wwan_ip4_config; /* WWAN configuration */
 	GSList *        vpn4_configs;   /* VPNs which use this device */
 	struct {
-		gboolean v4_has;
-		gboolean v4_is_assumed;
+		bool v4_has;
+		bool v4_is_assumed;
+		bool v6_has;
+		bool v6_is_assumed;
 		NMPlatformIP4Route v4;
-		gboolean v6_has;
-		gboolean v6_is_assumed;
 		NMPlatformIP6Route v6;
 	} default_route;
 
@@ -878,6 +878,34 @@ nm_device_get_ip6_route_metric (NMDevice *self)
 	return _get_ipx_route_metric (self, FALSE);
 }
 
+static void
+_update_default_route (NMDevice *self, int addr_family, gboolean has, gboolean is_assumed)
+{
+	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
+	bool *p_has, *p_is_assumed;
+
+	nm_assert (NM_IN_SET (addr_family, 0, AF_INET, AF_INET6));
+
+	if (addr_family == AF_INET) {
+		p_has = &priv->default_route.v4_has;
+		p_is_assumed = &priv->default_route.v4_is_assumed;
+	} else {
+		p_has = &priv->default_route.v6_has;
+		p_is_assumed = &priv->default_route.v6_is_assumed;
+	}
+
+	if (*p_has == has && *p_is_assumed == is_assumed)
+		return;
+
+	*p_has = has;
+	*p_is_assumed = is_assumed;
+
+	if (addr_family == AF_INET)
+		nm_default_route_manager_ip4_update_default_route (nm_default_route_manager_get (), self);
+	else
+		nm_default_route_manager_ip6_update_default_route (nm_default_route_manager_get (), self);
+}
+
 const NMPlatformIP4Route *
 nm_device_get_ip4_default_route (NMDevice *self, gboolean *out_is_assumed)
 {
@@ -1248,7 +1276,7 @@ void
 nm_device_update_dynamic_ip_setup (NMDevice *self)
 {
 	NMDevicePrivate *priv;
-	GError *error;
+	GError *error = NULL;
 	gconstpointer addr;
 	size_t addr_length;
 
@@ -1859,6 +1887,8 @@ realize_start_setup (NMDevice *self, const NMPlatformLink *plink)
 	g_return_if_fail (nm_device_get_unmanaged_flags (self, NM_UNMANAGED_PLATFORM_INIT));
 	g_return_if_fail (priv->ip_ifindex <= 0);
 	g_return_if_fail (priv->ip_iface == NULL);
+	g_return_if_fail (!priv->queued_ip4_config_id);
+	g_return_if_fail (!priv->queued_ip6_config_id);
 
 	_LOGD (LOGD_DEVICE, "start setup of %s, kernel ifindex %d", G_OBJECT_TYPE_NAME (self), plink ? plink->ifindex : 0);
 
@@ -2067,8 +2097,12 @@ nm_device_unrealize (NMDevice *self, gboolean remove_resources, GError **error)
 	_LOGD (LOGD_DEVICE, "unrealize (ifindex %d)", ifindex > 0 ? ifindex : 0);
 
 	if (remove_resources) {
-		if (ifindex > 0)
+		if (NM_DEVICE_GET_CLASS (self)->unrealize) {
+			if (!NM_DEVICE_GET_CLASS (self)->unrealize (self, error))
+				return FALSE;
+		} else if (ifindex > 0) {
 			nm_platform_link_delete (NM_PLATFORM_GET, ifindex);
+		}
 	}
 
 	NM_DEVICE_GET_CLASS (self)->unrealize_notify (self);
@@ -2568,12 +2602,14 @@ nm_device_get_enslaved (NMDevice *self)
 /**
  * nm_device_removed:
  * @self: the #NMDevice
+ * @unconfigure_ip_config: whether to clear the IP config objects
+ *   of the device (provided, it is still not cleared at this point).
  *
  * Called by the manager when the device was removed. Releases the device from
  * the master in case it's enslaved.
  */
 void
-nm_device_removed (NMDevice *self)
+nm_device_removed (NMDevice *self, gboolean unconfigure_ip_config)
 {
 	NMDevicePrivate *priv;
 
@@ -2586,16 +2622,19 @@ nm_device_removed (NMDevice *self)
 		nm_device_master_release_one_slave (priv->master, self, FALSE, NM_DEVICE_STATE_REASON_CONNECTION_ASSUMED);
 	}
 
+	if (!unconfigure_ip_config)
+		return;
+
 	/* Clean up IP configs; this does not actually deconfigure the
 	 * interface, it just clears the configuration to which policy
 	 * is reacting via NM_DEVICE_IP4_CONFIG_CHANGED/NM_DEVICE_IP6_CONFIG_CHANGED
 	 * signal. As NMPolicy registered the NMIPxConfig instances in NMDnsManager,
 	 * these would be leaked otherwise. */
-	priv->default_route.v4_has = FALSE;
-	priv->default_route.v4_is_assumed = TRUE;
+	_update_default_route (self, AF_INET,  priv->default_route.v4_has, TRUE);
+	_update_default_route (self, AF_INET6, priv->default_route.v6_has, TRUE);
+	_update_default_route (self, AF_INET,  FALSE, TRUE);
+	_update_default_route (self, AF_INET6, FALSE, TRUE);
 	nm_device_set_ip4_config (self, NULL, 0, FALSE, FALSE, NULL);
-	priv->default_route.v6_has = FALSE;
-	priv->default_route.v6_is_assumed = TRUE;
 	nm_device_set_ip6_config (self, NULL, FALSE, FALSE, NULL);
 }
 
@@ -3343,6 +3382,15 @@ activation_source_schedule (NMDevice *self, ActivationHandleFunc func, int famil
 
 	act_data->func = func;
 	act_data->id = new_id;
+}
+
+static gboolean
+activation_source_is_scheduled (NMDevice *self, ActivationHandleFunc func, int family)
+{
+	ActivationHandleData *act_data;
+
+	act_data = activation_source_get_by_family (self, family, NULL);
+	return act_data->func == func;
 }
 
 /*****************************************************************************/
@@ -4419,6 +4467,8 @@ dhcp4_lease_change (NMDevice *self, NMIP4Config *config)
 		                    NULL,
 		                    NULL,
 		                    NULL);
+
+		nm_device_remove_pending_action (self, PENDING_ACTION_DHCP4, FALSE);
 	}
 }
 
@@ -5150,6 +5200,8 @@ dhcp6_lease_change (NMDevice *self)
 		                    settings_connection,
 		                    nm_device_get_applied_connection (self),
 		                    self, NULL, NULL, NULL);
+
+		nm_device_remove_pending_action (self, PENDING_ACTION_DHCP6, FALSE);
 	}
 }
 
@@ -5725,6 +5777,7 @@ rdisc_config_changed (NMRDisc *rdisc, NMRDiscConfigMap changed, NMDevice *self)
 			if (discovered_route->plen > 0) {
 				memset (&route, 0, sizeof (route));
 				route.network = discovered_route->network;
+				nm_assert (discovered_route->plen <= 128);
 				route.plen = discovered_route->plen;
 				route.gateway = discovered_route->gateway;
 				route.source = NM_IP_CONFIG_SOURCE_RDISC;
@@ -6789,30 +6842,6 @@ activate_stage5_ip4_config_commit (NMDevice *self)
 	check_ip_done (self);
 }
 
-static void
-queued_ip4_config_change_clear (NMDevice *self)
-{
-	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
-
-	if (priv->queued_ip4_config_id) {
-		_LOGD (LOGD_DEVICE, "clearing queued IP4 config change");
-		g_source_remove (priv->queued_ip4_config_id);
-		priv->queued_ip4_config_id = 0;
-	}
-}
-
-static void
-queued_ip6_config_change_clear (NMDevice *self)
-{
-	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
-
-	if (priv->queued_ip6_config_id) {
-		_LOGD (LOGD_DEVICE, "clearing queued IP6 config change");
-		g_source_remove (priv->queued_ip6_config_id);
-		priv->queued_ip6_config_id = 0;
-	}
-}
-
 void
 nm_device_activate_schedule_ip4_config_result (NMDevice *self, NMIP4Config *config)
 {
@@ -6825,7 +6854,6 @@ nm_device_activate_schedule_ip4_config_result (NMDevice *self, NMIP4Config *conf
 	if (config)
 		priv->dev_ip4_config = g_object_ref (config);
 
-	queued_ip4_config_change_clear (self);
 	activation_source_schedule (self, activate_stage5_ip4_config_commit, AF_INET);
 }
 
@@ -7071,7 +7099,9 @@ _cleanup_ip4_pre (NMDevice *self, CleanupType cleanup_type)
 	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
 
 	priv->ip4_state =  IP_NONE;
-	queued_ip4_config_change_clear (self);
+
+	if (nm_clear_g_source (&priv->queued_ip4_config_id))
+		_LOGD (LOGD_DEVICE, "clearing queued IP4 config change");
 
 	dhcp4_cleanup (self, cleanup_type, FALSE);
 	arp_cleanup (self);
@@ -7085,7 +7115,9 @@ _cleanup_ip6_pre (NMDevice *self, CleanupType cleanup_type)
 	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
 
 	priv->ip6_state = IP_NONE;
-	queued_ip6_config_change_clear (self);
+
+	if (nm_clear_g_source (&priv->queued_ip6_config_id))
+		_LOGD (LOGD_DEVICE, "clearing queued IP6 config change");
 
 	dhcp6_cleanup (self, cleanup_type, FALSE);
 	linklocal6_cleanup (self);
@@ -7131,22 +7163,25 @@ _hash_check_invalid_keys_impl (GHashTable *hash, const char *setting_name, GErro
 
 		g_hash_table_iter_init (&iter, hash);
 		while (g_hash_table_iter_next (&iter, (gpointer *) &k, NULL)) {
-			for (i = 0; argv[i]; i++) {
-				if (!strcmp (argv[i], k)) {
-					first_invalid_key = k;
-					break;
-				}
-			}
-			if (first_invalid_key)
+			if (_nm_utils_strv_find_first ((char **) argv, -1, k) < 0) {
+				first_invalid_key = k;
 				break;
+			}
 		}
-		g_set_error (error,
-		             NM_DEVICE_ERROR,
-		             NM_DEVICE_ERROR_INCOMPATIBLE_CONNECTION,
-		             "Can't reapply changes to '%s%s%s' setting",
-		             setting_name ? : "",
-		             setting_name ? "." : "",
-		             first_invalid_key ? : "<UNKNOWN>");
+		if (setting_name) {
+			g_set_error (error,
+			             NM_DEVICE_ERROR,
+			             NM_DEVICE_ERROR_INCOMPATIBLE_CONNECTION,
+			             "Can't reapply changes to '%s.%s' setting",
+			             setting_name,
+			             first_invalid_key);
+		} else {
+			g_set_error (error,
+			             NM_DEVICE_ERROR,
+			             NM_DEVICE_ERROR_INCOMPATIBLE_CONNECTION,
+			             "Can't reapply any changes to '%s' setting",
+			             first_invalid_key);
+		}
 		g_return_val_if_fail (first_invalid_key, FALSE);
 		return FALSE;
 	}
@@ -7267,9 +7302,16 @@ reapply_connection (NMDevice *self,
 	                               NM_SETTING_CONNECTION_SETTING_NAME))
 		return FALSE;
 
+	/* whitelist allowed properties from "connection" setting which are allowed to differ.
+	 *
+	 * This includes UUID, there is no principal problem with reapplying a connection
+	 * and changing it's UUID. In fact, disallowing it makes it cumbersome for the user
+	 * to reapply any connection but the original settings-connection. */
 	if (!_hash_check_invalid_keys (diffs ? g_hash_table_lookup (diffs, NM_SETTING_CONNECTION_SETTING_NAME) : NULL,
 	                               NM_SETTING_CONNECTION_SETTING_NAME,
 	                               error,
+	                               NM_SETTING_CONNECTION_ID,
+	                               NM_SETTING_CONNECTION_UUID,
 	                               NM_SETTING_CONNECTION_ZONE,
 	                               NM_SETTING_CONNECTION_METERED))
 		return FALSE;
@@ -7298,6 +7340,7 @@ reapply_connection (NMDevice *self,
 		con_old = applied_clone  = nm_simple_connection_new_clone (applied);
 		con_new = applied;
 		nm_connection_replace_settings_from_connection (applied, connection);
+		nm_connection_clear_secrets (applied);
 	} else
 		con_old = con_new = applied;
 
@@ -8741,6 +8784,19 @@ update_ip4_config (NMDevice *self, gboolean initial)
 	gboolean capture_resolv_conf;
 	NMDnsManagerResolvConfMode resolv_conf_mode;
 
+	/* If a commit is scheduled, this function would potentially interfere with
+	 * it changing IP configurations before they are applied. Postpone the
+	 * update in such case.
+	 */
+	if (   !initial
+	    && activation_source_is_scheduled (self,
+	                                       activate_stage5_ip4_config_commit,
+	                                       AF_INET)) {
+		priv->queued_ip4_config_id = g_idle_add (queued_ip4_config_change, self);
+		_LOGT (LOGD_DEVICE, "IP4 update was postponed");
+		return;
+	}
+
 	ifindex = nm_device_get_ip_ifindex (self);
 	if (!ifindex)
 		return;
@@ -8819,6 +8875,19 @@ update_ip6_config (NMDevice *self, gboolean initial)
 	gboolean capture_resolv_conf;
 	NMDnsManagerResolvConfMode resolv_conf_mode;
 
+	/* If a commit is scheduled, this function would potentially interfere with
+	 * it changing IP configurations before they are applied. Postpone the
+	 * update in such case.
+	 */
+	if (   !initial
+	    && activation_source_is_scheduled (self,
+	                                       activate_stage5_ip6_config_commit,
+	                                       AF_INET6)) {
+		priv->queued_ip6_config_id = g_idle_add (queued_ip6_config_change, self);
+		_LOGT (LOGD_DEVICE, "IP6 update was postponed");
+		return;
+	}
+
 	ifindex = nm_device_get_ip_ifindex (self);
 	if (!ifindex)
 		return;
@@ -8884,8 +8953,12 @@ nm_device_capture_initial_config (NMDevice *self)
 static gboolean
 queued_ip4_config_change (gpointer user_data)
 {
-	NMDevice *self = NM_DEVICE (user_data);
-	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
+	NMDevice *self = user_data;
+	NMDevicePrivate *priv;
+
+	g_return_val_if_fail (NM_IS_DEVICE (self), G_SOURCE_REMOVE);
+
+	priv = NM_DEVICE_GET_PRIVATE (self);
 
 	/* Wait for any queued state changes */
 	if (priv->queued_state.id)
@@ -8904,10 +8977,14 @@ queued_ip4_config_change (gpointer user_data)
 static gboolean
 queued_ip6_config_change (gpointer user_data)
 {
-	NMDevice *self = NM_DEVICE (user_data);
-	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
+	NMDevice *self = user_data;
+	NMDevicePrivate *priv;
 	GSList *iter;
 	gboolean need_ipv6ll = FALSE;
+
+	g_return_val_if_fail (NM_IS_DEVICE (self), G_SOURCE_REMOVE);
+
+	priv = NM_DEVICE_GET_PRIVATE (self);
 
 	/* Wait for any queued state changes */
 	if (priv->queued_state.id)
@@ -9993,20 +10070,15 @@ _cleanup_generic_post (NMDevice *self, CleanupType cleanup_type)
 {
 	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (self);
 
-	priv->default_route.v4_has = FALSE;
-	priv->default_route.v6_has = FALSE;
-
 	if (cleanup_type == CLEANUP_TYPE_DECONFIGURE) {
-		priv->default_route.v4_is_assumed = FALSE;
-		priv->default_route.v6_is_assumed = FALSE;
-		nm_default_route_manager_ip4_update_default_route (nm_default_route_manager_get (), self);
-		nm_default_route_manager_ip6_update_default_route (nm_default_route_manager_get (), self);
+		_update_default_route (self, AF_INET,  FALSE, FALSE);
+		_update_default_route (self, AF_INET6, FALSE, FALSE);
+	} else {
+		_update_default_route (self, AF_INET,  priv->default_route.v4_has, TRUE);
+		_update_default_route (self, AF_INET6, priv->default_route.v6_has, TRUE);
 	}
-
-	priv->default_route.v4_is_assumed = TRUE;
-	priv->default_route.v6_is_assumed = TRUE;
-	nm_default_route_manager_ip4_update_default_route (nm_default_route_manager_get (), self);
-	nm_default_route_manager_ip6_update_default_route (nm_default_route_manager_get (), self);
+	_update_default_route (self, AF_INET,  FALSE, TRUE);
+	_update_default_route (self, AF_INET6, FALSE, TRUE);
 
 	priv->v4_commit_first_time = TRUE;
 	priv->v6_commit_first_time = TRUE;
@@ -11168,6 +11240,10 @@ dispose (GObject *object)
 
 	_LOGD (LOGD_DEVICE, "disposing");
 
+	platform = nm_platform_get ();
+	g_signal_handlers_disconnect_by_func (platform, G_CALLBACK (device_ipx_changed), self);
+	g_signal_handlers_disconnect_by_func (platform, G_CALLBACK (link_changed_cb), self);
+
 	g_slist_free_full (priv->arping.dad_list, (GDestroyNotify) nm_arping_manager_destroy);
 	priv->arping.dad_list = NULL;
 
@@ -11207,10 +11283,6 @@ dispose (GObject *object)
 	nm_clear_g_source (&priv->carrier_wait_id);
 
 	_clear_queued_act_request (priv);
-
-	platform = nm_platform_get ();
-	g_signal_handlers_disconnect_by_func (platform, G_CALLBACK (device_ipx_changed), self);
-	g_signal_handlers_disconnect_by_func (platform, G_CALLBACK (link_changed_cb), self);
 
 	nm_clear_g_source (&priv->device_link_changed_id);
 	nm_clear_g_source (&priv->device_ip_link_changed_id);

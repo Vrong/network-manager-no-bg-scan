@@ -154,40 +154,6 @@ _nm_singleton_instance_register_destruction (GObject *instance)
 
 /*****************************************************************************/
 
-gint
-nm_utils_ascii_str_to_bool (const char *str,
-                            gint default_value)
-{
-	gsize len;
-	char *s = NULL;
-
-	if (!str)
-		return default_value;
-
-	while (str[0] && g_ascii_isspace (str[0]))
-		str++;
-
-	if (!str[0])
-		return default_value;
-
-	len = strlen (str);
-	if (g_ascii_isspace (str[len - 1])) {
-		s = g_strdup (str);
-		g_strchomp (s);
-		str = s;
-	}
-
-	if (!g_ascii_strcasecmp (str, "true") || !g_ascii_strcasecmp (str, "yes") || !g_ascii_strcasecmp (str, "on") || !g_ascii_strcasecmp (str, "1"))
-		default_value = TRUE;
-	else if (!g_ascii_strcasecmp (str, "false") || !g_ascii_strcasecmp (str, "no") || !g_ascii_strcasecmp (str, "off") || !g_ascii_strcasecmp (str, "0"))
-		default_value = FALSE;
-	if (s)
-		g_free (s);
-	return default_value;
-}
-
-/*****************************************************************************/
-
 /*
  * nm_ethernet_address_is_valid:
  * @addr: pointer to a binary or ASCII Ethernet address
@@ -233,7 +199,6 @@ nm_ethernet_address_is_valid (gconstpointer addr, gssize len)
 	return TRUE;
 }
 
-
 /* nm_utils_ip4_address_clear_host_address:
  * @addr: source ip6 address
  * @plen: prefix length of network
@@ -278,6 +243,32 @@ nm_utils_ip6_address_clear_host_address (struct in6_addr *dst, const struct in6_
 
 	return dst;
 }
+
+gboolean
+nm_utils_ip6_address_same_prefix (const struct in6_addr *addr_a, const struct in6_addr *addr_b, guint8 plen)
+{
+	int nbytes;
+	guint8 t, m;
+
+	if (plen >= 128)
+		return memcmp (addr_a, addr_b, sizeof (struct in6_addr)) == 0;
+
+	nbytes = plen / 8;
+	if (nbytes) {
+		if (memcmp (addr_a, addr_b, nbytes) != 0)
+			return FALSE;
+	}
+
+	plen = plen % 8;
+	if (plen == 0)
+		return TRUE;
+
+	m = ~((1 << (8 - plen)) - 1);
+	t = ((((const guint8 *) addr_a))[nbytes]) ^ ((((const guint8 *) addr_b))[nbytes]);
+	return (t & m) == 0;
+}
+
+/*****************************************************************************/
 
 void
 nm_utils_array_remove_at_indexes (GArray *array, const guint *indexes_to_delete, gsize len)
@@ -2568,6 +2559,121 @@ nm_utils_is_specific_hostname (const char *name)
 
 /******************************************************************/
 
+gboolean
+nm_utils_machine_id_parse (const char *id_str, /*uuid_t*/ guchar *out_uuid)
+{
+	int i;
+	guint8 v0, v1;
+
+	if (!id_str)
+		return FALSE;
+
+	for (i = 0; i < 32; i++) {
+		if (!g_ascii_isxdigit (id_str[i]))
+			return FALSE;
+	}
+	if (id_str[i] != '\0')
+		return FALSE;
+
+	if (out_uuid) {
+		for (i = 0; i < 16; i++) {
+			v0 = g_ascii_xdigit_value (*(id_str++));
+			v1 = g_ascii_xdigit_value (*(id_str++));
+			out_uuid[i] = (v0 << 4) + v1;
+		}
+	}
+	return TRUE;
+}
+
+char *
+nm_utils_machine_id_read (void)
+{
+	gs_free char *contents = NULL;
+	int i;
+
+	/* Get the machine ID from /etc/machine-id; it's always in /etc no matter
+	 * where our configured SYSCONFDIR is.  Alternatively, it might be in
+	 * LOCALSTATEDIR /lib/dbus/machine-id.
+	 */
+	if (   !g_file_get_contents ("/etc/machine-id", &contents, NULL, NULL)
+	    && !g_file_get_contents (LOCALSTATEDIR "/lib/dbus/machine-id", &contents, NULL, NULL))
+		return FALSE;
+
+	contents = g_strstrip (contents);
+
+	for (i = 0; i < 32; i++) {
+		if (!g_ascii_isxdigit (contents[i]))
+			return FALSE;
+		if (contents[i] >= 'A' && contents[i] <= 'F') {
+			/* canonicalize to lower-case */
+			contents[i] = 'a' + (contents[i] - 'A');
+		}
+	}
+	if (contents[i] != '\0')
+		return FALSE;
+
+	return nm_unauto (&contents);
+}
+
+/*****************************************************************************/
+
+guint8 *
+nm_utils_secret_key_read (gsize *out_key_len, GError **error)
+{
+	guint8 *secret_key = NULL;
+	gsize key_len;
+
+	/* out_key_len is not optional, because without it you cannot safely
+	 * access the returned memory. */
+	*out_key_len = 0;
+
+	/* Let's try to load a saved secret key first. */
+	if (g_file_get_contents (NMSTATEDIR "/secret_key", (char **) &secret_key, &key_len, NULL)) {
+		if (key_len < 16) {
+			g_set_error_literal (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
+			                     "Key is too short to be usable");
+			key_len = 0;
+		}
+	} else {
+		int urandom = open ("/dev/urandom", O_RDONLY);
+		mode_t key_mask;
+
+		if (urandom == -1) {
+			g_set_error (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
+			             "Can't open /dev/urandom: %s", strerror (errno));
+			key_len = 0;
+			goto out;
+		}
+
+		/* RFC7217 mandates the key SHOULD be at least 128 bits.
+		 * Let's use twice as much. */
+		key_len = 32;
+		secret_key = g_malloc (key_len);
+
+		key_mask = umask (0077);
+		if (read (urandom, secret_key, key_len) == key_len) {
+			if (!g_file_set_contents (NMSTATEDIR "/secret_key", (char *) secret_key, key_len, error)) {
+				g_prefix_error (error, "Can't write " NMSTATEDIR "/secret_key: ");
+				key_len = 0;
+			}
+		} else {
+			g_set_error_literal (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
+			                     "Could not obtain a secret");
+			key_len = 0;
+		}
+		umask (key_mask);
+		close (urandom);
+	}
+
+out:
+	if (key_len) {
+		*out_key_len = key_len;
+		return secret_key;
+	}
+	g_free (secret_key);
+	return NULL;
+}
+
 /* Returns the "u" (universal/local) bit value for a Modified EUI-64 */
 static gboolean
 get_gre_eui64_u_bit (guint32 addr)
@@ -2695,7 +2801,7 @@ _set_stable_privacy (struct in6_addr *addr,
                      const char *ifname,
                      const char *uuid,
                      guint dad_counter,
-                     gchar *secret_key,
+                     guint8 *secret_key,
                      gsize key_len,
                      GError **error)
 {
@@ -2753,9 +2859,8 @@ nm_utils_ipv6_addr_set_stable_privacy (struct in6_addr *addr,
                                        guint dad_counter,
                                        GError **error)
 {
-	gchar *secret_key = NULL;
+	gs_free guint8 *secret_key = NULL;
 	gsize key_len = 0;
-	gboolean success = FALSE;
 
 	if (dad_counter >= RFC7217_IDGEN_RETRIES) {
 		g_set_error_literal (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
@@ -2763,50 +2868,12 @@ nm_utils_ipv6_addr_set_stable_privacy (struct in6_addr *addr,
 		return FALSE;
 	}
 
-	/* Let's try to load a saved secret key first. */
-	if (g_file_get_contents (NMSTATEDIR "/secret_key", &secret_key, &key_len, NULL)) {
-		if (key_len < 16) {
-			g_set_error_literal (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
-			                     "Key is too short to be usable");
-			key_len = 0;
-		}
-	} else {
-		int urandom = open ("/dev/urandom", O_RDONLY);
-		mode_t key_mask;
+	secret_key = nm_utils_secret_key_read (&key_len, error);
+	if (!secret_key)
+		return FALSE;
 
-		if (urandom == -1) {
-			g_set_error (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
-			             "Can't open /dev/urandom: %s", strerror (errno));
-			return FALSE;
-		}
-
-		/* RFC7217 mandates the key SHOULD be at least 128 bits.
-		 * Let's use twice as much. */
-		key_len = 32;
-		secret_key = g_malloc (key_len);
-
-		key_mask = umask (0077);
-		if (read (urandom, secret_key, key_len) == key_len) {
-			if (!g_file_set_contents (NMSTATEDIR "/secret_key", secret_key, key_len, error)) {
-				g_prefix_error (error, "Can't write " NMSTATEDIR "/secret_key: ");
-				key_len = 0;
-			}
-		} else {
-			g_set_error_literal (error, NM_UTILS_ERROR, NM_UTILS_ERROR_UNKNOWN,
-			                     "Could not obtain a secret");
-			key_len = 0;
-		}
-		umask (key_mask);
-		close (urandom);
-	}
-
-	if (key_len) {
-		success = _set_stable_privacy (addr, ifname, uuid, dad_counter,
-		                               secret_key, key_len, error);
-	}
-
-	g_free (secret_key);
-	return success;
+	return _set_stable_privacy (addr, ifname, uuid, dad_counter,
+	                            secret_key, key_len, error);
 }
 
 /**

@@ -310,6 +310,10 @@ connect_ready (MMModemSimple *simple_iface,
 	NMModemIPMethod ip6_method = NM_MODEM_IP_METHOD_UNKNOWN;
 
 	self->priv->bearer = mm_modem_simple_connect_finish (simple_iface, res, &error);
+
+	if (!ctx)
+		return;
+
 	if (!self->priv->bearer) {
 		if (g_error_matches (error, MM_MOBILE_EQUIPMENT_ERROR, MM_MOBILE_EQUIPMENT_ERROR_SIM_PIN) ||
 		    (g_error_matches (error, MM_CORE_ERROR, MM_CORE_ERROR_UNAUTHORIZED) &&
@@ -377,9 +381,17 @@ connect_ready (MMModemSimple *simple_iface,
 static void
 send_pin_ready (MMSim *sim, GAsyncResult *result, NMModemBroadband *self)
 {
-    GError *error = NULL;
+	gs_free_error GError *error = NULL;
 
-    if (!mm_sim_send_pin_finish (sim, result, &error)) {
+	mm_sim_send_pin_finish (sim, result, &error);
+
+	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+		return;
+
+	if (!self->priv->ctx || self->priv->ctx->step != CONNECT_STEP_UNLOCK)
+		return;
+
+	if (error) {
 		if (g_error_matches (error, MM_MOBILE_EQUIPMENT_ERROR, MM_MOBILE_EQUIPMENT_ERROR_SIM_PIN) ||
 		    (g_error_matches (error, MM_CORE_ERROR, MM_CORE_ERROR_UNAUTHORIZED) &&
 		     mm_modem_get_unlock_required (self->priv->modem_iface) == MM_MODEM_LOCK_SIM_PIN)) {
@@ -387,9 +399,8 @@ send_pin_ready (MMSim *sim, GAsyncResult *result, NMModemBroadband *self)
 		} else {
 			g_signal_emit_by_name (self, NM_MODEM_PREPARE_RESULT, FALSE, translate_mm_error (error));
 		}
-		g_error_free (error);
 		return;
-    }
+	}
 
 	self->priv->ctx->step++;
 	connect_context_step (self);
@@ -870,7 +881,8 @@ static_stage3_ip4_done (NMModemBroadband *self)
 	address.peer_address = address_network;
 	address.plen = mm_bearer_ip_config_get_prefix (self->priv->ipv4_config);
 	address.source = NM_IP_CONFIG_SOURCE_WWAN;
-	nm_ip4_config_add_address (config, &address);
+	if (address.plen <= 32)
+		nm_ip4_config_add_address (config, &address);
 
 	nm_log_info (LOGD_MB, "  address %s/%d", address_string, address.plen);
 
@@ -960,7 +972,8 @@ stage3_ip6_done (NMModemBroadband *self)
 	config = nm_ip6_config_new (nm_platform_link_get_ifindex (NM_PLATFORM_GET, data_port));
 
 	address.plen = mm_bearer_ip_config_get_prefix (self->priv->ipv6_config);
-	nm_ip6_config_add_address (config, &address);
+	if (address.plen <= 128)
+		nm_ip6_config_add_address (config, &address);
 
 	nm_log_info (LOGD_MB, "  address %s/%d", address_string, address.plen);
 
@@ -1077,14 +1090,16 @@ simple_disconnect_ready (MMModemSimple *modem_iface,
 }
 
 static void
-disconnect (NMModem *self,
+disconnect (NMModem *modem,
             gboolean warn,
             GCancellable *cancellable,
             GAsyncReadyCallback callback,
             gpointer user_data)
 {
+	NMModemBroadband *self = NM_MODEM_BROADBAND (modem);
 	DisconnectContext *ctx;
 
+	connect_context_clear (self);
 	ctx = g_slice_new (DisconnectContext);
 	ctx->self = g_object_ref (self);
 	ctx->result = g_simple_async_result_new (G_OBJECT (self),

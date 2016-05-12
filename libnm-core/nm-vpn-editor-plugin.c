@@ -24,6 +24,8 @@
 
 #include "nm-vpn-editor-plugin.h"
 
+#include <dlfcn.h>
+
 #include "nm-core-internal.h"
 
 static void nm_vpn_editor_plugin_default_init (NMVpnEditorPluginInterface *iface);
@@ -71,14 +73,148 @@ nm_vpn_editor_plugin_default_init (NMVpnEditorPluginInterface *iface)
 
 /*********************************************************************/
 
+static NMVpnEditorPlugin *
+_nm_vpn_editor_plugin_load (const char *plugin_name,
+                            gboolean do_file_checks,
+                            const char *check_service,
+                            int check_owner,
+                            NMUtilsCheckFilePredicate check_file,
+                            gpointer user_data,
+                            GError **error)
+{
+	void *dl_module = NULL;
+	gboolean loaded_before;
+	NMVpnEditorPluginFactory factory = NULL;
+	gs_unref_object NMVpnEditorPlugin *editor_plugin = NULL;
+	gs_free char *plugin_filename_free = NULL;
+	const char *plugin_filename;
+	gs_free_error GError *factory_error = NULL;
+	gs_free char *plug_name = NULL;
+	gs_free char *plug_service = NULL;
+
+	g_return_val_if_fail (plugin_name && *plugin_name, NULL);
+
+	/* if @do_file_checks is FALSE, we pass plugin_name directly to
+	 * g_module_open().
+	 *
+	 * Otherwise, we allow for library names without path component.
+	 * In which case, we prepend the plugin directory and form an
+	 * absolute path. In that case, we perform checks on the file.
+	 *
+	 * One exception is that we don't allow for the "la" suffix. The
+	 * reason is that g_module_open() interprets files with this extension
+	 * special and we don't want that. */
+	plugin_filename = plugin_name;
+	if (do_file_checks) {
+		if (   !strchr (plugin_name, '/')
+		    && !g_str_has_suffix (plugin_name, ".la")) {
+			plugin_filename_free = g_module_build_path (NMPLUGINDIR, plugin_name);
+			plugin_filename = plugin_filename_free;
+		}
+	}
+
+	dl_module = dlopen (plugin_filename, RTLD_LAZY | RTLD_LOCAL | RTLD_NOLOAD);
+	if (   !dl_module
+	    && do_file_checks) {
+		/* If the module is already loaded, we skip the file checks.
+		 *
+		 * _nm_utils_check_module_file() fails with ENOENT if the plugin file
+		 * does not exist. That is relevant, because nm-applet checks for that. */
+		if (!_nm_utils_check_module_file (plugin_filename,
+		                                  check_owner,
+		                                  check_file,
+		                                  user_data,
+		                                  error))
+			return NULL;
+	}
+
+	if (dl_module) {
+		loaded_before = TRUE;
+	} else {
+		loaded_before = FALSE;
+		dl_module = dlopen (plugin_filename, RTLD_LAZY | RTLD_LOCAL);
+	}
+
+	if (!dl_module) {
+		g_set_error (error,
+		             NM_VPN_PLUGIN_ERROR,
+		             NM_VPN_PLUGIN_ERROR_FAILED,
+		             _("cannot load plugin \"%s\": %s"),
+		             plugin_name,
+		             dlerror () ?: "unknown reason");
+		return NULL;
+	}
+
+	factory = dlsym (dl_module, "nm_vpn_editor_plugin_factory");
+	if (!factory) {
+		g_set_error (error,
+		             NM_VPN_PLUGIN_ERROR,
+		             NM_VPN_PLUGIN_ERROR_FAILED,
+		             _("failed to load nm_vpn_editor_plugin_factory() from %s (%s)"),
+		             plugin_name, dlerror ());
+		dlclose (dl_module);
+		return NULL;
+	}
+
+	editor_plugin = factory (&factory_error);
+
+	if (loaded_before) {
+		/* we want to leak the library, because the factory will register glib
+		 * types, which cannot be unregistered.
+		 *
+		 * However, if the library was already loaded before, we want to return
+		 * our part of the reference count. */
+		dlclose (dl_module);
+	}
+
+	if (!editor_plugin) {
+		if (factory_error) {
+			g_propagate_error (error, factory_error);
+			factory_error = NULL;
+		} else {
+			g_set_error (error,
+			             NM_VPN_PLUGIN_ERROR,
+			             NM_VPN_PLUGIN_ERROR_FAILED,
+			             _("unknown error initializing plugin %s"), plugin_name);
+		}
+		return NULL;
+	}
+
+	g_return_val_if_fail (G_IS_OBJECT (editor_plugin), NULL);
+
+	/* Validate plugin properties */
+	g_object_get (G_OBJECT (editor_plugin),
+	              NM_VPN_EDITOR_PLUGIN_NAME, &plug_name,
+	              NM_VPN_EDITOR_PLUGIN_SERVICE, &plug_service,
+	              NULL);
+
+	if (!plug_name || !*plug_name) {
+		g_set_error (error,
+		             NM_VPN_PLUGIN_ERROR,
+		             NM_VPN_PLUGIN_ERROR_FAILED,
+		             _("cannot load VPN plugin in '%s': missing plugin name"),
+		             plugin_name);
+		return NULL;
+	}
+	if (   check_service
+	    && g_strcmp0 (plug_service, check_service) != 0) {
+		g_set_error (error,
+		             NM_VPN_PLUGIN_ERROR,
+		             NM_VPN_PLUGIN_ERROR_FAILED,
+		             _("cannot load VPN plugin in '%s': invalid service name"),
+		             plugin_name);
+		return NULL;
+	}
+
+	return nm_unauto (&editor_plugin);
+}
+
 /**
  * nm_vpn_editor_plugin_load_from_file:
- * @plugin_filename: The path to the share library to load.
- *  Apply some common heuristics to find the library, such as
- *  appending "so" file ending.
- *  If the path is not an absolute path or no matching module
- *  can be found, lookup inside a directory defined at compile time.
- *  Due to this, @check_file might be called for two different paths.
+ * @plugin_name: The path or name of the shared library to load.
+ *  The path must either be an absolute filename to an existing file.
+ *  Alternatively, it can be the name (without path) of a library in the
+ *  plugin directory of NetworkManager.
  * @check_service: if not-null, check that the loaded plugin advertises
  *  the given service.
  * @check_owner: if non-negative, check whether the file is owned
@@ -89,116 +225,34 @@ nm_vpn_editor_plugin_default_init (NMVpnEditorPluginInterface *iface)
  * @user_data: user data for @check_file
  * @error: on failure the error reason.
  *
- * Load the shared libary @plugin_filename and create a new
+ * Load the shared libary @plugin_name and create a new
  * #NMVpnEditorPlugin instace via the #NMVpnEditorPluginFactory
  * function.
+ *
+ * If @plugin_name is not an absolute path name, it assumes the file
+ * is in the plugin directory of NetworkManager. In any case, the call
+ * will do certain checks on the file before passing it to dlopen.
+ * A consequence for that is, that you cannot omit the ".so" suffix.
  *
  * Returns: (transfer full): a new plugin instance or %NULL on error.
  *
  * Since: 1.2
  */
 NMVpnEditorPlugin *
-nm_vpn_editor_plugin_load_from_file  (const char *plugin_filename,
+nm_vpn_editor_plugin_load_from_file  (const char *plugin_name,
                                       const char *check_service,
                                       int check_owner,
                                       NMUtilsCheckFilePredicate check_file,
                                       gpointer user_data,
                                       GError **error)
 {
-	GModule *module = NULL;
-	gs_free_error GError *local = NULL;
-	NMVpnEditorPluginFactory factory = NULL;
-	NMVpnEditorPlugin *editor_plugin = NULL;
-
-	g_return_val_if_fail (plugin_filename && *plugin_filename, NULL);
-
-	/* _nm_utils_check_module_file() fails with ENOENT if the plugin file
-	 * does not exist. That is relevant, because nm-applet checks for that. */
-	if (_nm_utils_check_module_file (plugin_filename,
-		                             check_owner,
-		                             check_file,
-		                             user_data,
-		                             &local))
-		module = g_module_open (plugin_filename, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
-
-	if (!module) {
-		if (local) {
-			g_propagate_error (error, local);
-			local = NULL;
-		} else {
-			g_set_error (error,
-			             NM_VPN_PLUGIN_ERROR,
-			             NM_VPN_PLUGIN_ERROR_FAILED,
-			             _("cannot load plugin %s"), plugin_filename);
-		}
-		return NULL;
-	}
-	g_clear_error (&local);
-
-	if (g_module_symbol (module, "nm_vpn_editor_plugin_factory", (gpointer) &factory)) {
-		gs_free_error GError *factory_error = NULL;
-		gboolean success = FALSE;
-
-		editor_plugin = factory (&factory_error);
-
-		g_assert (!editor_plugin || G_IS_OBJECT (editor_plugin));
-
-		if (editor_plugin) {
-			gs_free char *plug_name = NULL, *plug_service = NULL;
-
-			/* Validate plugin properties */
-
-			g_object_get (G_OBJECT (editor_plugin),
-			              NM_VPN_EDITOR_PLUGIN_NAME, &plug_name,
-			              NM_VPN_EDITOR_PLUGIN_SERVICE, &plug_service,
-			              NULL);
-
-			if (!plug_name || !*plug_name) {
-				g_set_error (error,
-				             NM_VPN_PLUGIN_ERROR,
-				             NM_VPN_PLUGIN_ERROR_FAILED,
-				             _("cannot load VPN plugin in '%s': missing plugin name"),
-				             g_module_name (module));
-			} else if (   check_service
-			           && g_strcmp0 (plug_service, check_service) != 0) {
-				g_set_error (error,
-				             NM_VPN_PLUGIN_ERROR,
-				             NM_VPN_PLUGIN_ERROR_FAILED,
-				             _("cannot load VPN plugin in '%s': invalid service name"),
-				             g_module_name (module));
-			} else {
-				/* Success! */
-				g_object_set_data_full (G_OBJECT (editor_plugin), "gmodule", module,
-				                        (GDestroyNotify) g_module_close);
-				success = TRUE;
-			}
-		} else {
-			if (factory_error) {
-				g_propagate_error (error, factory_error);
-				factory_error = NULL;
-			} else {
-				g_set_error (error,
-				             NM_VPN_PLUGIN_ERROR,
-				             NM_VPN_PLUGIN_ERROR_FAILED,
-				             _("unknown error initializing plugin %s"), plugin_filename);
-			}
-		}
-
-		if (!success) {
-			g_module_close (module);
-			editor_plugin = NULL;
-		}
-	} else {
-		g_set_error (error,
-		             NM_VPN_PLUGIN_ERROR,
-		             NM_VPN_PLUGIN_ERROR_FAILED,
-		             _("failed to load nm_vpn_editor_plugin_factory() from %s (%s)"),
-		             g_module_name (module), g_module_error ());
-		g_module_close (module);
-		editor_plugin = NULL;
-	}
-
-	return editor_plugin;
+	return _nm_vpn_editor_plugin_load (plugin_name,
+	                                   TRUE,
+	                                   check_service,
+	                                   check_owner,
+	                                   check_file,
+	                                   user_data,
+	                                   error);
 }
 
 /*********************************************************************/
