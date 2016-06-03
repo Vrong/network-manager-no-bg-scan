@@ -26,9 +26,6 @@ adhoc_use_wpa_rsn_part1.patch
 adhoc_use_wpa_rsn_part2.patch
 wifi-Signal-on-the-wifi-device-when-its-supplicant-i.patch
 
-# wifi powersave
-default_powersave_on.patch
-
 # touch-specific
 ignore_rild_modem_devices.patch
 lp1099983_ignore-p2p-wifi-devices.patch
