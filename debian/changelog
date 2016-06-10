@@ -1,6 +1,6 @@
 network-manager (1.2.2-0ubuntu0.16.04.1) xenial; urgency=medium
 
-  * Rebase to upstream 1.2.2 release, patches:
+  * Rebase to upstream 1.2.2 release, patches: (LP: #1589557)
     - dnsmasq-vpn-dns-filtering.patch: updated
     - nm-change-dnsmasq-parameters.diff: updated
     - 0001-dns-use-DBus-to-make-dnsmasq-nameserver-changes.patch: dropped
