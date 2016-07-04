@@ -5,8 +5,10 @@ network-manager (1.2.2-0ubuntu0.16.04.1) xenial; urgency=medium
     - nm-change-dnsmasq-parameters.diff: updated
     - 0001-dns-use-DBus-to-make-dnsmasq-nameserver-changes.patch: dropped
     - lp1574347-re-read-link-type-if-the-name-changed.diff: dropped
-    - libnm-Check-self-still-NMManager-or-not.patch: LP: #1582301
-    - libnm-don-t-require-initialized-out_encrypted-argume.patch: LP: #1575614
+    - libnm-Check-self-still-NMManager-or-not.patch: (LP: #1582301)
+    - libnm-don-t-require-initialized-out_encrypted-argume.patch:
+      (LP: #1575614)
+    - cli-initialize-connection-list-in-do_device_connect.patch (LP: #1595707)
 
  -- Aron Xu <happyaron@ubuntu.com>  Sat, 04 Jun 2016 18:27:47 +0800
 

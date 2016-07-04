@@ -47,3 +47,4 @@ disable_general_with_expect_test.patch
 #lp1574347-re-read-link-type-if-the-name-changed.diff
 libnm-Check-self-still-NMManager-or-not.patch
 libnm-don-t-require-initialized-out_encrypted-argume.patch
+cli-initialize-connection-list-in-do_device_connect.patch
