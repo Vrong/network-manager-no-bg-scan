@@ -1,3 +1,10 @@
+network-manager (1.2.2-0ubuntu0.16.04.3) UNRELEASED; urgency=medium
+
+  * debian/tests/wpa-dhclient: Don't assume that the IPv6 prefix length from
+    the DHCP server is /64. (LP: #1609898)
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Tue, 27 Sep 2016 16:28:00 +0200
+
 network-manager (1.2.2-0ubuntu0.16.04.2) xenial; urgency=medium
 
   [ Martin Pitt ]
