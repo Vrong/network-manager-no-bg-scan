@@ -221,7 +221,11 @@ private_server_new_connection (GDBusServer *server,
 
 	_LOGD ("(%s) accepted connection %p on private socket", s->tag, conn);
 
-	/* Emit this for the manager */
+	/* Emit this for the manager.
+	 *
+	 * It is essential to do this from the "new-connection" signal handler, as
+	 * at that point no messages from the connection are yet processed
+	 * (which avoids races with registering objects). */
 	g_signal_emit (s->manager,
 	               signals[PRIVATE_CONNECTION_NEW],
 	               s->detail,
@@ -531,6 +535,54 @@ nm_bus_manager_get_caller_info_from_message (NMBusManager *self,
                                              gulong *out_pid)
 {
 	return _get_caller_info (self, NULL, connection, message, out_sender, out_uid, out_pid);
+}
+
+/**
+ * nm_bus_manager_ensure_uid:
+ *
+ * @self: bus manager instance
+ * @context: D-Bus method invocation
+ * @uid: a user-id
+ * @error_domain: error domain to return on failure
+ * @error_code: error code to return on failure
+ *
+ * Retrieves the uid of the D-Bus method caller and
+ * checks that it matches @uid, unless @uid is G_MAXULONG.
+ * In case of failure the function returns FALSE and finishes
+ * handling the D-Bus method with an error.
+ *
+ * Returns: %TRUE if the check succeeded, %FALSE otherwise
+ */
+gboolean
+nm_bus_manager_ensure_uid (NMBusManager          *self,
+                           GDBusMethodInvocation *context,
+                           gulong uid,
+                           GQuark error_domain,
+                           int error_code)
+{
+	gulong caller_uid;
+	GError *error = NULL;
+
+	g_return_val_if_fail (NM_IS_BUS_MANAGER (self), FALSE);
+	g_return_val_if_fail (G_IS_DBUS_METHOD_INVOCATION (context), FALSE);
+
+	if (!nm_bus_manager_get_caller_info (self, context, NULL, &caller_uid, NULL)) {
+		error = g_error_new_literal (error_domain,
+		                             error_code,
+		                             "Unable to determine request UID.");
+		g_dbus_method_invocation_take_error (context, error);
+		return FALSE;
+	}
+
+	if (uid != G_MAXULONG && caller_uid != uid) {
+		error = g_error_new_literal (error_domain,
+		                             error_code,
+		                             "Permission denied");
+		g_dbus_method_invocation_take_error (context, error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 gboolean

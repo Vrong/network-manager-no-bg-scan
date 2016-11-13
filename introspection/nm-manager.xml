@@ -21,11 +21,12 @@
         (0x04) means to restart the DNS plugin. This is for example useful when using
         dnsmasq plugin, which uses additional configuration in /etc/NetworkManager/dnsmasq.d.
         If you edit those files, you can restart the DNS plugin. This action shortly interrupts
-        rename resolution.
+        name resolution.
         Note that flags may affect each other. For example, restarting the DNS plugin (0x04)
         implicitly updates DNS too (0x02). Or when reloading the configuration (0x01), changes
         to DNS setting also cause a DNS update (0x02). However, (0x01) does not involve restarting
-        the DNS plugin (0x02), unless an entirely different plugin is selected.
+        the DNS plugin (0x04) or update resolv.conf (0x02), unless the DNS related configuration
+        changes in NetworkManager.conf.
     -->
     <method name="Reload">
       <arg name="flags" type="u" direction="in"/>
@@ -203,6 +204,47 @@
     -->
     <method name="state">
       <arg name="state" type="u" direction="out"/>
+    </method>
+
+    <!--
+        CheckpointCreate:
+
+        @devices: a list of device paths for which a checkpoint should be created. An empty list means all managed devices.
+        @rollback_timeout: the time in seconds until NetworkManager will automatically rollback to the checkpoint. Set to zero for infinite.
+        @flags: optional flags that influence the creation.
+        @checkpoint: on success, returns the path of the checkpoint.
+
+        Create a checkpoint of the current networking configuration
+        for given interfaces. If @rollback_timeout is not zero, a
+        rollback is automatically performed after the given timeout.
+    -->
+    <method name="CheckpointCreate">
+      <arg name="devices" type="ao" direction="in"/>
+      <arg name="rollback_timeout" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="checkpoint" type="o" direction="out"/>
+    </method>
+
+    <!--
+        CheckpointDestroy:
+        @checkpoint: the checkpoint to be destroyed. Set to empty to cancel all pending checkpoints.
+
+        Destroy a previously created checkpoint.
+    -->
+    <method name="CheckpointDestroy">
+      <arg name="checkpoint" type="o" direction="in"/>
+    </method>
+
+    <!--
+        CheckpointRollback:
+        @checkpoint: the checkpoint to be rolled back.
+        @result: on return, a dictionary of devices and results. Devices are represented by their original D-Bus path; each result is a <link linkend="NMRollbackResult">RollbackResult</link>.
+
+        Rollback a checkpoint before the timeout is reached.
+    -->
+    <method name="CheckpointRollback">
+      <arg name="checkpoint" type="o" direction="in"/>
+      <arg name="result" type="a{su}" direction="out" />
     </method>
 
     <!--
@@ -384,7 +426,7 @@
         PropertiesChanged:
         @properties: The changed properties.
 
-        NetworkManager's properties changed.
+        DEPRECATED. Use the standard "PropertiesChanged" signal from "org.freedesktop.DBus.Properties" instead which exists since version NetworkManager 1.2.0.
     -->
     <signal name="PropertiesChanged">
       <arg name="properties" type="a{sv}"/>

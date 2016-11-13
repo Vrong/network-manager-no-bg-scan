@@ -27,7 +27,8 @@
 
 #include "nm-core-internal.h"
 #include "NetworkManagerUtils.h"
-#include "shvar.h"
+
+#include "common.h"
 
 /*
  * utils_single_quote_string
@@ -377,25 +378,6 @@ utils_has_complex_routes (const char *filename)
 		return TRUE;
 	}
 	g_free (rules);
-
-	return FALSE;
-}
-
-gboolean
-utils_ignore_ip_config (NMConnection *connection)
-{
-	NMSettingConnection *s_con;
-
-	s_con = nm_connection_get_setting_connection (connection);
-	g_assert (s_con);
-
-	/* bonding slaves have no IP configuration, and the system
-	 * scripts just ignore it if it's there.
-	 */
-	if (   nm_setting_connection_is_slave_type (s_con, NM_SETTING_BOND_SETTING_NAME)
-	    || nm_setting_connection_is_slave_type (s_con, NM_SETTING_BRIDGE_SETTING_NAME)
-	    || nm_setting_connection_is_slave_type (s_con, NM_SETTING_TEAM_SETTING_NAME))
-		return TRUE;
 
 	return FALSE;
 }

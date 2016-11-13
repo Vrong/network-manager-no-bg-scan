@@ -1,29 +1,27 @@
 # translation of zh_TW.po to Traditional Chinese
 # Traditional Chinese translation of Network Manager.
 # Copyright (C) 2005, 2010 Free Software Foundation, Inc.
-#
+# 
 # Woodman Tuen <wmtuen@gmail.com>, 2005.
 # Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>, 2008.
 # Chester Cheng <ccheng 於 redhat>, 2010.
 # Chester Cheng <ccheng@紅帽子>, 2010.
 # Terry Chuang <tchuang at redhat>, 2010.
 # Terry Chuang <tchuang@redhat.com>, 2010.
-# ccheng <ccheng@redhat.com>, 2014. #zanata
-# tchuang <tchuang@redhat.com>, 2014. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: zh_TW\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-05 15:00+0200\n"
-"PO-Revision-Date: 2014-01-28 02:24-0500\n"
-"Last-Translator: tchuang <tchuang@redhat.com>\n"
-"Language-Team: Traditional Chinese <zh@li.org>\n"
-"Language: zh-TW\n"
+"POT-Creation-Date: 2016-04-29 14:24+0530\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-07-05 08:42+0000\n"
+"Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
+"Language-Team: Traditional Chinese <zh@li.org>\n"
+"Language: zh-TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Zanata 3.2.3\n"
+"X-Generator: Zanata 3.9.3\n"
 
 #: ../clients/cli/agent.c:39
 #, c-format
@@ -848,8 +846,8 @@ msgid ""
 "\n"
 "  down [id | uuid | path | apath] <ID> ...\n"
 "\n"
-"  add COMMON_OPTIONS TYPE_SPECIFIC_OPTIONS SLAVE_OPTIONS IP_OPTIONS [-- "
-"([+|-]<setting>.<property> <value>)+]\n"
+"  add COMMON_OPTIONS TYPE_SPECIFIC_OPTIONS SLAVE_OPTIONS IP_OPTIONS [-- ([+|-"
+"]<setting>.<property> <value>)+]\n"
 "\n"
 "  modify [--temporary] [id | uuid | path] <ID> ([+|-]<setting>.<property> "
 "<value>)+\n"
@@ -874,8 +872,8 @@ msgid ""
 msgstr ""
 "Usage: nmcli connection { COMMAND | help }\n"
 "\n"
-"COMMAND := { show | up | down | add | modify | edit | delete | reload | "
-"load }\n"
+"COMMAND := { show | up | down | add | modify | edit | delete | reload | load "
+"}\n"
 "\n"
 "  show configured [[id | uuid | path] <ID>]\n"
 "  show active     [[id | uuid | path | apath] <ID>]\n"
@@ -998,8 +996,8 @@ msgstr ""
 msgid ""
 "Usage: nmcli connection add { ARGUMENTS | help }\n"
 "\n"
-"ARGUMENTS := COMMON_OPTIONS TYPE_SPECIFIC_OPTIONS SLAVE_OPTIONS IP_OPTIONS "
-"[-- ([+|-]<setting>.<property> <value>)+]\n"
+"ARGUMENTS := COMMON_OPTIONS TYPE_SPECIFIC_OPTIONS SLAVE_OPTIONS IP_OPTIONS [-"
+"- ([+|-]<setting>.<property> <value>)+]\n"
 "\n"
 "  COMMON_OPTIONS:\n"
 "                  type <type>\n"
@@ -1086,8 +1084,8 @@ msgid ""
 "                  [path-cost <1-65535>]\n"
 "                  [hairpin yes|no]\n"
 "\n"
-"    vpn:          vpn-type vpnc|openvpn|pptp|openconnect|openswan|libreswan|"
-"ssh|l2tp|iodine|...\n"
+"    vpn:          vpn-type "
+"vpnc|openvpn|pptp|openconnect|openswan|libreswan|ssh|l2tp|iodine|...\n"
 "                  [user <username>]\n"
 "\n"
 "    olpc-mesh:    ssid <SSID>\n"
@@ -1244,8 +1242,8 @@ msgid ""
 "\n"
 "Examples:\n"
 "nmcli con mod home-wifi wifi.ssid rakosnicek\n"
-"nmcli con mod em1-1 ipv4.method manual ipv4.addr \"192.168.1.2/24, "
-"10.10.1.5/8\"\n"
+"nmcli con mod em1-1 ipv4.method manual ipv4.addr \"192.168.1.2/24, 10.10.1.5/"
+"8\"\n"
 "nmcli con mod em1-1 +ipv4.dns 8.8.4.4\n"
 "nmcli con mod em1-1 -ipv4.dns 1\n"
 "nmcli con mod em1-1 -ipv6.addr \"abbe::cafe/56\"\n"
@@ -1262,8 +1260,7 @@ msgid ""
 "ARGUMENTS := [--temporary] [id | uuid | path] <ID> <new name>\n"
 "\n"
 "Clone an existing connection profile. The newly created connection will be\n"
-"the exact copy of the <ID>, except the uuid property (will be generated) "
-"and\n"
+"the exact copy of the <ID>, except the uuid property (will be generated) and\n"
 "id (provided as <new name> argument).\n"
 "\n"
 msgstr ""
@@ -2506,9 +2503,8 @@ msgid "Error: 'channel': '%s' is not valid; use <1-13>."
 msgstr "錯誤：「channel」：「%s」無效；請使用 <1-13>。"
 
 #: ../clients/cli/connections.c:6034
-#, fuzzy
 msgid "Username: "
-msgstr "使用者名稱"
+msgstr "使用者名稱："
 
 #: ../clients/cli/connections.c:6043
 #, c-format
@@ -2716,7 +2712,7 @@ msgstr "[「%s」設定值]\n"
 
 #. TRANSLATORS: do not translate command names and keywords before ::
 #. *              However, you should translate terms enclosed in <>.
-#.
+#. 
 #: ../clients/cli/connections.c:8117
 #, fuzzy, c-format
 msgid ""
@@ -2773,8 +2769,7 @@ msgstr ""
 msgid ""
 "remove <setting>[.<prop>]  :: remove setting or reset property value\n"
 "\n"
-"This command removes an entire setting from the connection, or if a "
-"property\n"
+"This command removes an entire setting from the connection, or if a property\n"
 "is given, resets that property to the default value.\n"
 "\n"
 "Examples: nmcli> remove wifi-sec\n"
@@ -2813,8 +2808,7 @@ msgid ""
 msgstr ""
 "describe [<setting>.<prop>]  :: 描述內容\n"
 "\n"
-"顯示內容的描述。您可查看 nm-settings(5) man page，以檢視所有的 NM 設定和內容"
-"屬性。\n"
+"顯示內容的描述。您可查看 nm-settings(5) man page，以檢視所有的 NM 設定和內容屬性。\n"
 
 #: ../clients/cli/connections.c:8168
 #, c-format
@@ -2824,8 +2818,7 @@ msgid ""
 "Shows current property or the whole connection.\n"
 "\n"
 "Example: nmcli ipv4> print all\n"
-msgstr ""
-"print [all]  :: 印出設定或是連線值\n"
+msgstr "print [all]  :: 印出設定或是連線值\n"
 "\n"
 "顯示目前的內容或是整個連線。\n"
 "\n"
@@ -2837,8 +2830,7 @@ msgid ""
 "verify [all | fix]  :: verify setting or connection validity\n"
 "\n"
 "Verifies whether the setting or connection is valid and can be saved later.\n"
-"It indicates invalid values on error. Some errors may be fixed "
-"automatically\n"
+"It indicates invalid values on error. Some errors may be fixed automatically\n"
 "by 'fix' option.\n"
 "\n"
 "Examples: nmcli> verify\n"
@@ -2886,25 +2878,20 @@ msgstr ""
 "\n"
 "可用選項：\n"
 "<ifname>    - 連線將會被啟用於的裝置\n"
-"  /<ap>|<nsp> - AP（Wi-Fi）或是 NSP（WiMAX）（當未指定 <ifname> 時，以 / 作為"
-"前置）\n"
+"  /<ap>|<nsp> - AP（Wi-Fi）或是 NSP（WiMAX）（當未指定 <ifname> 時，以 / 作為前置）\n"
 
 #: ../clients/cli/connections.c:8200 ../clients/cli/connections.c:8359
 #, c-format
-msgid ""
-"back  :: go to upper menu level\n"
+msgid "back  :: go to upper menu level\n"
 "\n"
-msgstr ""
-"back  :: 往上返回上一層的選單\n"
+msgstr "back  :: 往上返回上一層的選單\n"
 "\n"
 
 #: ../clients/cli/connections.c:8203
 #, c-format
-msgid ""
-"help/? [<command>]  :: help for the nmcli commands\n"
+msgid "help/? [<command>]  :: help for the nmcli commands\n"
 "\n"
-msgstr ""
-"help/? [<command>]  :: nmcli 指令的協助\n"
+msgstr "help/? [<command>]  :: nmcli 指令的協助\n"
 "\n"
 
 #: ../clients/cli/connections.c:8206
@@ -2940,8 +2927,7 @@ msgid ""
 "\n"
 "This command exits nmcli. When the connection being edited is not saved, the "
 "user is asked to confirm the action.\n"
-msgstr ""
-"quit  :: 退出 nmcli\n"
+msgstr "quit  :: 退出 nmcli\n"
 "\n"
 "這項指令會退出 nmcli。當被編輯的連線尚未儲存時，使用者會被要求確認動作。\n"
 
@@ -2953,7 +2939,7 @@ msgstr "不明的指令：「%s」\n"
 
 #. TRANSLATORS: do not translate command names and keywords before ::
 #. *              However, you should translate terms enclosed in <>.
-#.
+#. 
 #: ../clients/cli/connections.c:8299
 #, c-format
 msgid ""
@@ -2986,8 +2972,7 @@ msgid ""
 "set [<value>]  :: set new value\n"
 "\n"
 "This command sets provided <value> to this property\n"
-msgstr ""
-"set [<value>]  :: 設定新的值\n"
+msgstr "set [<value>]  :: 設定新的值\n"
 "\n"
 "這項指令會將提供的 <value> 設置至此內容\n"
 
@@ -3002,8 +2987,7 @@ msgid ""
 msgstr ""
 "add [<value>]  :: 新增選項至內容\n"
 "\n"
-"這項指令會將提供的 <value> 新增至此內容（若這項內容乃 container 類型的話）。"
-"若是單值的內容，它會將值替換掉（和「set」相同）。\n"
+"這項指令會將提供的 <value> 新增至此內容（若這項內容乃 container 類型的話）。若是單值的內容，它會將值替換掉（和「set」相同）。\n"
 
 #: ../clients/cli/connections.c:8334
 #, c-format
@@ -3011,8 +2995,7 @@ msgid ""
 "change  :: change current value\n"
 "\n"
 "Displays current value and allows editing it.\n"
-msgstr ""
-"change  :: 更改目前的值\n"
+msgstr "change  :: 更改目前的值\n"
 "\n"
 "顯示目前的值，並允許對其進行編輯。\n"
 
@@ -3046,8 +3029,7 @@ msgid ""
 msgstr ""
 "describe  :: 描述內容\n"
 "\n"
-"顯示內容的描述。您可查看 nm-settings(5) man page 以檢視所有的 NM 設定和內"
-"容。\n"
+"顯示內容的描述。您可查看 nm-settings(5) man page 以檢視所有的 NM 設定和內容。\n"
 
 #: ../clients/cli/connections.c:8354
 #, c-format
@@ -3064,11 +3046,9 @@ msgstr ""
 
 #: ../clients/cli/connections.c:8362
 #, c-format
-msgid ""
-"help/? [<command>]  :: help for nmcli commands\n"
+msgid "help/? [<command>]  :: help for nmcli commands\n"
 "\n"
-msgstr ""
-"help/? [<command>]  :: nmcli 指令的協助\n"
+msgstr "help/? [<command>]  :: nmcli 指令的協助\n"
 "\n"
 
 #: ../clients/cli/connections.c:8460
@@ -3097,8 +3077,7 @@ msgstr "連線尚未儲存。您是否真的希望退出？[y/n]\n"
 msgid ""
 "The connection profile has been removed from another client. You may type "
 "'save' in the main menu to restore it.\n"
-msgstr ""
-"連線設定檔已經從另一個客戶端上移除。您可以在主選單輸入「儲存」來復原。\n"
+msgstr "連線設定檔已經從另一個客戶端上移除。您可以在主選單輸入「儲存」來復原。\n"
 
 #: ../clients/cli/connections.c:8671 ../clients/cli/connections.c:9093
 #: ../clients/cli/connections.c:9151
@@ -3165,8 +3144,7 @@ msgid ""
 "Saving the connection with 'autoconnect=yes'. That might result in an "
 "immediate activation of the connection.\n"
 "Do you still want to save? %s"
-msgstr ""
-"以「autoconnect=yes」儲存連線。這可能會即刻將連線啟用。\n"
+msgstr "以「autoconnect=yes」儲存連線。這可能會即刻將連線啟用。\n"
 "您是否還是希望儲存？[是]"
 
 #: ../clients/cli/connections.c:9035
@@ -4108,10 +4086,8 @@ msgid ""
 " TYPE       - device type\n"
 " STATE      - device state\n"
 " CONNECTION - connection activated on device (if any)\n"
-"Displayed columns can be changed using '--fields' global option. 'status' "
-"is\n"
-"the default command, which means 'nmcli device' calls 'nmcli device "
-"status'.\n"
+"Displayed columns can be changed using '--fields' global option. 'status' is\n"
+"the default command, which means 'nmcli device' calls 'nmcli device status'.\n"
 "\n"
 msgstr ""
 "Usage: nmcli device status { help }\n"
@@ -4122,10 +4098,8 @@ msgstr ""
 " TYPE       - device type\n"
 " STATE      - device state\n"
 " CONNECTION - connection activated on device (if any)\n"
-"Displayed columns can be changed using '--fields' global option. 'status' "
-"is\n"
-"the default command, which means 'nmcli device' calls 'nmcli device "
-"status'.\n"
+"Displayed columns can be changed using '--fields' global option. 'status' is\n"
+"the default command, which means 'nmcli device' calls 'nmcli device status'.\n"
 "\n"
 
 #: ../clients/cli/devices.c:320
@@ -4155,8 +4129,8 @@ msgid ""
 "ARGUMENTS := <ifname>\n"
 "\n"
 "Connect the device.\n"
-"NetworkManager will try to find a suitable connection that will be "
-"activated.\n"
+"NetworkManager will try to find a suitable connection that will be activated."
+"\n"
 "It will also consider connections that are not set to auto-connect.\n"
 "\n"
 msgstr ""
@@ -4165,8 +4139,8 @@ msgstr ""
 "ARGUMENTS := <ifname>\n"
 "\n"
 "Connect the device.\n"
-"NetworkManager will try to find a suitable connection that will be "
-"activated.\n"
+"NetworkManager will try to find a suitable connection that will be activated."
+"\n"
 "It will also consider connections that are not set to auto-connect.\n"
 "\n"
 
@@ -4278,8 +4252,8 @@ msgid ""
 "List available Wi-Fi access points. The 'ifname' and 'bssid' options can be\n"
 "used to list APs for a particular interface, or with a specific BSSID.\n"
 "\n"
-"ARGUMENTS := connect <(B)SSID> [password <password>] [wep-key-type key|"
-"phrase] [ifname <ifname>]\n"
+"ARGUMENTS := connect <(B)SSID> [password <password>] [wep-key-type "
+"key|phrase] [ifname <ifname>]\n"
 "                    [bssid <BSSID>] [name <name>] [private yes|no] [hidden "
 "yes|no]\n"
 "\n"
@@ -4308,10 +4282,8 @@ msgid ""
 "\n"
 "ARGUMENTS := rescan [ifname <ifname>] [[ssid <SSID to scan>] ...]\n"
 "\n"
-"Request that NetworkManager immediately re-scan for available access "
-"points.\n"
-"NetworkManager scans Wi-Fi networks periodically, but in some cases it "
-"might\n"
+"Request that NetworkManager immediately re-scan for available access points.\n"
+"NetworkManager scans Wi-Fi networks periodically, but in some cases it might\n"
 "be useful to start scanning manually. 'ssid' allows scanning for a specific\n"
 "SSID, which is useful for APs with hidden SSIDs. More 'ssid' parameters can "
 "be\n"
@@ -4328,8 +4300,8 @@ msgstr ""
 "List available Wi-Fi access points. The 'ifname' and 'bssid' options can be\n"
 "used to list APs for a particular interface, or with a specific BSSID.\n"
 "\n"
-"ARGUMENTS := connect <(B)SSID> [password <password>] [wep-key-type key|"
-"phrase] [ifname <ifname>]\n"
+"ARGUMENTS := connect <(B)SSID> [password <password>] [wep-key-type "
+"key|phrase] [ifname <ifname>]\n"
 "                    [bssid <BSSID>] [name <name>] [private yes|no]\n"
 "\n"
 "Connect to a Wi-Fi network specified by SSID or BSSID. The command creates\n"
@@ -4343,10 +4315,8 @@ msgstr ""
 "\n"
 "ARGUMENTS := rescan [[ifname] <ifname>]\n"
 "\n"
-"Request that NetworkManager immediately re-scan for available access "
-"points.\n"
-"NetworkManager scans Wi-Fi networks periodically, but in some cases it "
-"might\n"
+"Request that NetworkManager immediately re-scan for available access points.\n"
+"NetworkManager scans Wi-Fi networks periodically, but in some cases it might\n"
 "be useful to start scanning manually. Note that this command does not show\n"
 "the APs, use 'nmcli device wifi list' for that.\n"
 "\n"
@@ -4358,8 +4328,7 @@ msgid ""
 "\n"
 "ARGUMENTS := [list [ifname <ifname>]]\n"
 "\n"
-"List neighboring devices discovered through LLDP. The 'ifname' option can "
-"be\n"
+"List neighboring devices discovered through LLDP. The 'ifname' option can be\n"
 "used to list neighbors for a particular interface.\n"
 "\n"
 msgstr ""
@@ -4924,8 +4893,8 @@ msgid ""
 "\n"
 "Get or change persistent system hostname.\n"
 "With no arguments, this prints currently configured hostname. When you pass\n"
-"a hostname, NetworkManager will set it as the new persistent system "
-"hostname.\n"
+"a hostname, NetworkManager will set it as the new persistent system hostname."
+"\n"
 "\n"
 msgstr ""
 "Usage: nmcli general hostname { ARGUMENTS | help }\n"
@@ -4934,8 +4903,8 @@ msgstr ""
 "\n"
 "Get or change persistent system hostname.\n"
 "With no arguments, this prints currently configured hostname. When you pass\n"
-"a hostname, NetworkManager will set it as the new persistent system "
-"hostname.\n"
+"a hostname, NetworkManager will set it as the new persistent system hostname."
+"\n"
 "\n"
 
 #: ../clients/cli/general.c:117
@@ -5005,26 +4974,22 @@ msgstr ""
 
 #: ../clients/cli/general.c:148
 #, c-format
-msgid ""
-"Usage: nmcli networking on { help }\n"
+msgid "Usage: nmcli networking on { help }\n"
 "\n"
 "Switch networking on.\n"
 "\n"
-msgstr ""
-"Usage: nmcli networking on { help }\n"
+msgstr "Usage: nmcli networking on { help }\n"
 "\n"
 "Switch networking on.\n"
 "\n"
 
 #: ../clients/cli/general.c:156
 #, c-format
-msgid ""
-"Usage: nmcli networking off { help }\n"
+msgid "Usage: nmcli networking off { help }\n"
 "\n"
 "Switch networking off.\n"
 "\n"
-msgstr ""
-"Usage: nmcli networking off { help }\n"
+msgstr "Usage: nmcli networking off { help }\n"
 "\n"
 "Switch networking off.\n"
 "\n"
@@ -5037,8 +5002,8 @@ msgid ""
 "ARGUMENTS := [check]\n"
 "\n"
 "Get network connectivity state.\n"
-"The optional 'check' argument makes NetworkManager re-check the "
-"connectivity.\n"
+"The optional 'check' argument makes NetworkManager re-check the connectivity."
+"\n"
 "\n"
 msgstr ""
 "Usage: nmcli networking connectivity { ARGUMENTS | help }\n"
@@ -5046,8 +5011,8 @@ msgstr ""
 "ARGUMENTS := [check]\n"
 "\n"
 "Get network connectivity state.\n"
-"The optional 'check' argument makes NetworkManager re-check the "
-"connectivity.\n"
+"The optional 'check' argument makes NetworkManager re-check the connectivity."
+"\n"
 "\n"
 
 #: ../clients/cli/general.c:176
@@ -5335,11 +5300,12 @@ msgid ""
 "  -t[erse]                                   terse output\n"
 "  -p[retty]                                  pretty output\n"
 "  -m[ode] tabular|multiline                  output mode\n"
-"  -c[olors] auto|yes|no                      whether to use colors in "
-"output\n"
+"  -c[olors] auto|yes|no                      whether to use colors in output\n"
 "  -f[ields] <field1,field2,...>|all|common   specify fields to output\n"
 "  -e[scape] yes|no                           escape columns separators in "
 "values\n"
+"  -n[ocheck]                                 don't check nmcli and "
+"NetworkManager versions\n"
 "  -a[sk]                                     ask for missing parameters\n"
 "  -s[how-secrets]                            allow displaying passwords\n"
 "  -w[ait] <seconds>                          set timeout waiting for "
@@ -5366,6 +5332,8 @@ msgstr ""
 "  -f[ields] <field1,field2,...>|all|common   specify fields to output\n"
 "  -e[scape] yes|no                           escape columns separators in "
 "values\n"
+"  -n[ocheck]                                 don't check nmcli and "
+"NetworkManager versions\n"
 "  -a[sk]                                     ask for missing parameters\n"
 "  -w[ait] <seconds>                          set timeout waiting for "
 "finishing operations\n"
@@ -5439,11 +5407,9 @@ msgstr "錯誤：選項 '%s' 不明，請嚐試 'nmcli -help'。"
 
 #: ../clients/cli/nmcli.c:367 ../clients/cli/nmcli.c:377
 #, fuzzy, c-format
-msgid ""
-"\n"
+msgid "\n"
 "Error: nmcli terminated by signal %s (%d)\n"
-msgstr ""
-"\n"
+msgstr "\n"
 "錯誤：nmcli 已被訊號 %d 終止。"
 
 #: ../clients/cli/nmcli.c:408
@@ -5765,8 +5731,7 @@ msgstr ""
 
 #: ../clients/cli/settings.c:3044
 msgid ""
-"Enter a list of user permissions. This is a list of user names formatted "
-"as:\n"
+"Enter a list of user permissions. This is a list of user names formatted as:\n"
 "  [user:]<user name 1>, [user:]<user name 2>,...\n"
 "The items can be separated by commas or spaces.\n"
 "\n"
@@ -5810,8 +5775,7 @@ msgstr ""
 
 #: ../clients/cli/settings.c:3173
 msgid ""
-"Enter secondary connections that should be activated when this connection "
-"is\n"
+"Enter secondary connections that should be activated when this connection is\n"
 "activated. Connections can be specified either by UUID or ID (name). nmcli\n"
 "transparently translates names to UUIDs. Note that NetworkManager only "
 "supports\n"
@@ -5901,8 +5865,7 @@ msgstr ""
 msgid ""
 "Enter bytes as a list of hexadecimal values.\n"
 "Two formats are accepted:\n"
-"(a) a string of hexadecimal digits, where each two digits represent one "
-"byte\n"
+"(a) a string of hexadecimal digits, where each two digits represent one byte\n"
 "(b) space-separated list of bytes written as hexadecimal digits (with "
 "optional 0x/0X prefix, and optional leading 0).\n"
 "\n"
@@ -5912,8 +5875,7 @@ msgstr ""
 "以十六進位的值來輸入位元組。\n"
 "接受的格式有兩種：\n"
 "(a) 十六進位數字字串，每兩個數字代表一個位元組\n"
-"(b) 以空格區隔開來的一列十六進位數字位元組清單（包含選用性的 0x/0x 前綴以及選"
-"用性的前置 0）。\n"
+"(b) 以空格區隔開來的一列十六進位數字位元組清單（包含選用性的 0x/0x 前綴以及選用性的前置 0）。\n"
 "\n"
 "範例：ab0455a6ea3a74C2\n"
 "          ab 4 55 0xa6 ea 3a 74 C2\n"
@@ -5979,8 +5941,7 @@ msgid ""
 "Enter a list of IPv4 addresses of DNS servers.\n"
 "\n"
 "Example: 8.8.8.8, 8.8.4.4\n"
-msgstr ""
-"輸入一列 DNS 伺服器的 IPv4 位址。\n"
+msgstr "輸入一列 DNS 伺服器的 IPv4 位址。\n"
 "\n"
 "範例：8.8.8.8, 8.8.4.4\n"
 
@@ -6060,10 +6021,9 @@ msgid ""
 "\n"
 "Example: 2607:f0d0:1002:51::4, 2607:f0d0:1002:51::1\n"
 msgstr ""
-"輸入一列 DNS 伺服器的 IPv6 位址。若 IPv6 配置方式為「auto」，這些 DNS 伺服器"
-"將會被附加至那些由自動配置所回傳的項目（若存在的話）。因為沒有上游網路，因此 "
-"DNS 伺服器不可搭配「shared」或是「link-local」IPv6 配置方式使用。在所有其它 "
-"IPv6 配置方式中，這些 DNS 伺服器會被作為此連線的唯一 DNS 伺服器使用。\n"
+"輸入一列 DNS 伺服器的 IPv6 位址。若 IPv6 配置方式為「auto」，這些 DNS "
+"伺服器將會被附加至那些由自動配置所回傳的項目（若存在的話）。因為沒有上游網路，因此 DNS 伺服器不可搭配「shared」或是「link-"
+"local」IPv6 配置方式使用。在所有其它 IPv6 配置方式中，這些 DNS 伺服器會被作為此連線的唯一 DNS 伺服器使用。\n"
 "\n"
 "範例：2607:f0d0:1002:51::4, 2607:f0d0:1002:51::1\n"
 
@@ -6080,8 +6040,8 @@ msgstr ""
 "  ip[/prefix] [gateway], ip[/prefix] [gateway],...\n"
 "遺失的前綴會被視為 128 這個前綴。\n"
 "\n"
-"範例：2607:f0d0:1002:51::4/64 2607:f0d0:1002:51::1, "
-"1050:0:0:0:5:600:300c:326b\n"
+"範例：2607:f0d0:1002:51::4/64 2607:f0d0:1002:51::1, 1050:0:0:0:5:600:300c:"
+"326b\n"
 
 #: ../clients/cli/settings.c:4426
 #, fuzzy
@@ -6136,8 +6096,7 @@ msgid ""
 "\"roundrobin\"}, \"ports\": {\"eth1\": {}, \"eth2\": {}} }\n"
 "          set team.config /etc/my-team.conf\n"
 msgstr ""
-"nmcli 能接受直接的 JSON 配置資料以及一組包含了配置的檔案名稱。當在第二種情況"
-"下時，檔案會被讀取並且內容會被放入此內容中。\n"
+"nmcli 能接受直接的 JSON 配置資料以及一組包含了配置的檔案名稱。當在第二種情況下時，檔案會被讀取並且內容會被放入此內容中。\n"
 "\n"
 "範例：set team.config { \"device\": \"team0\", \"runner\": {\"name\": "
 "\"roundrobin\"}, \"ports\": {\"eth1\": {}, \"eth2\": {}} }\n"
@@ -6155,7 +6114,8 @@ msgstr "索引「%d」不在 <0-%d> 的範圍內"
 #: ../clients/cli/settings.c:4645
 #, c-format
 msgid ""
-"Warning: only one mapping at a time is supported; taking the first one (%s)\n"
+"Warning: only one mapping at a time is supported; taking the first one "
+"(%s)\n"
 msgstr ""
 
 #: ../clients/cli/settings.c:4652
@@ -6169,8 +6129,10 @@ msgid "'%s' cannot be empty"
 msgstr "未設定 '%s' 選項"
 
 #: ../clients/cli/settings.c:4774 ../clients/cli/settings.c:4941
-#: ../libnm-core/nm-setting-wired.c:651 ../libnm-core/nm-setting-wireless.c:820
-#: ../libnm-core/nm-setting-wireless.c:832 ../libnm-util/nm-setting-wired.c:646
+#: ../libnm-core/nm-setting-wired.c:651
+#: ../libnm-core/nm-setting-wireless.c:820
+#: ../libnm-core/nm-setting-wireless.c:832
+#: ../libnm-util/nm-setting-wired.c:646
 #: ../libnm-util/nm-setting-wireless.c:859
 #: ../libnm-util/nm-setting-wireless.c:873
 #, c-format
@@ -6193,8 +6155,7 @@ msgid ""
 "Enter a list of subchannels (comma or space separated).\n"
 "\n"
 "Example: 0.0.0e20 0.0.0e21 0.0.0e22\n"
-msgstr ""
-"輸入一列三個頻道（以逗號或空格區隔開）。\n"
+msgstr "輸入一列三個頻道（以逗號或空格區隔開）。\n"
 "\n"
 "範例：0.0.0e20 0.0.0e21 0.0.0e22\n"
 
@@ -6209,8 +6170,7 @@ msgid ""
 "Enter a list of S/390 options formatted as:\n"
 "  option = <value>, option = <value>,...\n"
 "Valid options are: %s\n"
-msgstr ""
-"輸入一列 S/390 選項，格式為：\n"
+msgstr "輸入一列 S/390 選項，格式為：\n"
 "  option = <value>, option = <value>,...\n"
 "可用選項為：%s\n"
 
@@ -6270,9 +6230,7 @@ msgstr ""
 msgid ""
 "Enter the type of WEP keys. The accepted values are: 0 or unknown, 1 or key, "
 "and 2 or passphrase.\n"
-msgstr ""
-"輸入 WEP key 的類型。接受的值為：0 或 unknown、1 或 key，以及 2 或 "
-"passphrase。\n"
+msgstr "輸入 WEP key 的類型。接受的值為：0 或 unknown、1 或 key，以及 2 或 passphrase。\n"
 
 #: ../clients/cli/settings.c:5275
 #, c-format
@@ -6305,11 +6263,9 @@ msgstr "「%s」不是組介於 0 和（包含）%u 之間的數字"
 
 #: ../clients/cli/settings.c:5410
 #, c-format
-msgid ""
-"Warning: changes will have no effect until '%s' includes 1 (enabled)\n"
+msgid "Warning: changes will have no effect until '%s' includes 1 (enabled)\n"
 "\n"
-msgstr ""
-"警告：在「%s」包含 1（啟用）之前，變更將不會生效\n"
+msgstr "警告：在「%s」包含 1（啟用）之前，變更將不會生效\n"
 "\n"
 
 #: ../clients/cli/settings.c:5463
@@ -6379,7 +6335,7 @@ msgstr "將 IP6 位址「%s」轉換為文字格式時發生了錯誤"
 
 #. Translators: the first %s is the partial value entered by
 #. * the user, the second %s a list of compatible values.
-#.
+#. 
 #: ../clients/cli/utils.c:546 ../clients/cli/utils.c:577
 #, fuzzy, c-format
 msgid "'%s' is ambiguous (%s)"
@@ -6424,6 +6380,20 @@ msgstr "選項 '--terse' 需指定 '--fields'"
 msgid "Option '--terse' requires specific '--fields' option values , not '%s'"
 msgstr "選項 '--terse' 需要特定的 '--fields' 選項值，而不是 '%s'"
 
+#: ../clients/cli/utils.c:1390
+#, c-format
+msgid ""
+"Warning: nmcli (%s) and NetworkManager (%s) versions don't match. Use --"
+"nocheck to suppress the warning.\n"
+msgstr "警告：nmcli（%s）和 NetworkManager（%s）的版本不符。請使用 --nocheck 來抑止警告訊息。\n"
+
+#: ../clients/cli/utils.c:1399
+#, c-format
+msgid ""
+"Error: nmcli (%s) and NetworkManager (%s) versions don't match. Force "
+"execution using --nocheck, but the results are unpredictable."
+msgstr "錯誤：nmcli（%s）和 NetworkManager（%s）的版本不符。請使用 --nocheck 來強制執行，不過結果無法預期。"
+
 #: ../clients/common/nm-polkit-listener.c:212
 msgid "An authentication session is already underway."
 msgstr ""
@@ -6431,7 +6401,7 @@ msgstr ""
 #. TTLS and PEAP are actually much more complicated, but this complication
 #. * is not visible here since we only care about phase2 authentication
 #. * (and don't even care of which one)
-#.
+#. 
 #: ../clients/common/nm-secret-agent-simple.c:223
 #: ../clients/common/nm-secret-agent-simple.c:328
 #: ../clients/tui/nmt-page-dsl.c:66 ../clients/tui/nmt-page-wifi.c:332
@@ -6650,7 +6620,7 @@ msgstr "DSL 連線 %d"
 
 #: ../clients/tui/nm-editor-utils.c:190 ../libnm-core/nm-connection.c:1708
 #: ../libnm-glib/nm-device.c:1863 ../libnm-util/nm-connection.c:1626
-#: ../libnm/nm-device.c:1814 ../src/settings/plugins/ifcfg-rh/reader.c:4190
+#: ../libnm/nm-device.c:1814 ../src/settings/plugins/ifcfg-rh/reader.c:4182
 msgid "Bond"
 msgstr "Bond"
 
@@ -6661,7 +6631,7 @@ msgstr "Bond 連線 %d"
 
 #: ../clients/tui/nm-editor-utils.c:199 ../libnm-core/nm-connection.c:1712
 #: ../libnm-glib/nm-device.c:1867 ../libnm-util/nm-connection.c:1630
-#: ../libnm/nm-device.c:1818 ../src/settings/plugins/ifcfg-rh/reader.c:4487
+#: ../libnm/nm-device.c:1818 ../src/settings/plugins/ifcfg-rh/reader.c:4479
 msgid "Bridge"
 msgstr "橋接"
 
@@ -6672,7 +6642,7 @@ msgstr "橋接連線 %d"
 
 #: ../clients/tui/nm-editor-utils.c:208 ../libnm-core/nm-connection.c:1710
 #: ../libnm-glib/nm-device.c:1865 ../libnm-util/nm-connection.c:1628
-#: ../libnm/nm-device.c:1816 ../src/settings/plugins/ifcfg-rh/reader.c:4296
+#: ../libnm/nm-device.c:1816 ../src/settings/plugins/ifcfg-rh/reader.c:4288
 msgid "Team"
 msgstr "Team"
 
@@ -7010,26 +6980,24 @@ msgid "Allowed authentication methods:"
 msgstr "身份認證"
 
 #: ../clients/tui/nmt-page-ppp.c:147
-#, fuzzy
 msgid "EAP"
-msgstr "LEAP"
+msgstr "EAP"
 
 #: ../clients/tui/nmt-page-ppp.c:155
-#, fuzzy
 msgid "PAP"
-msgstr "AP"
+msgstr "PAP"
 
 #: ../clients/tui/nmt-page-ppp.c:163
 msgid "CHAP"
-msgstr ""
+msgstr "CHAP"
 
 #: ../clients/tui/nmt-page-ppp.c:171
 msgid "MSCHAPv2"
-msgstr ""
+msgstr "MSCHAPv2"
 
 #: ../clients/tui/nmt-page-ppp.c:179
 msgid "MSCHAP"
-msgstr ""
+msgstr "MSCHAP"
 
 #: ../clients/tui/nmt-page-ppp.c:195
 msgid "Use point-to-point encryption (MPPE)"
@@ -7300,9 +7268,7 @@ msgstr "選擇您想要建立的連線類型。"
 msgid ""
 "If you are creating a VPN, and the VPN connection you wish to create does "
 "not appear in the list, you may not have the correct VPN plugin installed."
-msgstr ""
-"如果您要建立 VPN，但此 VPN 連線沒有出現在清單上，您可能尚未安裝正確的 VPN 外"
-"掛程式。"
+msgstr "如果您要建立 VPN，但此 VPN 連線沒有出現在清單上，您可能尚未安裝正確的 VPN 外掛程式。"
 
 #: ../clients/tui/nmtui-edit.c:411 ../clients/tui/nmtui-edit.c:427
 msgid "New Connection"
@@ -7713,11 +7679,12 @@ msgstr "無法刪除連線：%s"
 #: ../libnm-core/nm-setting-8021x.c:2560 ../libnm-core/nm-setting-8021x.c:2584
 #: ../libnm-core/nm-setting-8021x.c:2749 ../libnm-core/nm-setting-adsl.c:189
 #: ../libnm-core/nm-setting-bluetooth.c:120
-#: ../libnm-core/nm-setting-bluetooth.c:138 ../libnm-core/nm-setting-cdma.c:141
+#: ../libnm-core/nm-setting-bluetooth.c:138
+#: ../libnm-core/nm-setting-cdma.c:141
 #: ../libnm-core/nm-setting-connection.c:837
 #: ../libnm-core/nm-setting-connection.c:876
 #: ../libnm-core/nm-setting-connection.c:989
-#: ../libnm-core/nm-setting-ip-config.c:2162
+#: ../libnm-core/nm-setting-ip-config.c:2167
 #: ../libnm-core/nm-setting-olpc-mesh.c:120
 #: ../libnm-core/nm-setting-pppoe.c:142 ../libnm-core/nm-setting-vpn.c:419
 #: ../libnm-core/nm-setting-vxlan.c:360 ../libnm-core/nm-setting-wimax.c:126
@@ -7729,8 +7696,10 @@ msgstr "無法刪除連線：%s"
 #: ../libnm-util/nm-setting-8021x.c:2452 ../libnm-util/nm-setting-8021x.c:2464
 #: ../libnm-util/nm-setting-8021x.c:2482 ../libnm-util/nm-setting-8021x.c:2494
 #: ../libnm-util/nm-setting-8021x.c:2518 ../libnm-util/nm-setting-8021x.c:2680
-#: ../libnm-util/nm-setting-adsl.c:209 ../libnm-util/nm-setting-bluetooth.c:142
-#: ../libnm-util/nm-setting-bluetooth.c:160 ../libnm-util/nm-setting-cdma.c:162
+#: ../libnm-util/nm-setting-adsl.c:209
+#: ../libnm-util/nm-setting-bluetooth.c:142
+#: ../libnm-util/nm-setting-bluetooth.c:160
+#: ../libnm-util/nm-setting-cdma.c:162
 #: ../libnm-util/nm-setting-connection.c:768
 #: ../libnm-util/nm-setting-connection.c:784
 #: ../libnm-util/nm-setting-connection.c:845
@@ -7843,7 +7812,8 @@ msgstr ""
 msgid "ignoring invalid raw password"
 msgstr ""
 
-#: ../libnm-core/nm-keyfile-reader.c:892 ../libnm-core/nm-keyfile-reader.c:1058
+#: ../libnm-core/nm-keyfile-reader.c:892
+#: ../libnm-core/nm-keyfile-reader.c:1058
 #, c-format
 msgid "certificate or key file '%s' does not exist"
 msgstr ""
@@ -7960,9 +7930,10 @@ msgstr "解密私密金鑰失敗。"
 #: ../libnm-core/nm-setting-8021x.c:2591 ../libnm-core/nm-setting-adsl.c:196
 #: ../libnm-core/nm-setting-cdma.c:148 ../libnm-core/nm-setting-cdma.c:157
 #: ../libnm-core/nm-setting-connection.c:844
-#: ../libnm-core/nm-setting-connection.c:887 ../libnm-core/nm-setting-gsm.c:281
-#: ../libnm-core/nm-setting-gsm.c:338 ../libnm-core/nm-setting-gsm.c:375
-#: ../libnm-core/nm-setting-gsm.c:384 ../libnm-core/nm-setting-ip-config.c:2169
+#: ../libnm-core/nm-setting-connection.c:887
+#: ../libnm-core/nm-setting-gsm.c:281 ../libnm-core/nm-setting-gsm.c:338
+#: ../libnm-core/nm-setting-gsm.c:375 ../libnm-core/nm-setting-gsm.c:384
+#: ../libnm-core/nm-setting-ip-config.c:2174
 #: ../libnm-core/nm-setting-ip4-config.c:198
 #: ../libnm-core/nm-setting-ip4-config.c:205
 #: ../libnm-core/nm-setting-pppoe.c:149 ../libnm-core/nm-setting-pppoe.c:158
@@ -7978,8 +7949,9 @@ msgstr "解密私密金鑰失敗。"
 #: ../libnm-util/nm-setting-adsl.c:216 ../libnm-util/nm-setting-cdma.c:169
 #: ../libnm-util/nm-setting-cdma.c:178
 #: ../libnm-util/nm-setting-connection.c:775
-#: ../libnm-util/nm-setting-connection.c:852 ../libnm-util/nm-setting-gsm.c:282
-#: ../libnm-util/nm-setting-gsm.c:339 ../libnm-util/nm-setting-ip4-config.c:934
+#: ../libnm-util/nm-setting-connection.c:852
+#: ../libnm-util/nm-setting-gsm.c:282 ../libnm-util/nm-setting-gsm.c:339
+#: ../libnm-util/nm-setting-ip4-config.c:934
 #: ../libnm-util/nm-setting-ip4-config.c:943
 #: ../libnm-util/nm-setting-pppoe.c:170 ../libnm-util/nm-setting-pppoe.c:179
 #: ../libnm-util/nm-setting-vpn.c:432 ../libnm-util/nm-setting-vpn.c:442
@@ -8045,12 +8017,14 @@ msgstr "屬性不合規定"
 #: ../libnm-core/nm-setting-8021x.c:2783 ../libnm-core/nm-setting-8021x.c:2793
 #: ../libnm-core/nm-setting-8021x.c:2803 ../libnm-core/nm-setting-8021x.c:2813
 #: ../libnm-core/nm-setting-8021x.c:2823 ../libnm-core/nm-setting-adsl.c:208
-#: ../libnm-core/nm-setting-adsl.c:220 ../libnm-core/nm-setting-bluetooth.c:146
+#: ../libnm-core/nm-setting-adsl.c:220
+#: ../libnm-core/nm-setting-bluetooth.c:146
 #: ../libnm-core/nm-setting-wireless-security.c:870
 #: ../libnm-util/nm-setting-8021x.c:2714 ../libnm-util/nm-setting-8021x.c:2724
 #: ../libnm-util/nm-setting-8021x.c:2734 ../libnm-util/nm-setting-8021x.c:2744
 #: ../libnm-util/nm-setting-8021x.c:2754 ../libnm-util/nm-setting-adsl.c:228
-#: ../libnm-util/nm-setting-adsl.c:240 ../libnm-util/nm-setting-bluetooth.c:168
+#: ../libnm-util/nm-setting-adsl.c:240
+#: ../libnm-util/nm-setting-bluetooth.c:168
 #: ../libnm-util/nm-setting-wireless-security.c:900
 #, c-format
 msgid "'%s' is not a valid value for the property"
@@ -8320,56 +8294,56 @@ msgstr "無效的 IPv4 位址「%s」"
 msgid "Invalid IPv6 address '%s'"
 msgstr "無效的 IPv6 位址「%s」"
 
-#: ../libnm-core/nm-setting-ip-config.c:152
+#: ../libnm-core/nm-setting-ip-config.c:153
 #, fuzzy, c-format
 msgid "Invalid IPv4 address prefix '%u'"
 msgstr "無效的 IPv4 位址「%s」"
 
-#: ../libnm-core/nm-setting-ip-config.c:152
+#: ../libnm-core/nm-setting-ip-config.c:153
 #, fuzzy, c-format
 msgid "Invalid IPv6 address prefix '%u'"
 msgstr "無效的 IPv6 位址「%s」"
 
-#: ../libnm-core/nm-setting-ip-config.c:170
+#: ../libnm-core/nm-setting-ip-config.c:168
 #, fuzzy, c-format
 msgid "Invalid routing metric '%s'"
 msgstr "無效的單位「%s」"
 
-#: ../libnm-core/nm-setting-ip-config.c:2182
+#: ../libnm-core/nm-setting-ip-config.c:2187
 #, fuzzy, c-format
 msgid "%d. DNS server address is invalid"
 msgstr "%d。IPv4 位址不合規定"
 
-#: ../libnm-core/nm-setting-ip-config.c:2198
+#: ../libnm-core/nm-setting-ip-config.c:2203
 #, fuzzy, c-format
 msgid "%d. IP address is invalid"
 msgstr "%d。IPv4 位址不合規定"
 
-#: ../libnm-core/nm-setting-ip-config.c:2210
+#: ../libnm-core/nm-setting-ip-config.c:2215
 #, fuzzy, c-format
 msgid "%d. IP address has 'label' property with invalid type"
 msgstr "%d。IPv4 位址的前綴不合規定"
 
-#: ../libnm-core/nm-setting-ip-config.c:2219
+#: ../libnm-core/nm-setting-ip-config.c:2224
 #, fuzzy, c-format
 msgid "%d. IP address has invalid label '%s'"
 msgstr "%d。IPv4 位址的前綴不合規定"
 
-#: ../libnm-core/nm-setting-ip-config.c:2233
+#: ../libnm-core/nm-setting-ip-config.c:2238
 msgid "gateway cannot be set if there are no addresses configured"
 msgstr ""
 
-#: ../libnm-core/nm-setting-ip-config.c:2242
+#: ../libnm-core/nm-setting-ip-config.c:2247
 #, fuzzy
 msgid "gateway is invalid"
 msgstr "屬性不合規定"
 
-#: ../libnm-core/nm-setting-ip-config.c:2256
+#: ../libnm-core/nm-setting-ip-config.c:2261
 #, c-format
 msgid "%d. route is invalid"
 msgstr "%d。路徑不合規定"
 
-#: ../libnm-core/nm-setting-ip-config.c:2265
+#: ../libnm-core/nm-setting-ip-config.c:2270
 #, c-format
 msgid "%d. route cannot be a default route"
 msgstr ""
@@ -8702,37 +8676,37 @@ msgstr ""
 msgid "Could not find \"%s\" binary"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:132
+#: ../libnm-core/nm-vpn-editor-plugin.c:124
 #, c-format
 msgid "cannot load plugin %s"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:160
+#: ../libnm-core/nm-vpn-editor-plugin.c:150
 #, c-format
 msgid "cannot load VPN plugin in '%s': missing plugin name"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:167
+#: ../libnm-core/nm-vpn-editor-plugin.c:157
 #, c-format
 msgid "cannot load VPN plugin in '%s': invalid service name"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:183
+#: ../libnm-core/nm-vpn-editor-plugin.c:173
 #, c-format
 msgid "unknown error initializing plugin %s"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:195
+#: ../libnm-core/nm-vpn-editor-plugin.c:185
 #, c-format
 msgid "failed to load nm_vpn_editor_plugin_factory() from %s (%s)"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:256
+#: ../libnm-core/nm-vpn-editor-plugin.c:292
 #, c-format
 msgid "the plugin does not support import capability"
 msgstr ""
 
-#: ../libnm-core/nm-vpn-editor-plugin.c:276
+#: ../libnm-core/nm-vpn-editor-plugin.c:312
 #, c-format
 msgid "the plugin does not support export capability"
 msgstr ""
@@ -8818,7 +8792,7 @@ msgstr "USB"
 #. * "Ethernet"). You can change this to something like
 #. * "%2$s (%1$s)" if there's no grammatical way to combine
 #. * the strings otherwise.
-#.
+#. 
 #: ../libnm-glib/nm-device.c:2042 ../libnm-glib/nm-device.c:2061
 #: ../libnm/nm-device.c:1991 ../libnm/nm-device.c:2010
 #, c-format
@@ -9058,7 +9032,8 @@ msgid "The device is lacking WPA capabilities required by the connection."
 msgstr ""
 
 #: ../libnm/nm-device-wifi.c:638
-msgid "The device is lacking WPA2/RSN capabilities required by the connection."
+msgid ""
+"The device is lacking WPA2/RSN capabilities required by the connection."
 msgstr ""
 
 #: ../libnm/nm-device-wimax.c:317
@@ -9155,7 +9130,8 @@ msgid "Connection sharing via a protected WiFi network"
 msgstr "透過受保護的 WiFi 網路共享連線"
 
 #: ../policy/org.freedesktop.NetworkManager.policy.in.in.h:14
-msgid "System policy prevents sharing connections via a protected WiFi network"
+msgid ""
+"System policy prevents sharing connections via a protected WiFi network"
 msgstr "系統政策讓您無法透過受保護的 WiFi 網路共享連結"
 
 #: ../policy/org.freedesktop.NetworkManager.policy.in.in.h:15
@@ -9201,33 +9177,33 @@ msgid ""
 "configuration"
 msgstr "系統政策讓您無法修改永久的系統主機名稱"
 
-#: ../shared/nm-shared-utils.c:174
+#: ../shared/nm-shared-utils.c:208
 #, c-format
 msgid "object class '%s' has no property named '%s'"
 msgstr ""
 
-#: ../shared/nm-shared-utils.c:181
+#: ../shared/nm-shared-utils.c:215
 #, c-format
 msgid "property '%s' of object class '%s' is not writable"
 msgstr ""
 
-#: ../shared/nm-shared-utils.c:188
+#: ../shared/nm-shared-utils.c:222
 #, c-format
 msgid ""
 "construct property \"%s\" for object '%s' can't be set after construction"
 msgstr ""
 
-#: ../shared/nm-shared-utils.c:196
+#: ../shared/nm-shared-utils.c:230
 #, c-format
 msgid "'%s::%s' is not a valid property name; '%s' is not a GObject subtype"
 msgstr ""
 
-#: ../shared/nm-shared-utils.c:205
+#: ../shared/nm-shared-utils.c:239
 #, c-format
 msgid "unable to set property '%s' of type '%s' from value of type '%s'"
 msgstr ""
 
-#: ../shared/nm-shared-utils.c:216
+#: ../shared/nm-shared-utils.c:250
 #, c-format
 msgid ""
 "value \"%s\" of type '%s' is invalid or out of range for property '%s' of "
@@ -9250,25 +9226,25 @@ msgid "Failed to read configuration: %s\n"
 msgstr "無法讀取配置：（%d）%s\n"
 
 #. Logging/debugging
-#: ../src/main.c:234 ../src/nm-iface-helper.c:297
+#: ../src/main.c:234 ../src/nm-iface-helper.c:298
 msgid "Print NetworkManager version and exit"
 msgstr "印出 NetworkManager 的版本並退出"
 
-#: ../src/main.c:235 ../src/nm-iface-helper.c:298
+#: ../src/main.c:235 ../src/nm-iface-helper.c:299
 msgid "Don't become a daemon"
 msgstr "不要成為 daemon"
 
-#: ../src/main.c:236 ../src/nm-iface-helper.c:300
+#: ../src/main.c:236 ../src/nm-iface-helper.c:301
 #, c-format
 msgid "Log level: one of [%s]"
 msgstr "日誌等級：[%s] 之一"
 
-#: ../src/main.c:238 ../src/nm-iface-helper.c:302
+#: ../src/main.c:238 ../src/nm-iface-helper.c:303
 #, c-format
 msgid "Log domains separated by ',': any combination of [%s]"
 msgstr "以「,」區隔開來的日誌區域：任何 [%s] 的組合"
 
-#: ../src/main.c:240 ../src/nm-iface-helper.c:304
+#: ../src/main.c:240 ../src/nm-iface-helper.c:305
 msgid "Make all warnings fatal"
 msgstr "使所有警告表示嚴重錯誤"
 
@@ -9291,18 +9267,17 @@ msgid ""
 "chooses the best connection to use.  It also allows the user to\n"
 "specify wireless access points which wireless cards in the computer\n"
 "should associate with."
-msgstr ""
-"NetworkManager 會監控所有網路連線並自動\n"
+msgstr "NetworkManager 會監控所有網路連線並自動\n"
 "選擇最佳的連線。它也能允許使用者指定\n"
 "電腦中的無線網路卡應與哪個\n"
 "無線存取點相聯。"
 
-#: ../src/main.c:343 ../src/main-utils.c:269 ../src/nm-iface-helper.c:392
+#: ../src/main.c:343 ../src/main-utils.c:269 ../src/nm-iface-helper.c:393
 #, c-format
 msgid "%s.  Please use --help to see a list of valid options.\n"
 msgstr "%s。請使用 --help 來查看有效選項的清單。\n"
 
-#: ../src/main.c:348 ../src/nm-iface-helper.c:397
+#: ../src/main.c:348 ../src/nm-iface-helper.c:398
 #, c-format
 msgid "Ignoring unrecognized log domain(s) '%s' passed on command line.\n"
 msgstr "即將忽略傳送至指令列上的日誌區域「%s」。\n"
@@ -9317,7 +9292,7 @@ msgstr "配置檔案錯誤：%s。\n"
 msgid "Ignoring unrecognized log domain(s) '%s' from config files.\n"
 msgstr "正在忽略來自於配置檔案中無法辨識的日誌區域「%s」。\n"
 
-#: ../src/main.c:389 ../src/nm-iface-helper.c:407
+#: ../src/main.c:389 ../src/nm-iface-helper.c:408
 #, c-format
 msgid "Could not daemonize: %s [error %u]\n"
 msgstr "無法成為 daemon：%s [error %u]\n"
@@ -9358,11 +9333,9 @@ msgstr "# Created by NetworkManager\n"
 
 #: ../src/dhcp-manager/nm-dhcp-dhclient-utils.c:220
 #, c-format
-msgid ""
-"# Merged from %s\n"
+msgid "# Merged from %s\n"
 "\n"
-msgstr ""
-"# Merged from %s\n"
+msgstr "# Merged from %s\n"
 "\n"
 
 #: ../src/devices/adsl/nm-device-adsl.c:133
@@ -9414,7 +9387,7 @@ msgstr ""
 
 #: ../src/devices/bluetooth/nm-device-bt.c:336
 #: ../src/devices/nm-device-ethernet.c:1415
-#: ../src/devices/nm-device-infiniband.c:192
+#: ../src/devices/nm-device-infiniband.c:193
 #: ../src/devices/wifi/nm-device-wifi.c:872
 #, fuzzy
 msgid "connection does not match device"
@@ -9445,7 +9418,7 @@ msgstr "有線連線 %d"
 msgid "Wired connection %d"
 msgstr "有線連線 %d"
 
-#: ../src/devices/nm-device-infiniband.c:174
+#: ../src/devices/nm-device-infiniband.c:175
 #, fuzzy
 msgid "InfiniBand connection"
 msgstr "InfiniBand 連線 %d"
@@ -9455,7 +9428,7 @@ msgstr "InfiniBand 連線 %d"
 msgid "IP tunnel connection"
 msgstr "編輯連線"
 
-#: ../src/devices/nm-device-macvlan.c:428
+#: ../src/devices/nm-device-macvlan.c:435
 #, fuzzy
 msgid "MACVLAN connection"
 msgstr "VLAN 連線 %d"
@@ -9465,7 +9438,7 @@ msgstr "VLAN 連線 %d"
 msgid "TUN connection"
 msgstr "DUN 連線 %d"
 
-#: ../src/devices/nm-device-vlan.c:447
+#: ../src/devices/nm-device-vlan.c:457
 #, fuzzy
 msgid "VLAN connection"
 msgstr "VLAN 連線 %d"
@@ -9680,7 +9653,7 @@ msgstr "外掛程式清單，以「,」區隔開。"
 msgid "Quit after initial configuration"
 msgstr "目前的 nmcli 配置：\n"
 
-#: ../src/nm-config.c:472 ../src/nm-iface-helper.c:299
+#: ../src/nm-config.c:472 ../src/nm-iface-helper.c:300
 msgid "Don't become a daemon, and log to stderr"
 msgstr "不要成為 daemon，並記錄至 stderr"
 
@@ -9698,115 +9671,115 @@ msgid "The expected start of the response"
 msgstr "預期的反應起始"
 
 #. Interface/IP config
-#: ../src/nm-iface-helper.c:280
+#: ../src/nm-iface-helper.c:281
 #, fuzzy
 msgid "The interface to manage"
 msgstr "父介面卡 [none]："
 
-#: ../src/nm-iface-helper.c:280
-msgid "eth0"
-msgstr ""
-
 #: ../src/nm-iface-helper.c:281
+msgid "eth0"
+msgstr "eth0"
+
+#: ../src/nm-iface-helper.c:282
 #, fuzzy
 msgid "Connection UUID"
 msgstr "連線"
 
-#: ../src/nm-iface-helper.c:281
+#: ../src/nm-iface-helper.c:282
 msgid "661e8cd0-b618-46b8-9dc9-31a52baaa16b"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:282
+#: ../src/nm-iface-helper.c:283
 msgid "Whether to manage IPv6 SLAAC"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:283
+#: ../src/nm-iface-helper.c:284
 msgid "Whether SLAAC must be successful"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:284
+#: ../src/nm-iface-helper.c:285
 msgid "Use an IPv6 temporary privacy address"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:285
+#: ../src/nm-iface-helper.c:286
 #, fuzzy
 msgid "Current DHCPv4 address"
 msgstr "複製的 MAC 位址"
 
-#: ../src/nm-iface-helper.c:286
+#: ../src/nm-iface-helper.c:287
 msgid "Whether DHCPv4 must be successful"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:287
+#: ../src/nm-iface-helper.c:288
 #, fuzzy
 msgid "Hex-encoded DHCPv4 client ID"
 msgstr "不支援的 DHCP 用戶端「%s」"
 
-#: ../src/nm-iface-helper.c:288
+#: ../src/nm-iface-helper.c:289
 msgid "Hostname to send to DHCP server"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:288
+#: ../src/nm-iface-helper.c:289
 msgid "barbar"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:289
+#: ../src/nm-iface-helper.c:290
 msgid "FQDN to send to DHCP server"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:289
+#: ../src/nm-iface-helper.c:290
 msgid "host.domain.org"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:290
+#: ../src/nm-iface-helper.c:291
 #, fuzzy
 msgid "Route priority for IPv4"
 msgstr "沒有可移除的優先順序"
 
-#: ../src/nm-iface-helper.c:290
-msgid "0"
-msgstr ""
-
 #: ../src/nm-iface-helper.c:291
+msgid "0"
+msgstr "0"
+
+#: ../src/nm-iface-helper.c:292
 #, fuzzy
 msgid "Route priority for IPv6"
 msgstr "沒有可移除的優先順序"
 
-#: ../src/nm-iface-helper.c:291
+#: ../src/nm-iface-helper.c:292
 msgid "1024"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:292
+#: ../src/nm-iface-helper.c:293
 msgid "Hex-encoded Interface Identifier"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:293
+#: ../src/nm-iface-helper.c:294
 msgid "IPv6 SLAAC address generation mode"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:294
+#: ../src/nm-iface-helper.c:295
 msgid ""
 "The logging backend configuration value. See logging.backend in "
 "NetworkManager.conf"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:314
+#: ../src/nm-iface-helper.c:315
 msgid ""
 "nm-iface-helper is a small, standalone process that manages a single network "
 "interface."
 msgstr ""
 
-#: ../src/nm-iface-helper.c:373
+#: ../src/nm-iface-helper.c:374
 #, c-format
 msgid "An interface name and UUID are required\n"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:379
+#: ../src/nm-iface-helper.c:380
 #, c-format
 msgid "Failed to find interface index for %s (%s)\n"
 msgstr ""
 
-#: ../src/nm-iface-helper.c:441
+#: ../src/nm-iface-helper.c:442
 #, c-format
 msgid "(%s): Invalid IID %s\n"
 msgstr ""
@@ -9821,7 +9794,7 @@ msgstr "不明日誌層級「%s」"
 msgid "Unknown log domain '%s'"
 msgstr "不明日誌網域「%s」"
 
-#: ../src/nm-manager.c:3625
+#: ../src/nm-manager.c:3635
 #, fuzzy
 msgid "VPN connection"
 msgstr "VPN 連線"
@@ -9833,393 +9806,3 @@ msgstr "NetworkManager 需要關閉網路"
 #: ../src/settings/plugins/ifcfg-rh/reader.c:108
 msgid "System"
 msgstr "系統"
-
-#, fuzzy
-#~ msgid "Error: unknown parameter: %s"
-#~ msgstr "不明的參數：%s\n"
-
-#, fuzzy
-#~ msgid "'%s' is not a valid powersave value"
-#~ msgstr "「%s」不是個有效的雙工值"
-
-#~ msgid "Failed to read configuration: (%d) %s\n"
-#~ msgstr "無法讀取配置：（%d）%s\n"
-
-#~ msgid "no usable DHCP client could be found."
-#~ msgstr "找不到可重複使用的 DHCP 用戶端。"
-
-#~ msgid "NOTE: the libc resolver may not support more than 3 nameservers."
-#~ msgstr "注意：libc 解析器不支援 3 個以上的名稱伺服器。"
-
-#~ msgid "The nameservers listed below may not be recognized."
-#~ msgstr "下面列出的名稱伺服器可能不會被辨識。"
-
-#~ msgid "invalid prefix '%s'; <1-128> allowed"
-#~ msgstr "無效的前綴「%s」；允許的值爲 <1-128>"
-
-#~ msgid "invalid prefix '%s'; <0-32> allowed"
-#~ msgstr "無效的前綴「%s」；允許的值爲 <0-32>"
-
-#~ msgid "invalid next hop address '%s'"
-#~ msgstr "無效的下個躍點位址「%s」"
-
-#~ msgid "invalid IPv6 route '%s'"
-#~ msgstr "無效的 IPv6 路由「%s」"
-
-#~ msgid "invalid prefix '%s'; <0-128> allowed"
-#~ msgstr "無效的前綴「%s」；允許的值爲 <0-128>"
-
-#~ msgid ""
-#~ "Usage: nmcli connection show { ARGUMENTS | help }\n"
-#~ "\n"
-#~ "ARGUMENTS := active [[id | uuid | path | apath] <ID>]\n"
-#~ "\n"
-#~ "Show connections which are currently used by a device to connect to a "
-#~ "network.\n"
-#~ "Without a parameter, all active connections are listed. When <ID> is "
-#~ "provided,\n"
-#~ "the connection details are displayed instead.\n"
-#~ "\n"
-#~ "ARGUMENTS := configured [[id | uuid | path] <ID>]\n"
-#~ "\n"
-#~ "Show in-memory and on-disk connections, some of which may also be active "
-#~ "if\n"
-#~ "a device is using that connection profile. Without a parameter, all "
-#~ "profiles\n"
-#~ "are listed. When <ID> is provided, the profile details are displayed "
-#~ "instead.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Usage: nmcli connection show { ARGUMENTS | help }\n"
-#~ "\n"
-#~ "ARGUMENTS := active [[id | uuid | path | apath] <ID>]\n"
-#~ "\n"
-#~ "Show connections which are currently used by a device to connect to a "
-#~ "network.\n"
-#~ "Without a parameter, all active connections are listed. When <ID> is "
-#~ "provided,\n"
-#~ "the connection details are displayed instead.\n"
-#~ "\n"
-#~ "ARGUMENTS := configured [[id | uuid | path] <ID>]\n"
-#~ "\n"
-#~ "Show in-memory and on-disk connections, some of which may also be active "
-#~ "if\n"
-#~ "a device is using that connection profile. Without a parameter, all "
-#~ "profiles\n"
-#~ "are listed. When <ID> is provided, the profile details are displayed "
-#~ "instead.\n"
-#~ "\n"
-
-#~ msgid ""
-#~ "Usage: nmcli connection modify { ARGUMENTS | help }\n"
-#~ "\n"
-#~ "ARGUMENTS := [id | uuid | path] <ID> <setting name>.<property name> "
-#~ "[<value>]\n"
-#~ "\n"
-#~ "Modify a single property in the connection profile.\n"
-#~ "The profile is identified by its name, UUID or D-Bus path.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Usage: nmcli connection modify { ARGUMENTS | help }\n"
-#~ "\n"
-#~ "ARGUMENTS := [id | uuid | path] <ID> <setting name>.<property name> "
-#~ "[<value>]\n"
-#~ "\n"
-#~ "Modify a single property in the connection profile.\n"
-#~ "The profile is identified by its name, UUID or D-Bus path.\n"
-#~ "\n"
-
-#~ msgid "Error: 'list configured': %s"
-#~ msgstr "錯誤：'list configured'：%s"
-
-#~ msgid "List of configured connections"
-#~ msgstr "已配置的連線清單"
-
-#~ msgid "Error: 'show configured': %s"
-#~ msgstr "錯誤：「show configured」：%s"
-
-#~ msgid "Error: 'list active': %s"
-#~ msgstr "錯誤：「list active」：%s"
-
-#~ msgid "List of active connections"
-#~ msgstr "啟用中的連線之清單"
-
-#~ msgid ""
-#~ "Error: Device '%s' is waiting for slaves before proceeding with "
-#~ "activation."
-#~ msgstr "錯誤：裝置「%s」正在等待 slave，以繼續進行啟用。"
-
-#~ msgid ""
-#~ "Error: 'mode': '%s' is not a valid InfiniBand transport mode [datagram, "
-#~ "connected]."
-#~ msgstr ""
-#~ "錯誤：「mode」：「%s」不是個有效的 InfiniBand 傳輸模式「datagram、"
-#~ "connected」。"
-
-#~ msgid "There are 3 optional arguments for '%s' connection type.\n"
-#~ msgstr "「%s」連線類型有三個選用性引數。\n"
-
-#~ msgid "Transport mode (datagram or connected) [datagram]: "
-#~ msgstr "傳輸模式（datagram 或是 connected）[datagram]："
-
-#~ msgid ""
-#~ "There are 2 optional arguments for 'mobile broadband' connection type.\n"
-#~ msgstr "「行動寬頻」連線類型有兩個選用性引數。\n"
-
-#~ msgid "Bluetooth type (panu, dun-gsm or dun-cdma) [panu]: "
-#~ msgstr "藍牙類型（panu、dun-gsm 或是 dun-cdma）[panu]："
-
-#~ msgid "There are optional arguments for 'bond' connection type.\n"
-#~ msgstr "「bond」連線類型有選用性引數。\n"
-
-#~ msgid "Bonding monitoring mode (miimon or arp) [miimon]: "
-#~ msgstr "Bonding 監控模式（miimon 或是 arp）[miimon]："
-
-#~ msgid "There are 6 optional arguments for 'bridge' connection type.\n"
-#~ msgstr "「bridge」連線類型有六個選用性引數。\n"
-
-#~ msgid "Error: 'stp': '%s'.\n"
-#~ msgstr "錯誤：「stp」：「%s」。\n"
-
-#~ msgid "There are 3 optional arguments for 'bridge-slave' connection type.\n"
-#~ msgstr "「bridge-slave」連線類型有三個選用性引數。\n"
-
-#~ msgid "Hairpin (yes/no) [yes]: "
-#~ msgstr "Hairpin（yes/no）[yes]："
-
-#~ msgid "Error: 'hairpin': '%s'.\n"
-#~ msgstr "錯誤：「hairpin」：「%s」。\n"
-
-#~ msgid "There is 1 optional argument for 'VPN' connection type.\n"
-#~ msgstr "「VPN」連線類型有一項選用性引數。\n"
-
-#~ msgid ""
-#~ "Warning: 'type' is currently ignored. We only support ethernet slaves for "
-#~ "now.\n"
-#~ msgstr "警告：「type」目前已被忽略。我們目前僅支援乙太網路 slave。\n"
-
-#~ msgid "Team master: "
-#~ msgstr "Team master："
-
-#~ msgid "Bridge master: "
-#~ msgstr "Bridge master："
-
-#~ msgid ""
-#~ "save  :: save the connection\n"
-#~ "\n"
-#~ "Sends the connection to NetworkManager that will save it.\n"
-#~ msgstr ""
-#~ "save  :: 儲存連線\n"
-#~ "\n"
-#~ "將連線傳送至 NetworkManager，並將它儲存。\n"
-
-#~ msgid ""
-#~ "remove [<index>|<option>]  :: delete the value\n"
-#~ "\n"
-#~ "Removes the property value (sets it to default).\n"
-#~ msgstr ""
-#~ "remove [<index>|<option>]  :: 刪除值\n"
-#~ "\n"
-#~ "移除內容的值（將它設為預設值）。\n"
-
-#~ msgid "Error: bad color number: '%s'; use <0-8>\n"
-#~ msgstr "錯誤：顏色數字錯誤：「%s」；使用 <0-8>\n"
-
-#~ msgid ""
-#~ ">>> Command-line editing is not available. Consider installing a line "
-#~ "editing library to enable the feature. <<<\n"
-#~ "Supported libraries are:\n"
-#~ "  - GNU Readline    (libreadline) http://cnswww.cns.cwru.edu/php/chet/"
-#~ "readline/rltop.html\n"
-#~ "  - NetBSD Editline (libedit)     http://www.thrysoee.dk/editline/\n"
-#~ msgstr ""
-#~ ">>> 無法使用指令列編輯。請考慮安裝一項行列編輯函式庫，以啟用這項功能。"
-#~ "<<<\n"
-#~ "支援的函式庫有：\n"
-#~ "  - GNU Readline    (libreadline) http://cnswww.cns.cwru.edu/php/chet/"
-#~ "readline/rltop.html\n"
-#~ "  - NetBSD Editline (libedit)     http://www.thrysoee.dk/editline/\n"
-
-#~ msgid ""
-#~ "Error: 'configured' or 'active' command is expected for 'connection show'."
-#~ msgstr "錯誤：「connection show」預期「configured」或是「active」指令。"
-
-#~ msgid "Error: Can't obtain connections: settings service is not running."
-#~ msgstr "錯誤：無法取得連線：設定服務尚未執行。"
-
-#~ msgid "Home"
-#~ msgstr "Home"
-
-#~ msgid "Partner"
-#~ msgstr "Partner"
-
-#~ msgid "Roaming"
-#~ msgstr "Roaming"
-
-#~ msgid "Device '%s' has been disconnected.\n"
-#~ msgstr "裝置「%s」已斷線。\n"
-
-#~ msgid "WiMAX NSP list"
-#~ msgstr "WiMAX NSP 清單"
-
-#~ msgid "Error: 'device wimax': %s"
-#~ msgstr "錯誤：「device wimax」：%s"
-
-#~ msgid "Error: NSP with name '%s' not found."
-#~ msgstr "錯誤：找不到名稱爲「%s」的 NSP。"
-
-#~ msgid "Error: Device '%s' is not a WiMAX device."
-#~ msgstr "錯誤：裝置「%s」不是個 WiMAX 裝置。"
-
-#~ msgid "Error: Access point with nsp '%s' not found."
-#~ msgstr "錯誤：找不到 nsp 爲「%s」的存取點。"
-
-#~ msgid "Error: 'device wimax' command '%s' is not valid."
-#~ msgstr "錯誤：「device wimax」指令「%s」無效。"
-
-#~ msgid ""
-#~ "Usage: nmcli radio wimax { ARGUMENTS | help }\n"
-#~ "\n"
-#~ "ARGUMENTS := [on | off]\n"
-#~ "\n"
-#~ "Get status of WiMAX radio switch, or turn it on/off.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Usage: nmcli radio wimax { ARGUMENTS | help }\n"
-#~ "\n"
-#~ "ARGUMENTS := [on | off]\n"
-#~ "\n"
-#~ "Get status of WiMAX radio switch, or turn it on/off.\n"
-#~ "\n"
-
-#~ msgid "not running"
-#~ msgstr "非執行中"
-
-#~ msgid "Error: %s"
-#~ msgstr "錯誤：%s"
-
-#~ msgid "WiMAX radio switch"
-#~ msgstr "WiMAX radio 開關"
-
-#~ msgid "0 (unknown)"
-#~ msgstr "0（不明）"
-
-#~ msgid "any, "
-#~ msgstr "任何，"
-
-#~ msgid "900 MHz, "
-#~ msgstr "900 MHz, "
-
-#~ msgid "1800 MHz, "
-#~ msgstr "1800 MHz, "
-
-#~ msgid "1900 MHz, "
-#~ msgstr "1900 MHz, "
-
-#~ msgid "850 MHz, "
-#~ msgstr "850 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 2100 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 2100 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 1800 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 1800 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 1700/2100 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 1700/2100 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 800 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 800 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 850 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 850 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 900 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 900 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 1700 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 1700 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 1900 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 1900 MHz, "
-
-#~ msgid "WCDMA 3GPP UMTS 2600 MHz, "
-#~ msgstr "WCDMA 3GPP UMTS 2600 MHz, "
-
-#~ msgid "'%s' is not valid (use ip[/prefix] [gateway])"
-#~ msgstr "「%s」無效（請使用 ip[/prefix] [gateway]）"
-
-#~ msgid "'%s' is not valid (use <dest IP>/prefix <next-hop IP> [metric])"
-#~ msgstr "「%s」無效（請使用 <dest IP>/prefix <next-hop IP> [metric]）"
-
-#~ msgid "Failed to set symmetric key for decryption: %s / %s."
-#~ msgstr "設定解密用的對稱式金鑰失敗： %s / %s。"
-
-#~ msgid "Failed to set IV for decryption: %s / %s."
-#~ msgstr "設定解密用的 IV 失敗： %s / %s。"
-
-#~ msgid "Failed to set symmetric key for encryption: %s / %s."
-#~ msgstr "設定加密用的對稱式金鑰失敗： %s / %s。"
-
-#~ msgid "Failed to set IV for encryption: %s / %s."
-#~ msgstr "設定加密用的 IV 失敗： %s / %s。"
-
-#~ msgid "'%s' doesn't match the virtual interface name '%s'"
-#~ msgstr "'%s' 並不與虛擬介面名稱 '%s' 相符"
-
-#~ msgid "IPv4 configuration is not allowed for slave"
-#~ msgstr "slave 並不允許 IPv4 配置"
-
-#~ msgid "IPv6 configuration is not allowed for slave"
-#~ msgstr "slave 並不允許 IPv6 配置"
-
-#~ msgid "'%s' not allowed for %s=%s"
-#~ msgstr "'%s' 不能用於 %s=%s"
-
-#~ msgid "/path/to/state.file"
-#~ msgstr "/path/to/state.file"
-
-#~ msgid "GModules are not supported on your platform!\n"
-#~ msgstr "您的平台不支援 GModules！\n"
-
-#~ msgid "Invalid option.  Please use --help to see a list of valid options.\n"
-#~ msgstr "無效的選項。請使用 --help 來查看有效選項的清單。\n"
-
-#~ msgid "State file %s parsing failed: (%d) %s\n"
-#~ msgstr "狀態檔案 %s 叵析失敗：（%d）%s\n"
-
-#~ msgid "'dhclient' could be found."
-#~ msgstr "找不到「dhclient」。"
-
-#~ msgid "'dhcpcd' could be found."
-#~ msgstr "找不到「dhcpcd」。"
-
-#~ msgid "/path/to/config.file"
-#~ msgstr "/path/to/config.file"
-
-#~ msgid "/path/to/config/dir"
-#~ msgstr "/path/to/config/dir"
-
-#~ msgid "plugin1,plugin2"
-#~ msgstr "plugin1,plugin2"
-
-#~ msgid "Bingo!"
-#~ msgstr "正確！"
-
-#~ msgid "error occurred while waiting for data on socket"
-#~ msgstr "等待 socket 上的資料時發生錯誤"
-
-#~ msgid "error processing netlink message: %s"
-#~ msgstr "處理 netlink 訊息時發生錯誤：%s"
-
-#~ msgid "unable to connect to netlink for monitoring link status: %s"
-#~ msgstr "無法連結 netlink 以監控連線狀態：%s"
-
-#~ msgid "unable to enable netlink handle credential passing: %s"
-#~ msgstr "無法啟用 netlink handle credential passing：%s"
-
-#~ msgid "unable to allocate netlink handle for monitoring link status: %s"
-#~ msgstr "無法配置 netlink 處理器以監控連線狀態：%s"
-
-#~ msgid "unable to join netlink group: %s"
-#~ msgstr "無法加入 netlink 群組：%s"
