@@ -1,3 +1,21 @@
+network-manager (1.2.4-0ubuntu0.16.04.1) UNRELEASED; urgency=medium
+
+  * Rebase to upstream 1.2.4 release
+  * Patches merged upstream and dropped:
+    - 0001-dns-use-DBus-to-make-dnsmasq-nameserver-changes.patch
+    - Debian-specific-tweaks-for-NetworkManager-systemd-se.patch
+    - Don-t-block-network.target-on-NetworkManager-wait-on.patch
+    - cli-initialize-connection-list-in-do_device_connect.patch
+    - dnsmasq-vpn-dns-filtering.patch
+    - dont_mangle_bridges.patch
+    - libnm-don-t-require-initialized-out_encrypted-argume.patch
+    - lp1461593-add-modem-reconnect-delay-to-policy.patch
+    - lp1574347-re-read-link-type-if-the-name-changed.diff
+    - lp936712_dnsmasq_ip6_ns_ordering.patch
+  * Refreshed and updated remaining ones.
+
+ -- Aron Xu <happyaron@ubuntu.com>  Sun, 04 Dec 2016 18:09:41 +0800
+
 network-manager (1.2.2-0ubuntu0.16.04.3) xenial; urgency=medium
 
   * debian/tests/wpa-dhclient: Don't assume that the IPv6 prefix length from
