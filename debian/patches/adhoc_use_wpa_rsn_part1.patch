@@ -10,10 +10,10 @@ of wpa_supplicant that only affected WPA-None.
  src/settings/nm-settings.c        |   43 ----------------------------
  3 files changed, 105 deletions(-)
 
-Index: b/libnm-util/nm-utils.c
+Index: network-manager/libnm-util/nm-utils.c
 ===================================================================
---- a/libnm-util/nm-utils.c
-+++ b/libnm-util/nm-utils.c
+--- network-manager.orig/libnm-util/nm-utils.c
++++ network-manager/libnm-util/nm-utils.c
 @@ -735,8 +735,6 @@ nm_utils_security_valid (NMUtilsSecurity
  		}
  		break;
@@ -32,11 +32,11 @@ Index: b/libnm-util/nm-utils.c
  		if (!(wifi_caps & NM_WIFI_DEVICE_CAP_RSN))
  			return FALSE;
  		if (have_ap) {
-Index: b/src/devices/wifi/nm-device-wifi.c
+Index: network-manager/src/devices/wifi/nm-device-wifi.c
 ===================================================================
---- a/src/devices/wifi/nm-device-wifi.c
-+++ b/src/devices/wifi/nm-device-wifi.c
-@@ -510,36 +510,6 @@ deactivate (NMDevice *device)
+--- network-manager.orig/src/devices/wifi/nm-device-wifi.c
++++ network-manager/src/devices/wifi/nm-device-wifi.c
+@@ -511,36 +511,6 @@ deactivate (NMDevice *device)
  }
  
  static gboolean
@@ -73,7 +73,7 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  check_connection_compatible (NMDevice *device, NMConnection *connection)
  {
  	NMDeviceWifi *self = NM_DEVICE_WIFI (device);
-@@ -585,9 +555,6 @@ check_connection_compatible (NMDevice *d
+@@ -586,9 +556,6 @@ check_connection_compatible (NMDevice *d
  	} else if (mac)
  		return FALSE;
  
@@ -83,7 +83,7 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  	/* Early exit if supplicant or device doesn't support requested mode */
  	mode = nm_setting_wireless_get_mode (s_wireless);
  	if (g_strcmp0 (mode, NM_SETTING_WIRELESS_MODE_ADHOC) == 0) {
-@@ -828,21 +795,6 @@ complete_connection (NMDevice *device,
+@@ -830,21 +797,6 @@ complete_connection (NMDevice *device,
  		}
  	}
  
@@ -105,7 +105,7 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  	str_ssid = nm_utils_ssid_to_utf8 (ssid->data, ssid->len);
  
  	nm_utils_complete_generic (NM_PLATFORM_GET,
-@@ -2305,16 +2257,6 @@ act_stage1_prepare (NMDevice *device, NM
+@@ -2307,16 +2259,6 @@ act_stage1_prepare (NMDevice *device, NM
  	}
  	g_object_notify (G_OBJECT (self), NM_DEVICE_WIFI_MODE);
  
@@ -122,11 +122,11 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  	/* Set spoof MAC to the interface */
  	cloned_mac = nm_setting_wireless_get_cloned_mac_address (s_wireless);
  	nm_device_set_hw_addr (device, cloned_mac, "set", LOGD_WIFI);
-Index: b/src/settings/nm-settings.c
+Index: network-manager/src/settings/nm-settings.c
 ===================================================================
---- a/src/settings/nm-settings.c
-+++ b/src/settings/nm-settings.c
-@@ -1242,38 +1242,6 @@ pk_add_cb (NMAuthChain *chain,
+--- network-manager.orig/src/settings/nm-settings.c
++++ network-manager/src/settings/nm-settings.c
+@@ -1263,38 +1263,6 @@ pk_add_cb (NMAuthChain *chain,
  	nm_auth_chain_unref (chain);
  }
  
@@ -165,7 +165,7 @@ Index: b/src/settings/nm-settings.c
  void
  nm_settings_add_connection_dbus (NMSettings *self,
                                   NMConnection *connection,
-@@ -1303,17 +1271,6 @@ nm_settings_add_connection_dbus (NMSetti
+@@ -1324,17 +1292,6 @@ nm_settings_add_connection_dbus (NMSetti
  		goto done;
  	}
  

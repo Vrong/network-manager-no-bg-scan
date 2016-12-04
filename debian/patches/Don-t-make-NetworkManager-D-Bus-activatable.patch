@@ -9,10 +9,10 @@ to be autostarted by a client request.
  data/NetworkManager.service.in | 1 -
  2 files changed, 8 deletions(-)
 
-diff --git a/data/Makefile.am b/data/Makefile.am
-index ce059fc..4ab4106 100644
---- a/data/Makefile.am
-+++ b/data/Makefile.am
+Index: network-manager/data/Makefile.am
+===================================================================
+--- network-manager.orig/data/Makefile.am
++++ network-manager/data/Makefile.am
 @@ -19,13 +19,6 @@ endif
  NetworkManager-dispatcher.service: NetworkManager-dispatcher.service.in
  	$(edit) $< >$@
@@ -27,11 +27,11 @@ index ce059fc..4ab4106 100644
  install-exec-local:
  	install -d $(DESTDIR)$(systemdsystemunitdir)/network-online.target.wants
  	ln -sf $(systemdsystemunitdir)/NetworkManager-wait-online.service $(DESTDIR)$(systemdsystemunitdir)/network-online.target.wants
-diff --git a/data/NetworkManager.service.in b/data/NetworkManager.service.in
-index a974432..5a752b8 100644
---- a/data/NetworkManager.service.in
-+++ b/data/NetworkManager.service.in
-@@ -16,6 +16,5 @@ ProtectHome=read-only
+Index: network-manager/data/NetworkManager.service.in
+===================================================================
+--- network-manager.orig/data/NetworkManager.service.in
++++ network-manager/data/NetworkManager.service.in
+@@ -20,6 +20,5 @@ ProtectHome=read-only
  
  [Install]
  WantedBy=multi-user.target

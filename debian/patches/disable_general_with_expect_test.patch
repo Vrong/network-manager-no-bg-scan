@@ -5,11 +5,11 @@ Subject: Disable general-with-expect; which tends to fail on ppc64el and arm64.
  src/tests/Makefile.am |    1 -
  1 file changed, 1 deletion(-)
 
-Index: b/src/tests/Makefile.am
+Index: network-manager/src/tests/Makefile.am
 ===================================================================
---- a/src/tests/Makefile.am
-+++ b/src/tests/Makefile.am
-@@ -157,7 +157,6 @@ TESTS = \
+--- network-manager.orig/src/tests/Makefile.am
++++ network-manager/src/tests/Makefile.am
+@@ -158,7 +158,6 @@ TESTS = \
  	test-dcb \
  	test-resolvconf-capture \
  	test-general \

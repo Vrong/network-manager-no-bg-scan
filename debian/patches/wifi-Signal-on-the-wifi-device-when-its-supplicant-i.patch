@@ -14,10 +14,10 @@ Signed-off-by: Mathieu Trudel-Lapierre <mathieu.trudel-lapierre@canonical.com>
  src/supplicant-manager/nm-supplicant-interface.c |    2 +-
  4 files changed, 19 insertions(+), 1 deletion(-)
 
-Index: b/introspection/nm-device-wifi.xml
+Index: network-manager/introspection/nm-device-wifi.xml
 ===================================================================
---- a/introspection/nm-device-wifi.xml
-+++ b/introspection/nm-device-wifi.xml
+--- network-manager.orig/introspection/nm-device-wifi.xml
++++ network-manager/introspection/nm-device-wifi.xml
 @@ -120,5 +120,12 @@
      <signal name="AccessPointRemoved">
        <arg name="access_point" type="o"/>
@@ -31,11 +31,11 @@ Index: b/introspection/nm-device-wifi.xml
 +    <signal name="ScanDone"/>
    </interface>
  </node>
-Index: b/src/devices/wifi/nm-device-wifi.c
+Index: network-manager/src/devices/wifi/nm-device-wifi.c
 ===================================================================
---- a/src/devices/wifi/nm-device-wifi.c
-+++ b/src/devices/wifi/nm-device-wifi.c
-@@ -84,6 +84,7 @@ enum {
+--- network-manager.orig/src/devices/wifi/nm-device-wifi.c
++++ network-manager/src/devices/wifi/nm-device-wifi.c
+@@ -85,6 +85,7 @@ enum {
  	ACCESS_POINT_ADDED,
  	ACCESS_POINT_REMOVED,
  	SCANNING_ALLOWED,
@@ -43,7 +43,7 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  
  	LAST_SIGNAL
  };
-@@ -1363,6 +1364,7 @@ supplicant_iface_scan_done_cb (NMSupplic
+@@ -1365,6 +1366,7 @@ supplicant_iface_scan_done_cb (NMSupplic
  
  	_LOGD (LOGD_WIFI_SCAN, "scan %s", success ? "successful" : "failed");
  
@@ -51,7 +51,7 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  	priv->last_scan = nm_utils_get_monotonic_timestamp_s ();
  	schedule_scan (self, success);
  
-@@ -3082,6 +3084,14 @@ nm_device_wifi_class_init (NMDeviceWifiC
+@@ -3084,6 +3086,14 @@ nm_device_wifi_class_init (NMDeviceWifiC
  		              scanning_allowed_accumulator, NULL, NULL,
  		              G_TYPE_BOOLEAN, 0);
  
@@ -66,10 +66,10 @@ Index: b/src/devices/wifi/nm-device-wifi.c
  	nm_exported_object_class_add_interface (NM_EXPORTED_OBJECT_CLASS (klass),
  	                                        NMDBUS_TYPE_DEVICE_WIFI_SKELETON,
  	                                        "GetAccessPoints", impl_device_wifi_get_access_points,
-Index: b/src/devices/wifi/nm-device-wifi.h
+Index: network-manager/src/devices/wifi/nm-device-wifi.h
 ===================================================================
---- a/src/devices/wifi/nm-device-wifi.h
-+++ b/src/devices/wifi/nm-device-wifi.h
+--- network-manager.orig/src/devices/wifi/nm-device-wifi.h
++++ network-manager/src/devices/wifi/nm-device-wifi.h
 @@ -68,6 +68,7 @@ struct _NMDeviceWifiClass
  	void (*access_point_added)   (NMDeviceWifi *device, NMAccessPoint *ap);
  	void (*access_point_removed) (NMDeviceWifi *device, NMAccessPoint *ap);
@@ -78,10 +78,10 @@ Index: b/src/devices/wifi/nm-device-wifi.h
  };
  
  
-Index: b/src/supplicant-manager/nm-supplicant-interface.c
+Index: network-manager/src/supplicant-manager/nm-supplicant-interface.c
 ===================================================================
---- a/src/supplicant-manager/nm-supplicant-interface.c
-+++ b/src/supplicant-manager/nm-supplicant-interface.c
+--- network-manager.orig/src/supplicant-manager/nm-supplicant-interface.c
++++ network-manager/src/supplicant-manager/nm-supplicant-interface.c
 @@ -1334,8 +1334,8 @@ scan_request_cb (GDBusProxy *proxy, GAsy
  			g_dbus_error_strip_remote_error (error);
  			_LOGW ("could not get scan request result: %s", error->message);

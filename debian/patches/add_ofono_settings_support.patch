@@ -13,11 +13,11 @@ Subject: Let NetworkManager read oFono settings file and create connections
  src/settings/plugins/ofono/plugin.h              |   53 +
  9 files changed, 1267 insertions(+)
 
-Index: b/configure.ac
+Index: network-manager/configure.ac
 ===================================================================
---- a/configure.ac
-+++ b/configure.ac
-@@ -92,6 +92,7 @@ AC_ARG_ENABLE(ifcfg-rh, AS_HELP_STRING([
+--- network-manager.orig/configure.ac
++++ network-manager/configure.ac
+@@ -95,6 +95,7 @@ AC_ARG_ENABLE(ifcfg-rh, AS_HELP_STRING([
  AC_ARG_ENABLE(ifcfg-suse, AS_HELP_STRING([--enable-ifcfg-suse], [enable ifcfg-suse configuration plugin (SUSE) (deprecated)]))
  AC_ARG_ENABLE(ifupdown, AS_HELP_STRING([--enable-ifupdown], [enable ifupdown configuration plugin (Debian/Ubuntu)]))
  AC_ARG_ENABLE(ifnet, AS_HELP_STRING([--enable-ifnet], [enable ifnet configuration plugin (Gentoo)]))
@@ -25,7 +25,7 @@ Index: b/configure.ac
  # Default alternative plugins by distribution
  AS_IF([test -z "$enable_ifcfg_rh"], AC_CHECK_FILE(/etc/redhat-release, enable_ifcfg_rh=yes))
  AS_IF([test -z "$enable_ifcfg_rh"], AC_CHECK_FILE(/etc/fedora-release, enable_ifcfg_rh=yes))
-@@ -99,6 +100,8 @@ AS_IF([test -z "$enable_ifcfg_rh"], AC_C
+@@ -102,6 +103,8 @@ AS_IF([test -z "$enable_ifcfg_rh"], AC_C
  AS_IF([test -z "$enable_ifcfg_suse"], AC_CHECK_FILE(/etc/SuSE-release, enable_ifcfg_suse=yes))
  AS_IF([test -z "$enable_ifupdown"], AC_CHECK_FILE(/etc/debian_version, enable_ifupdown=yes))
  AS_IF([test -z "$enable_ifnet"], AC_CHECK_FILE(/etc/gentoo-release, enable_ifnet=yes))
@@ -34,7 +34,7 @@ Index: b/configure.ac
  # Otherwise plugins default to "no"
  AS_IF([test -z "$enable_ifcfg_rh"], enable_ifcfg_rh=no)
  AS_IF([test -z "$enable_ifcfg_suse"], enable_ifcfg_suse=no)
-@@ -111,6 +114,7 @@ AM_CONDITIONAL(CONFIG_PLUGIN_IBFT, test
+@@ -114,6 +117,7 @@ AM_CONDITIONAL(CONFIG_PLUGIN_IBFT, test
  AM_CONDITIONAL(CONFIG_PLUGIN_IFCFG_RH, test "$enable_ifcfg_rh" = "yes")
  AM_CONDITIONAL(CONFIG_PLUGIN_IFUPDOWN, test "$enable_ifupdown" = "yes")
  AM_CONDITIONAL(CONFIG_PLUGIN_IFNET, test "$enable_ifnet" = "yes")
@@ -42,7 +42,7 @@ Index: b/configure.ac
  
  AC_ARG_WITH(config-plugins-default, AS_HELP_STRING([--with-config-plugins-default=PLUGINS], [Default configuration option for main.plugins setting, used as fallback if the configuration option is unset]), [config_plugins_default="$withval"], [config_plugins_default=""])
  if test -z "$config_plugins_default" -o "$config_plugins_default" = no; then
-@@ -1032,6 +1036,7 @@ src/ppp-manager/Makefile
+@@ -1057,6 +1061,7 @@ src/ppp-manager/Makefile
  src/settings/plugins/Makefile
  src/settings/plugins/ifupdown/Makefile
  src/settings/plugins/ifupdown/tests/Makefile
@@ -50,7 +50,7 @@ Index: b/configure.ac
  src/settings/plugins/ifnet/Makefile
  src/settings/plugins/ifnet/tests/Makefile
  src/settings/plugins/ifcfg-rh/Makefile
-@@ -1162,6 +1167,7 @@ echo "  ibft: ${enable_config_plugin_ibf
+@@ -1183,6 +1188,7 @@ echo "  ibft: ${enable_config_plugin_ibf
  echo "  ifcfg-rh: ${enable_ifcfg_rh}"
  echo "  ifupdown: ${enable_ifupdown}"
  echo "  ifnet: ${enable_ifnet}"
@@ -58,10 +58,10 @@ Index: b/configure.ac
  echo
  
  echo "Handlers for /etc/resolv.conf:"
-Index: b/src/settings/plugins/Makefile.am
+Index: network-manager/src/settings/plugins/Makefile.am
 ===================================================================
---- a/src/settings/plugins/Makefile.am
-+++ b/src/settings/plugins/Makefile.am
+--- network-manager.orig/src/settings/plugins/Makefile.am
++++ network-manager/src/settings/plugins/Makefile.am
 @@ -17,3 +17,8 @@ endif
  if CONFIG_PLUGIN_IFNET
  SUBDIRS+=ifnet
@@ -71,10 +71,10 @@ Index: b/src/settings/plugins/Makefile.am
 +SUBDIRS+=ofono
 +endif
 +
-Index: b/src/settings/plugins/ofono/Makefile.am
+Index: network-manager/src/settings/plugins/ofono/Makefile.am
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/Makefile.am
++++ network-manager/src/settings/plugins/ofono/Makefile.am
 @@ -0,0 +1,34 @@
 +SUBDIRS = .
 +
@@ -110,10 +110,10 @@ Index: b/src/settings/plugins/ofono/Makefile.am
 +
 +libnm_settings_plugin_ofono_la_LDFLAGS = -module -avoid-version
 +libnm_settings_plugin_ofono_la_LIBADD = libofono-io.la
-Index: b/src/settings/plugins/ofono/nm-ofono-connection.c
+Index: network-manager/src/settings/plugins/ofono/nm-ofono-connection.c
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/nm-ofono-connection.c
++++ network-manager/src/settings/plugins/ofono/nm-ofono-connection.c
 @@ -0,0 +1,169 @@
 +/* -*- Mode: C; tab-width: 5; indent-tabs-mode: t; c-basic-offset: 5 -*- */
 +
@@ -284,10 +284,10 @@ Index: b/src/settings/plugins/ofono/nm-ofono-connection.c
 +						   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 +}
 +
-Index: b/src/settings/plugins/ofono/nm-ofono-connection.h
+Index: network-manager/src/settings/plugins/ofono/nm-ofono-connection.h
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/nm-ofono-connection.h
++++ network-manager/src/settings/plugins/ofono/nm-ofono-connection.h
 @@ -0,0 +1,54 @@
 +/* -*- Mode: C; tab-width: 5; indent-tabs-mode: t; c-basic-offset: 5 -*- */
 +
@@ -343,10 +343,10 @@ Index: b/src/settings/plugins/ofono/nm-ofono-connection.h
 +G_END_DECLS
 +
 +#endif /* NM_OFONO_CONNECTION_H */
-Index: b/src/settings/plugins/ofono/parser.c
+Index: network-manager/src/settings/plugins/ofono/parser.c
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/parser.c
++++ network-manager/src/settings/plugins/ofono/parser.c
 @@ -0,0 +1,121 @@
 +/* -*- Mode: C; tab-width: 5; indent-tabs-mode: t; c-basic-offset: 5 -*- */
 +
@@ -469,10 +469,10 @@ Index: b/src/settings/plugins/ofono/parser.c
 +	g_free (idstr);
 +	return success;
 +}
-Index: b/src/settings/plugins/ofono/parser.h
+Index: network-manager/src/settings/plugins/ofono/parser.h
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/parser.h
++++ network-manager/src/settings/plugins/ofono/parser.h
 @@ -0,0 +1,36 @@
 +/* -*- Mode: C; tab-width: 5; indent-tabs-mode: t; c-basic-offset: 5 -*- */
 +
@@ -510,10 +510,10 @@ Index: b/src/settings/plugins/ofono/parser.h
 +                                      GError **error);
 +
 +G_END_DECLS
-Index: b/src/settings/plugins/ofono/plugin.c
+Index: network-manager/src/settings/plugins/ofono/plugin.c
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/plugin.c
++++ network-manager/src/settings/plugins/ofono/plugin.c
 @@ -0,0 +1,789 @@
 +/* -*- Mode: C; tab-width: 4; indent-tabs-mode: t; c-basic-offset: 4 -*- */
 +
@@ -1304,10 +1304,10 @@ Index: b/src/settings/plugins/ofono/plugin.c
 +	return G_OBJECT (singleton);
 +}
 +
-Index: b/src/settings/plugins/ofono/plugin.h
+Index: network-manager/src/settings/plugins/ofono/plugin.h
 ===================================================================
 --- /dev/null
-+++ b/src/settings/plugins/ofono/plugin.h
++++ network-manager/src/settings/plugins/ofono/plugin.h
 @@ -0,0 +1,53 @@
 +/* -*- Mode: C; tab-width: 5; indent-tabs-mode: t; c-basic-offset: 5 -*- */
 +

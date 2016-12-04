@@ -14,11 +14,11 @@ Bug: https://bugs.launchpad.net/ubuntu/+source/network-manager/+bug/1445080
  src/devices/wwan/nm-device-modem.c |    7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
 
-Index: b/src/devices/wwan/nm-device-modem.c
+Index: network-manager/src/devices/wwan/nm-device-modem.c
 ===================================================================
---- a/src/devices/wwan/nm-device-modem.c
-+++ b/src/devices/wwan/nm-device-modem.c
-@@ -429,14 +429,15 @@ check_connection_available (NMDevice *de
+--- network-manager.orig/src/devices/wwan/nm-device-modem.c
++++ network-manager/src/devices/wwan/nm-device-modem.c
+@@ -428,14 +428,15 @@ check_connection_available (NMDevice *de
  		return FALSE;
  
  	state = nm_modem_get_state (priv->modem);
@@ -36,7 +36,7 @@ Index: b/src/devices/wwan/nm-device-modem.c
  	return TRUE;
  }
  
-@@ -617,7 +618,7 @@ is_available (NMDevice *device, NMDevice
+@@ -616,7 +617,7 @@ is_available (NMDevice *device, NMDevice
  
  	g_assert (priv->modem);
  	modem_state = nm_modem_get_state (priv->modem);

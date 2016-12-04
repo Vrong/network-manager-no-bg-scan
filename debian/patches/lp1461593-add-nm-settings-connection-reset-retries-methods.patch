@@ -12,11 +12,11 @@ Bug: https://bugs.launchpad.net/ubuntu/+source/network-manager/+bug/1461593
  src/settings/nm-settings-connection.h |    3 +++
  2 files changed, 19 insertions(+), 1 deletion(-)
 
-Index: b/src/settings/nm-settings-connection.c
+Index: network-manager/src/settings/nm-settings-connection.c
 ===================================================================
---- a/src/settings/nm-settings-connection.c
-+++ b/src/settings/nm-settings-connection.c
-@@ -126,6 +126,7 @@ typedef struct {
+--- network-manager.orig/src/settings/nm-settings-connection.c
++++ network-manager/src/settings/nm-settings-connection.c
+@@ -124,6 +124,7 @@ typedef struct {
  
  	int autoconnect_retries;
  	gint32 autoconnect_retry_time;
@@ -24,7 +24,7 @@ Index: b/src/settings/nm-settings-connection.c
  	NMDeviceStateReason autoconnect_blocked_reason;
  
  	char *filename;
-@@ -2410,7 +2411,8 @@ nm_settings_connection_set_autoconnect_r
+@@ -2402,7 +2403,8 @@ nm_settings_connection_set_autoconnect_r
  	if (retries)
  		priv->autoconnect_retry_time = 0;
  	else
@@ -34,7 +34,7 @@ Index: b/src/settings/nm-settings-connection.c
  }
  
  void
-@@ -2419,6 +2421,19 @@ nm_settings_connection_reset_autoconnect
+@@ -2411,6 +2413,19 @@ nm_settings_connection_reset_autoconnect
  	nm_settings_connection_set_autoconnect_retries (self, AUTOCONNECT_RETRIES_DEFAULT);
  }
  
@@ -54,18 +54,18 @@ Index: b/src/settings/nm-settings-connection.c
  gint32
  nm_settings_connection_get_autoconnect_retry_time (NMSettingsConnection *self)
  {
-@@ -2583,6 +2598,7 @@ nm_settings_connection_init (NMSettingsC
+@@ -2575,6 +2590,7 @@ nm_settings_connection_init (NMSettingsC
  
  	priv->autoconnect_retries = AUTOCONNECT_RETRIES_DEFAULT;
  	priv->autoconnect_blocked_reason = NM_DEVICE_STATE_REASON_NONE;
 +	priv->reset_retries_timeout = AUTOCONNECT_RESET_RETRIES_TIMER;
  
  	g_signal_connect (self, NM_CONNECTION_SECRETS_CLEARED, G_CALLBACK (secrets_cleared_cb), NULL);
- 	g_signal_connect (self, NM_CONNECTION_CHANGED, G_CALLBACK (changed_cb), GUINT_TO_POINTER (TRUE));
-Index: b/src/settings/nm-settings-connection.h
+ 	g_signal_connect (self, NM_CONNECTION_CHANGED, G_CALLBACK (connection_changed_cb), NULL);
+Index: network-manager/src/settings/nm-settings-connection.h
 ===================================================================
---- a/src/settings/nm-settings-connection.h
-+++ b/src/settings/nm-settings-connection.h
+--- network-manager.orig/src/settings/nm-settings-connection.h
++++ network-manager/src/settings/nm-settings-connection.h
 @@ -208,6 +208,9 @@ void nm_settings_connection_set_autoconn
                                                       int retries);
  void nm_settings_connection_reset_autoconnect_retries (NMSettingsConnection *self);
