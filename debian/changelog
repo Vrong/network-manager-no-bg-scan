@@ -1,6 +1,6 @@
 network-manager (1.2.4-0ubuntu0.16.04.1) UNRELEASED; urgency=medium
 
-  * Rebase to upstream 1.2.4 release
+  * Rebase to upstream 1.2.4 release (LP: #1645698)
   * Patches merged upstream and dropped:
     - 0001-dns-use-DBus-to-make-dnsmasq-nameserver-changes.patch
     - Debian-specific-tweaks-for-NetworkManager-systemd-se.patch
