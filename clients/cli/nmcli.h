@@ -63,10 +63,7 @@ typedef enum {
 	NMC_RESULT_ERROR_VERSIONS_MISMATCH = 9,
 
 	/* Connection/Device/AP not found */
-	NMC_RESULT_ERROR_NOT_FOUND = 10,
-
-	/* --complete-args signals a file name may follow */
-	NMC_RESULT_COMPLETE_FILE = 65,
+	NMC_RESULT_ERROR_NOT_FOUND = 10
 } NMCResultCode;
 
 typedef enum {
@@ -156,7 +153,6 @@ typedef struct _NmCli {
 	GPtrArray *output_data;                           /* GPtrArray of arrays of NmcOutputField structs - accumulates data for output */
 	NmcPrintFields print_fields;                      /* Structure with field indices to print */
 	gboolean ask;                                     /* Ask for missing parameters: option '--ask' */
-	gboolean complete;                                /* Autocomplete the command line */
 	gboolean show_secrets;                            /* Whether to display secrets (both input and output): option '--show-secrets' */
 	gboolean in_editor;                               /* Whether running the editor - nmcli con edit' */
 	gboolean editor_status_line;                      /* Whether to display status line in connection editor */

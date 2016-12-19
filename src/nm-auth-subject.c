@@ -37,6 +37,10 @@
 #include "nm-enum-types.h"
 #include "NetworkManagerUtils.h"
 
+G_DEFINE_TYPE (NMAuthSubject, nm_auth_subject, G_TYPE_OBJECT)
+
+#define NM_AUTH_SUBJECT_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), NM_TYPE_AUTH_SUBJECT, NMAuthSubjectPrivate))
+
 enum {
 	PROP_0,
 	PROP_SUBJECT_TYPE,
@@ -56,19 +60,6 @@ typedef struct {
 		char *dbus_sender;
 	} unix_process;
 } NMAuthSubjectPrivate;
-
-struct _NMAuthSubject {
-	GObject parent;
-	NMAuthSubjectPrivate _priv;
-};
-
-struct _NMAuthSubjectClass {
-	GObjectClass parent;
-};
-
-G_DEFINE_TYPE (NMAuthSubject, nm_auth_subject, G_TYPE_OBJECT)
-
-#define NM_AUTH_SUBJECT_GET_PRIVATE(self) _NM_GET_PRIVATE(self, NMAuthSubject, NM_IS_AUTH_SUBJECT)
 
 /**************************************************************/
 
@@ -261,7 +252,7 @@ nm_auth_subject_new_internal (void)
 static void
 get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 {
-	NMAuthSubjectPrivate *priv = NM_AUTH_SUBJECT_GET_PRIVATE ((NMAuthSubject *) object);
+	NMAuthSubjectPrivate *priv = NM_AUTH_SUBJECT_GET_PRIVATE (object);
 
 	switch (prop_id) {
 	case PROP_SUBJECT_TYPE:
@@ -285,7 +276,7 @@ get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 static void
 set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
-	NMAuthSubjectPrivate *priv = NM_AUTH_SUBJECT_GET_PRIVATE ((NMAuthSubject *) object);
+	NMAuthSubjectPrivate *priv = NM_AUTH_SUBJECT_GET_PRIVATE (object);
 	NMAuthSubjectType subject_type;
 	const char *str;
 	gulong id;
@@ -326,10 +317,8 @@ set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *p
 }
 
 static void
-_clear_private (NMAuthSubject *self)
+_clear_private (NMAuthSubjectPrivate *priv)
 {
-	NMAuthSubjectPrivate *priv = NM_AUTH_SUBJECT_GET_PRIVATE (self);
-
 	priv->subject_type = NM_AUTH_SUBJECT_TYPE_INVALID;
 	priv->unix_process.pid = G_MAXULONG;
 	priv->unix_process.uid = G_MAXULONG;
@@ -339,7 +328,7 @@ _clear_private (NMAuthSubject *self)
 static void
 nm_auth_subject_init (NMAuthSubject *self)
 {
-	_clear_private (self);
+	_clear_private (NM_AUTH_SUBJECT_GET_PRIVATE (self));
 }
 
 static void
@@ -374,7 +363,7 @@ constructed (GObject *object)
 			/* Is the process already gone? Then fail creation of the auth subject
 			 * by clearing the type. */
 			if (kill (priv->unix_process.pid, 0) != 0)
-				_clear_private (self);
+				_clear_private (priv);
 
 			/* Otherwise, although we didn't detect a start_time, the process is still around.
 			 * That could be due to procfs mounted with hidepid. So just accept the request.
@@ -389,14 +378,16 @@ constructed (GObject *object)
 		break;
 	}
 
-	_clear_private (self);
+	_clear_private (priv);
 	g_return_if_reached ();
 }
 
 static void
 finalize (GObject *object)
 {
-	_clear_private ((NMAuthSubject *) object);
+	NMAuthSubjectPrivate *priv = NM_AUTH_SUBJECT_GET_PRIVATE (object);
+
+	_clear_private (priv);
 
 	G_OBJECT_CLASS (nm_auth_subject_parent_class)->finalize (object);
 }
@@ -405,6 +396,8 @@ static void
 nm_auth_subject_class_init (NMAuthSubjectClass *config_class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (config_class);
+
+	g_type_class_add_private (config_class, sizeof (NMAuthSubjectPrivate));
 
 	/* virtual methods */
 	object_class->get_property = get_property;

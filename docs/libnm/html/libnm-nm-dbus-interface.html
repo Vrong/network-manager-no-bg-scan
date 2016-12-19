@@ -174,10 +174,6 @@
 </tr>
 <tr>
 <td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="libnm-nm-dbus-interface.html#NM-DBUS-INTERFACE-DEVICE-STATISTICS:CAPS" title="NM_DBUS_INTERFACE_DEVICE_STATISTICS">NM_DBUS_INTERFACE_DEVICE_STATISTICS</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="libnm-nm-dbus-interface.html#NM-DBUS-INTERFACE-SETTINGS:CAPS" title="NM_DBUS_INTERFACE_SETTINGS">NM_DBUS_INTERFACE_SETTINGS</a></td>
 </tr>
 <tr>
@@ -351,14 +347,6 @@
 <tr>
 <td class="datatype_keyword">enum</td>
 <td class="function_name"><a class="link" href="libnm-nm-dbus-interface.html#NMIPTunnelMode" title="enum NMIPTunnelMode">NMIPTunnelMode</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">enum</td>
-<td class="function_name"><a class="link" href="libnm-nm-dbus-interface.html#NMCheckpointCreateFlags" title="enum NMCheckpointCreateFlags">NMCheckpointCreateFlags</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">enum</td>
-<td class="function_name"><a class="link" href="libnm-nm-dbus-interface.html#NMRollbackResult" title="enum NMRollbackResult">NMRollbackResult</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -590,12 +578,6 @@
 <div class="refsect2">
 <a name="NM-DBUS-INTERFACE-DEVICE-IP-TUNNEL:CAPS"></a><h3>NM_DBUS_INTERFACE_DEVICE_IP_TUNNEL</h3>
 <pre class="programlisting">#define NM_DBUS_INTERFACE_DEVICE_IP_TUNNEL  NM_DBUS_INTERFACE_DEVICE ".IPTunnel"
-</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NM-DBUS-INTERFACE-DEVICE-STATISTICS:CAPS"></a><h3>NM_DBUS_INTERFACE_DEVICE_STATISTICS</h3>
-<pre class="programlisting">#define NM_DBUS_INTERFACE_DEVICE_STATISTICS NM_DBUS_INTERFACE_DEVICE ".Statistics"
 </pre>
 </div>
 <hr>
@@ -2413,85 +2395,6 @@ VPN plugin authentication dialogs.</p>
 </table></div>
 </div>
 <p class="since">Since: 1.2</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NMCheckpointCreateFlags"></a><h3>enum NMCheckpointCreateFlags</h3>
-<p>The flags for CheckpointCreate call</p>
-<div class="refsect3">
-<a name="NMCheckpointCreateFlags.members"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="300px" class="enum_members_name">
-<col class="enum_members_description">
-<col width="200px" class="enum_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="enum_member_name"><p><a name="NM-CHECKPOINT-CREATE-FLAG-NONE:CAPS"></a>NM_CHECKPOINT_CREATE_FLAG_NONE</p></td>
-<td class="enum_member_description">
-<p>no flags</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="NM-CHECKPOINT-CREATE-FLAG-DESTROY-ALL:CAPS"></a>NM_CHECKPOINT_CREATE_FLAG_DESTROY_ALL</p></td>
-<td class="enum_member_description">
-<p>when creating
-  a new checkpoint, destroy all existing ones.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p class="since">Since: 1.4</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NMRollbackResult"></a><h3>enum NMRollbackResult</h3>
-<p>The result of a checkpoint <code class="function">Rollback()</code> operation for a specific device.</p>
-<div class="refsect3">
-<a name="NMRollbackResult.members"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="300px" class="enum_members_name">
-<col class="enum_members_description">
-<col width="200px" class="enum_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="enum_member_name"><p><a name="NM-ROLLBACK-RESULT-OK:CAPS"></a>NM_ROLLBACK_RESULT_OK</p></td>
-<td class="enum_member_description">
-<p>the rollback succeeded.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="NM-ROLLBACK-RESULT-ERR-NO-DEVICE:CAPS"></a>NM_ROLLBACK_RESULT_ERR_NO_DEVICE</p></td>
-<td class="enum_member_description">
-<p>the device no longer exists.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="NM-ROLLBACK-RESULT-ERR-DEVICE-UNMANAGED:CAPS"></a>NM_ROLLBACK_RESULT_ERR_DEVICE_UNMANAGED</p></td>
-<td class="enum_member_description">
-<p>the device is now unmanaged.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="NM-ROLLBACK-RESULT-ERR-FAILED:CAPS"></a>NM_ROLLBACK_RESULT_ERR_FAILED</p></td>
-<td class="enum_member_description">
-<p>other errors during rollback.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p class="since">Since: 1.4</p>
 </div>
 </div>
 </div>

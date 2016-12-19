@@ -32,8 +32,6 @@ TESTS = test-dispatcher-envp
 endif
 
 EXTRA_DIST= \
-	dispatcher-connectivity-full \
-	dispatcher-connectivity-unknown \
 	dispatcher-down \
 	dispatcher-external \
 	dispatcher-up \

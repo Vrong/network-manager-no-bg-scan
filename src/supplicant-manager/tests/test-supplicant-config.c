@@ -35,7 +35,7 @@
 #include "nm-supplicant-config.h"
 #include "nm-supplicant-settings-verify.h"
 
-#include "nm-test-utils-core.h"
+#include "nm-test-utils.h"
 
 static gboolean
 validate_opt (const char *detail,
@@ -160,6 +160,8 @@ test_wifi_open (void)
 	g_assert (nm_supplicant_config_add_setting_wireless (config,
 	                                                     s_wifi,
 	                                                     0,
+	                                                     NM_SUPPLICANT_FEATURE_UNKNOWN,
+	                                                     NM_SETTING_MAC_RANDOMIZATION_DEFAULT,
 	                                                     &error));
 	g_assert_no_error (error);
 	g_test_assert_expected_messages ();
@@ -263,6 +265,8 @@ test_wifi_wep_key (const char *detail,
 	g_assert (nm_supplicant_config_add_setting_wireless (config,
 	                                                     s_wifi,
 	                                                     0,
+	                                                     NM_SUPPLICANT_FEATURE_UNKNOWN,
+	                                                     NM_SETTING_MAC_RANDOMIZATION_DEFAULT,
 	                                                     &error));
 	g_assert_no_error (error);
 	g_test_assert_expected_messages ();
@@ -406,6 +410,8 @@ test_wifi_wpa_psk (const char *detail,
 	g_assert (nm_supplicant_config_add_setting_wireless (config,
 	                                                     s_wifi,
 	                                                     0,
+	                                                     NM_SUPPLICANT_FEATURE_UNKNOWN,
+	                                                     NM_SETTING_MAC_RANDOMIZATION_DEFAULT,
 	                                                     &error));
 	g_assert_no_error (error);
 	g_test_assert_expected_messages ();
@@ -524,9 +530,9 @@ test_wifi_eap (void)
 	s_8021x = (NMSetting8021x *) nm_setting_802_1x_new ();
 	nm_connection_add_setting (connection, NM_SETTING (s_8021x));
 	nm_setting_802_1x_add_eap_method (s_8021x, "tls");
-	nm_setting_802_1x_set_client_cert (s_8021x, TEST_CERT_DIR "/test-cert.p12", NM_SETTING_802_1X_CK_SCHEME_PATH, NULL, NULL);
-	nm_setting_802_1x_set_ca_cert (s_8021x, TEST_CERT_DIR "/test-ca-cert.pem", NM_SETTING_802_1X_CK_SCHEME_PATH, NULL, NULL);
-	nm_setting_802_1x_set_private_key (s_8021x, TEST_CERT_DIR "/test-cert.p12", NULL, NM_SETTING_802_1X_CK_SCHEME_PATH, NULL, NULL);
+	nm_setting_802_1x_set_client_cert (s_8021x, TEST_CERT_DIR "test-cert.p12", NM_SETTING_802_1X_CK_SCHEME_PATH, NULL, NULL);
+	nm_setting_802_1x_set_ca_cert (s_8021x, TEST_CERT_DIR "test-ca-cert.pem", NM_SETTING_802_1X_CK_SCHEME_PATH, NULL, NULL);
+	nm_setting_802_1x_set_private_key (s_8021x, TEST_CERT_DIR "test-cert.p12", NULL, NM_SETTING_802_1X_CK_SCHEME_PATH, NULL, NULL);
 
 	/* IP4 setting */
 	s_ip4 = (NMSettingIPConfig *) nm_setting_ip4_config_new ();
@@ -551,6 +557,8 @@ test_wifi_eap (void)
 	g_assert (nm_supplicant_config_add_setting_wireless (config,
 	                                                     s_wifi,
 	                                                     0,
+	                                                     NM_SUPPLICANT_FEATURE_UNKNOWN,
+	                                                     NM_SETTING_MAC_RANDOMIZATION_DEFAULT,
 	                                                     &error));
 	g_assert_no_error (error);
 	g_test_assert_expected_messages ();

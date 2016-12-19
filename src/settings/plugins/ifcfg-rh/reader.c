@@ -20,8 +20,6 @@
 
 #include "nm-default.h"
 
-#include "reader.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -59,31 +57,35 @@
 #include "shvar.h"
 #include "utils.h"
 
-/*****************************************************************************/
+#include "reader.h"
 
-#define _NMLOG_DOMAIN      LOGD_SETTINGS
-#define _NMLOG_PREFIX_NAME "ifcfg-rh"
-#define _NMLOG(level, ...) \
-    G_STMT_START { \
-        nm_log ((level), (_NMLOG_DOMAIN), \
-                "%s" _NM_UTILS_MACRO_FIRST(__VA_ARGS__), \
-                _NMLOG_PREFIX_NAME": " \
-                _NM_UTILS_MACRO_REST(__VA_ARGS__)); \
-    } G_STMT_END
+#define PARSE_WARNING(msg...) nm_log_warn (LOGD_SETTINGS, "    " msg)
 
-#define PARSE_WARNING(...) _LOGW ("%s" _NM_UTILS_MACRO_FIRST(__VA_ARGS__), "    " _NM_UTILS_MACRO_REST(__VA_ARGS__))
+static gboolean
+get_int (const char *str, int *value)
+{
+	char *e;
+	long int tmp;
 
-/*****************************************************************************/
+	errno = 0;
+	tmp = strtol (str, &e, 0);
+	if (errno || *e != '\0' || tmp > G_MAXINT || tmp < G_MININT)
+		return FALSE;
+	*value = (int) tmp;
+	return TRUE;
+}
 
 static gboolean
 get_uint (const char *str, guint32 *value)
 {
-	gint64 tmp;
+	char *e;
+	long unsigned int tmp;
 
-	tmp = _nm_utils_ascii_str_to_int64 (str, 0, 0, G_MAXUINT32, -1);
-	if (tmp == -1)
+	errno = 0;
+	tmp = strtoul (str, &e, 0);
+	if (errno || *e != '\0')
 		return FALSE;
-	*value = tmp;
+	*value = (guint32) tmp;
 	return TRUE;
 }
 
@@ -128,7 +130,6 @@ make_connection_setting (const char *file,
 	NMSettingConnectionLldp lldp;
 	const char *ifcfg_name = NULL;
 	char *new_id, *uuid = NULL, *zone = NULL, *value;
-	gs_free char *stable_id = NULL;
 
 	ifcfg_name = utils_get_ifcfg_name (file, TRUE);
 	if (!ifcfg_name)
@@ -147,12 +148,9 @@ make_connection_setting (const char *file,
 		uuid = nm_utils_uuid_generate_from_string (ifcfg->fileName, -1, NM_UTILS_UUID_TYPE_LEGACY, NULL);
 	}
 
-	stable_id = svGetValue (ifcfg, "STABLE_ID", FALSE);
-
 	g_object_set (s_con,
 	              NM_SETTING_CONNECTION_TYPE, type,
 	              NM_SETTING_CONNECTION_UUID, uuid,
-	              NM_SETTING_CONNECTION_STABLE_ID, stable_id,
 	              NULL);
 	g_free (uuid);
 
@@ -244,12 +242,15 @@ make_connection_setting (const char *file,
 
 	value = svGetValue (ifcfg, "GATEWAY_PING_TIMEOUT", FALSE);
 	if (value) {
-		gint64 tmp;
+		long int tmp;
+		guint32 timeout;
 
-		tmp = _nm_utils_ascii_str_to_int64 (value, 10, 0, G_MAXINT32 - 1, -1);
-		if (tmp >= 0)
-			g_object_set (s_con, NM_SETTING_CONNECTION_GATEWAY_PING_TIMEOUT, (guint) tmp, NULL);
-		else
+		errno = 0;
+		tmp = strtol (value, NULL, 10);
+		if (errno == 0 && tmp >= 0 && tmp < G_MAXINT32) {
+			timeout = (guint32) tmp;
+			g_object_set (s_con, NM_SETTING_CONNECTION_GATEWAY_PING_TIMEOUT, timeout, NULL);
+		} else
 			PARSE_WARNING ("invalid GATEWAY_PING_TIMEOUT time");
 		g_free (value);
 	}
@@ -540,8 +541,7 @@ read_route_file_legacy (const char *filename, NMSettingIPConfig *s_ip4, GError *
 	char **lines = NULL, **iter;
 	GRegex *regex_to1, *regex_to2, *regex_via, *regex_metric;
 	GMatchInfo *match_info;
-	int prefix_int;
-	gint64 metric_int;
+	gint64 prefix_int, metric_int;
 	gboolean success = FALSE;
 
 	const char *pattern_empty = "^\\s*(\\#.*)?$";
@@ -609,8 +609,9 @@ read_route_file_legacy (const char *filename, NMSettingIPConfig *s_ip4, GError *
 		g_match_info_free (match_info);
 		prefix_int = 32;
 		if (prefix) {
-			prefix_int = _nm_utils_ascii_str_to_int64 (prefix, 10, 1, 32, -1);
-			if (prefix_int == -1) {
+			errno = 0;
+			prefix_int = strtol (prefix, NULL, 10);
+			if (errno || prefix_int <= 0 || prefix_int > 32) {
 				g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 				             "Invalid IP4 route destination prefix '%s'", prefix);
 				g_free (prefix);
@@ -640,8 +641,9 @@ read_route_file_legacy (const char *filename, NMSettingIPConfig *s_ip4, GError *
 		metric_int = -1;
 		if (g_match_info_matches (match_info)) {
 			metric = g_match_info_fetch (match_info, 1);
-			metric_int = _nm_utils_ascii_str_to_int64 (metric, 10, 0, G_MAXUINT32, -1);
-			if (metric_int == -1) {
+			errno = 0;
+			metric_int = strtol (metric, NULL, 10);
+			if (errno || metric_int < 0) {
 				g_match_info_free (match_info);
 				g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 				             "Invalid IP4 route metric '%s'", metric);
@@ -764,8 +766,7 @@ read_route6_file (const char *filename, NMSettingIPConfig *s_ip6, GError **error
 	GRegex *regex_to1, *regex_to2, *regex_via, *regex_metric;
 	GMatchInfo *match_info;
 	char *dest = NULL, *prefix = NULL, *next_hop = NULL, *metric = NULL;
-	int prefix_int;
-	gint64 metric_int;
+	gint64 prefix_int, metric_int;
 	gboolean success = FALSE;
 
 	const char *pattern_empty = "^\\s*(\\#.*)?$";
@@ -827,8 +828,9 @@ read_route6_file (const char *filename, NMSettingIPConfig *s_ip6, GError **error
 		g_match_info_free (match_info);
 		prefix_int = 128;
 		if (prefix) {
-			prefix_int = _nm_utils_ascii_str_to_int64 (prefix, 10, 1, 128, -1);
-			if (prefix_int == -1) {
+			errno = 0;
+			prefix_int = strtol (prefix, NULL, 10);
+			if (errno || prefix_int <= 0 || prefix_int > 128) {
 				g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 				             "Invalid IP6 route destination prefix '%s'", prefix);
 				g_free (dest);
@@ -862,8 +864,9 @@ read_route6_file (const char *filename, NMSettingIPConfig *s_ip6, GError **error
 		metric_int = -1;
 		if (g_match_info_matches (match_info)) {
 			metric = g_match_info_fetch (match_info, 1);
-			metric_int = _nm_utils_ascii_str_to_int64 (metric, 10, 0, G_MAXUINT32, -1);
-			if (metric_int == -1) {
+			errno = 0;
+			metric_int = strtol (metric, NULL, 10);
+			if (errno || metric_int < 0 || metric_int > G_MAXUINT32) {
 				g_match_info_free (match_info);
 				g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 				             "Invalid IP6 route metric '%s'", metric);
@@ -916,7 +919,6 @@ make_ip4_setting (shvarFile *ifcfg,
 	shvarFile *route_ifcfg;
 	gboolean never_default = FALSE;
 	gint64 timeout;
-	gint priority;
 
 	s_ip4 = (NMSettingIPConfig *) nm_setting_ip4_config_new ();
 
@@ -1139,13 +1141,6 @@ make_ip4_setting (shvarFile *ifcfg,
 	g_free (dns_options);
 	dns_options = NULL;
 
-	/* DNS priority */
-	priority = svGetValueInt64 (ifcfg, "IPV4_DNS_PRIORITY", 10, G_MININT32, G_MAXINT32, 0);
-	g_object_set (s_ip4,
-	              NM_SETTING_IP_CONFIG_DNS_PRIORITY,
-	              priority,
-	              NULL);
-
 	/* Static routes  - route-<name> file */
 	route_path = utils_get_route_path (ifcfg->fileName);
 
@@ -1328,7 +1323,6 @@ make_ip6_setting (shvarFile *ifcfg,
 	char *ipv6addr, *ipv6addr_secondaries;
 	char **list = NULL, **iter;
 	guint32 i;
-	gint priority;
 	shvarFile *network_ifcfg;
 	gboolean never_default = FALSE;
 	gboolean ip6_privacy = FALSE, ip6_privacy_prefer_public_ip;
@@ -1531,13 +1525,6 @@ make_ip6_setting (shvarFile *ifcfg,
 		              NULL);
 	}
 
-	/* IPv6 tokenized interface identifier */
-	tmp = svGetValue (ifcfg, "IPV6_TOKEN", FALSE);
-	if (tmp) {
-		g_object_set (s_ip6, NM_SETTING_IP6_CONFIG_TOKEN, tmp, NULL);
-		g_free (tmp);
-	}
-
 	/* DNS servers
 	 * Pick up just IPv6 addresses (IPv4 addresses are taken by make_ip4_setting())
 	 */
@@ -1585,13 +1572,6 @@ make_ip6_setting (shvarFile *ifcfg,
 	g_free (value);
 	g_free (dns_options);
 
-	/* DNS priority */
-	priority = svGetValueInt64 (ifcfg, "IPV6_DNS_PRIORITY", 10, G_MININT32, G_MAXINT32, 0);
-	g_object_set (s_ip6,
-	              NM_SETTING_IP_CONFIG_DNS_PRIORITY,
-	              priority,
-	              NULL);
-
 	return NM_SETTING (s_ip6);
 
 error:
@@ -1621,29 +1601,26 @@ check_if_bond_slave (shvarFile *ifcfg,
 	 */
 }
 
-static gboolean
+static void
 check_if_team_slave (shvarFile *ifcfg,
                      NMSettingConnection *s_con)
 {
-	gs_free char *value = NULL;
+	char *value;
 
+	value = svGetValue (ifcfg, "DEVICETYPE", FALSE);
+	if (!value)
+		return;
+	if (strcasecmp (value, TYPE_TEAM_PORT)) {
+		g_free (value);
+		return;
+	}
+	g_free (value);
 	value = svGetValue (ifcfg, "TEAM_MASTER", FALSE);
 	if (!value)
-		return FALSE;
+		return;
 	g_object_set (s_con, NM_SETTING_CONNECTION_MASTER, value, NULL);
 	g_object_set (s_con, NM_SETTING_CONNECTION_SLAVE_TYPE, NM_SETTING_TEAM_SETTING_NAME, NULL);
-	return TRUE;
-}
-
-static void
-check_if_slave (shvarFile *ifcfg,
-                NMSettingConnection *s_con)
-{
-	g_return_if_fail (NM_IS_SETTING_CONNECTION (s_con));
-
-	if (check_if_team_slave (ifcfg, s_con))
-		return;
-	check_if_bond_slave (ifcfg, s_con);
+	g_free (value);
 }
 
 typedef struct {
@@ -1704,9 +1681,10 @@ read_dcb_app (shvarFile *ifcfg,
 	tmp = g_strdup_printf ("DCB_APP_%s_PRIORITY", app);
 	val = svGetValue (ifcfg, tmp, FALSE);
 	if (val) {
-		priority = _nm_utils_ascii_str_to_int64 (val, 0, 0, 7, -1);
-		if (priority < 0) {
-			success = FALSE;
+		success = get_int (val, &priority);
+		if (success)
+			success = (priority >= 0 && priority <= 7);
+		if (!success) {
 			g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 			             "Invalid %s value '%s' (expected 0 - 7)",
 			             tmp, val);
@@ -1846,6 +1824,7 @@ read_dcb_percent_array (shvarFile *ifcfg,
 	char *val;
 	gboolean success = FALSE;
 	char **split = NULL, **iter;
+	int tmp;
 	guint i, sum = 0;
 
 	val = svGetValue (ifcfg, prop, FALSE);
@@ -1868,10 +1847,7 @@ read_dcb_percent_array (shvarFile *ifcfg,
 	}
 
 	for (iter = split, i = 0; iter && *iter; iter++, i++) {
-		int tmp;
-
-		tmp = _nm_utils_ascii_str_to_int64 (*iter, 0, 0, 100, -1);
-		if (tmp < 0) {
+		if (!get_int (*iter, &tmp) || tmp < 0 || tmp > 100) {
 			PARSE_WARNING ("invalid %s percentage value '%s'", prop, *iter);
 			g_set_error_literal (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 			                     "invalid percent element");
@@ -2193,7 +2169,7 @@ make_wep_setting (shvarFile *ifcfg,
 	char *value;
 	shvarFile *keys_ifcfg = NULL;
 	int default_key_idx = 0;
-	gboolean has_default_key = FALSE;
+	gboolean has_default_key = FALSE, success;
 	NMSettingSecretFlags key_flags;
 
 	s_wsec = NM_SETTING_WIRELESS_SECURITY (nm_setting_wireless_security_new ());
@@ -2201,17 +2177,18 @@ make_wep_setting (shvarFile *ifcfg,
 
 	value = svGetValue (ifcfg, "DEFAULTKEY", FALSE);
 	if (value) {
-		default_key_idx = _nm_utils_ascii_str_to_int64 (value, 0, 1, 4, 0);
-		if (default_key_idx == 0) {
+		success = get_int (value, &default_key_idx);
+		if (success && (default_key_idx >= 1) && (default_key_idx <= 4)) {
+			has_default_key = TRUE;
+			default_key_idx--;  /* convert to [0...3] */
+			g_object_set (s_wsec, NM_SETTING_WIRELESS_SECURITY_WEP_TX_KEYIDX, default_key_idx, NULL);
+		} else {
 			g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 			             "Invalid default WEP key '%s'", value);
-			g_free (value);
+	 		g_free (value);
 			goto error;
 		}
-		has_default_key = TRUE;
-		default_key_idx--;  /* convert to [0...3] */
-		g_object_set (s_wsec, NM_SETTING_WIRELESS_SECURITY_WEP_TX_KEYIDX, (guint) default_key_idx, NULL);
-		g_free (value);
+ 		g_free (value);
 	}
 
 	/* Read WEP key flags */
@@ -3160,6 +3137,14 @@ make_wpa_setting (shvarFile *ifcfg,
 		if (allow_rsn && svGetValueBoolean (ifcfg, "WPA_ALLOW_WPA2", TRUE))
 			nm_setting_wireless_security_add_proto (wsec, "rsn");
 
+		/* If neither WPA_ALLOW_WPA or WPA_ALLOW_WPA2 were present, default
+		 * to both WPA and RSN allowed.
+		 */
+		if (!allow_wpa && !allow_rsn && !ieee8021x) {
+			nm_setting_wireless_security_add_proto (wsec, "wpa");
+			nm_setting_wireless_security_add_proto (wsec, "rsn");
+		}
+
 		g_free (allow_wpa);
 		g_free (allow_rsn);
 	}
@@ -3204,12 +3189,6 @@ make_wpa_setting (shvarFile *ifcfg,
 		             "Unknown wireless KEY_MGMT type '%s'", value);
 		goto error;
 	}
-
-	g_free (value);
-
-	value = svGetValue (ifcfg, "SECURITYMODE", FALSE);
-	if (NM_IN_STRSET (value, NULL, "open"))
-		g_object_set (wsec, NM_SETTING_WIRELESS_SECURITY_AUTH_ALG, value, NULL);
 
 	g_free (value);
 	return (NMSetting *) wsec;
@@ -3369,10 +3348,6 @@ make_wireless_setting (shvarFile *ifcfg,
 		g_free (value);
 	}
 
-	value = svGetValue (ifcfg, "GENERATE_MAC_ADDRESS_MASK", FALSE);
-	g_object_set (s_wireless, NM_SETTING_WIRELESS_GENERATE_MAC_ADDRESS_MASK, value, NULL);
-	g_free (value);
-
 	value = svGetValue (ifcfg, "HWADDR_BLACKLIST", FALSE);
 	if (value) {
 		char **strv;
@@ -3514,16 +3489,17 @@ make_wireless_setting (shvarFile *ifcfg,
 
 	value = svGetValue (ifcfg, "MTU", FALSE);
 	if (value) {
-		int mtu;
+		long int mtu;
 
-		mtu = _nm_utils_ascii_str_to_int64 (value, 10, 0, 50000, -1);
-		if (mtu == -1) {
+		errno = 0;
+		mtu = strtol (value, NULL, 10);
+		if (errno || mtu < 0 || mtu > 50000) {
 			g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 			             "Invalid wireless MTU '%s'", value);
 			g_free (value);
 			goto error;
 		}
-		g_object_set (s_wireless, NM_SETTING_WIRELESS_MTU, (guint) mtu, NULL);
+		g_object_set (s_wireless, NM_SETTING_WIRELESS_MTU, (guint32) mtu, NULL);
 		g_free (value);
 	}
 
@@ -3785,19 +3761,20 @@ make_wired_setting (shvarFile *ifcfg,
 {
 	NMSettingWired *s_wired;
 	char *value = NULL;
+	int mtu;
 	char *nettype;
 
 	s_wired = NM_SETTING_WIRED (nm_setting_wired_new ());
 
 	value = svGetValue (ifcfg, "MTU", FALSE);
 	if (value) {
-		int mtu;
-
-		mtu = _nm_utils_ascii_str_to_int64 (value, 0, 0, 65535, -1);
-		if (mtu >= 0)
-			g_object_set (s_wired, NM_SETTING_WIRED_MTU, (guint) mtu, NULL);
-		else
+		if (get_int (value, &mtu)) {
+			if (mtu >= 0 && mtu < 65536)
+				g_object_set (s_wired, NM_SETTING_WIRED_MTU, mtu, NULL);
+		} else {
+			/* Shouldn't be fatal... */
 			PARSE_WARNING ("invalid MTU '%s'", value);
+		}
 		g_free (value);
 	}
 
@@ -3887,10 +3864,6 @@ make_wired_setting (shvarFile *ifcfg,
 		g_free (value);
 	}
 
-	value = svGetValue (ifcfg, "GENERATE_MAC_ADDRESS_MASK", FALSE);
-	g_object_set (s_wired, NM_SETTING_WIRED_GENERATE_MAC_ADDRESS_MASK, value, NULL);
-	g_free (value);
-
 	value = svGetValue (ifcfg, "HWADDR_BLACKLIST", FALSE);
 	if (value) {
 		char **strv;
@@ -3949,7 +3922,8 @@ wired_connection_from_ifcfg (const char *file,
 		g_object_unref (connection);
 		return NULL;
 	}
-	check_if_slave (ifcfg, (NMSettingConnection *) con_setting);
+	check_if_bond_slave (ifcfg, NM_SETTING_CONNECTION (con_setting));
+	check_if_team_slave (ifcfg, NM_SETTING_CONNECTION (con_setting));
 	nm_connection_add_setting (connection, con_setting);
 
 	wired_setting = make_wired_setting (ifcfg, file, &s_8021x, error);
@@ -3971,9 +3945,9 @@ parse_infiniband_p_key (shvarFile *ifcfg,
                         char **out_parent,
                         GError **error)
 {
-	char *device = NULL, *physdev = NULL, *pkey_id = NULL;
+	char *device = NULL, *physdev = NULL, *pkey_id = NULL, *end;
 	char *ifname = NULL;
-	int id;
+	guint32 id = G_MAXUINT32;
 	gboolean ret = FALSE;
 
 	device = svGetValue (ifcfg, "DEVICE", FALSE);
@@ -3994,14 +3968,19 @@ parse_infiniband_p_key (shvarFile *ifcfg,
 		goto done;
 	}
 
-	id = _nm_utils_ascii_str_to_int64 (pkey_id, 0, 0, 0xFFFF, -1);
-	if (id == -1) {
+	if (g_str_has_prefix (pkey_id, "0x"))
+		id = strtoul (pkey_id, &end, 16);
+	else if (!g_str_has_prefix (pkey_id, "0"))
+		id = strtoul (pkey_id, &end, 10);
+	else
+		end = pkey_id;
+	if (end == pkey_id || *end || id > 0xFFFF) {
 		PARSE_WARNING ("invalid InfiniBand PKEY_ID '%s'", pkey_id);
 		goto done;
 	}
 	id = (id | 0x8000);
 
-	ifname = g_strdup_printf ("%s.%04x", physdev, (unsigned) id);
+	ifname = g_strdup_printf ("%s.%04x", physdev, id);
 	if (strcmp (device, ifname) != 0) {
 		PARSE_WARNING ("InfiniBand DEVICE (%s) does not match PHYSDEV+PKEY_ID (%s)",
 		               device, ifname);
@@ -4033,18 +4012,19 @@ make_infiniband_setting (shvarFile *ifcfg,
 {
 	NMSettingInfiniband *s_infiniband;
 	char *value = NULL;
+	int mtu;
 
 	s_infiniband = NM_SETTING_INFINIBAND (nm_setting_infiniband_new ());
 
 	value = svGetValue (ifcfg, "MTU", FALSE);
 	if (value) {
-		int mtu;
-
-		mtu = _nm_utils_ascii_str_to_int64 (value, 0, 0, 65535, -1);
-		if (mtu >= 0)
-			g_object_set (s_infiniband, NM_SETTING_INFINIBAND_MTU, (guint) mtu, NULL);
-		else
+		if (get_int (value, &mtu)) {
+			if (mtu >= 0 && mtu < 65536)
+				g_object_set (s_infiniband, NM_SETTING_INFINIBAND_MTU, mtu, NULL);
+		} else {
+			/* Shouldn't be fatal... */
 			PARSE_WARNING ("invalid MTU '%s'", value);
+		}
 		g_free (value);
 	}
 
@@ -4099,7 +4079,8 @@ infiniband_connection_from_ifcfg (const char *file,
 		g_object_unref (connection);
 		return NULL;
 	}
-	check_if_slave (ifcfg, (NMSettingConnection *) con_setting);
+	check_if_bond_slave (ifcfg, NM_SETTING_CONNECTION (con_setting));
+	check_if_team_slave (ifcfg, NM_SETTING_CONNECTION (con_setting));
 	nm_connection_add_setting (connection, con_setting);
 
 	infiniband_setting = make_infiniband_setting (ifcfg, file, error);
@@ -4236,7 +4217,6 @@ bond_connection_from_ifcfg (const char *file,
 static char *
 read_team_config (shvarFile *ifcfg, const char *key, GError **error)
 {
-	gs_free_error GError *local_error = NULL;
 	char *value;
 	size_t l;
 
@@ -4257,12 +4237,6 @@ read_team_config (shvarFile *ifcfg, const char *key, GError **error)
 		return NULL;
 	}
 	svUnescape (value);
-
-	if (value && value[0] && !_nm_utils_check_valid_json (value, &local_error)) {
-		PARSE_WARNING ("ignoring invalid team configuration: %s", local_error->message);
-		g_clear_pointer (&value, g_free);
-	}
-
 	return value;
 }
 
@@ -4605,6 +4579,8 @@ is_bond_device (const char *name, shvarFile *parsed)
 
 	if (svGetValueBoolean (parsed, "BONDING_MASTER", FALSE))
 		return TRUE;
+	
+	/* XXX: Check for "bond[\d]+"? */
 
 	return FALSE;
 }
@@ -4672,14 +4648,16 @@ make_vlan_setting (shvarFile *ifcfg,
 	char *iface_name = NULL;
 	char *parent = NULL;
 	const char *p = NULL;
-	int vlan_id = -1;
+	char *end = NULL;
+	gint vlan_id = -1;
 	guint32 vlan_flags = 0;
 	gint gvrp, reorder_hdr;
 
 	value = svGetValue (ifcfg, "VLAN_ID", FALSE);
 	if (value) {
-		vlan_id = _nm_utils_ascii_str_to_int64 (value, 10, 0, 4095, -1);
-		if (vlan_id == -1) {
+		errno = 0;
+		vlan_id = (gint) g_ascii_strtoll (value, NULL, 10);
+		if (vlan_id < 0 || vlan_id > 4096 || errno) {
 			g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_INVALID_CONNECTION,
 			             "Invalid VLAN_ID '%s'", value);
 			g_free (value);
@@ -4723,13 +4701,12 @@ make_vlan_setting (shvarFile *ifcfg,
 		}
 
 		if (p) {
-			int device_vlan_id;
-
 			/* Grab VLAN ID from interface name; this takes precedence over the
 			 * separate VLAN_ID property for backwards compat.
 			 */
-			device_vlan_id = _nm_utils_ascii_str_to_int64 (p, 10, 0, 4095, -1);
-			if (device_vlan_id != -1)
+
+			gint device_vlan_id = (gint) g_ascii_strtoll (p, &end, 10);
+			if (device_vlan_id >= 0 && device_vlan_id <= 4095 && end != p && !*end)
 				vlan_id = device_vlan_id;
 		}
 	}
@@ -4820,7 +4797,8 @@ vlan_connection_from_ifcfg (const char *file,
 		g_object_unref (connection);
 		return NULL;
 	}
-	check_if_slave (ifcfg, (NMSettingConnection *) con_setting);
+	check_if_bond_slave (ifcfg, NM_SETTING_CONNECTION (con_setting));
+	check_if_team_slave (ifcfg, NM_SETTING_CONNECTION (con_setting));
 	nm_connection_add_setting (connection, con_setting);
 
 	vlan_setting = make_vlan_setting (ifcfg, file, error);
@@ -4851,7 +4829,7 @@ create_unhandled_connection (const char *filename, shvarFile *ifcfg,
 	NMSetting *s_con;
 	char *value;
 
-	nm_assert (out_spec && !*out_spec);
+	g_assert (out_spec != NULL);
 
 	connection = nm_simple_connection_new ();
 
@@ -4966,7 +4944,8 @@ connection_from_file_full (const char *filename,
 	const char *ifcfg_name = NULL;
 
 	g_return_val_if_fail (filename != NULL, NULL);
-	g_return_val_if_fail (out_unhandled && !*out_unhandled, NULL);
+	if (out_unhandled)
+		g_return_val_if_fail (*out_unhandled == NULL, NULL);
 
 	/* Non-NULL only for unit tests; normally use /etc/sysconfig/network */
 	if (!network_file)
@@ -4984,6 +4963,8 @@ connection_from_file_full (const char *filename,
 		return NULL;
 
 	if (!svGetValueBoolean (parsed, "NM_CONTROLLED", TRUE)) {
+		g_assert (out_unhandled != NULL);
+
 		connection = create_unhandled_connection (filename, parsed, "unmanaged", out_unhandled);
 		if (!connection)
 			g_set_error (error, NM_SETTINGS_ERROR, NM_SETTINGS_ERROR_FAILED,
@@ -5010,16 +4991,6 @@ connection_from_file_full (const char *filename,
 		else if (!strcasecmp (devtype, TYPE_TEAM_PORT))
 			type = g_strdup (TYPE_ETHERNET);
 		g_free (devtype);
-	}
-	if (!type) {
-		gs_free char *t = NULL;
-
-		/* Team and TeamPort types are also accepted by the mere
-		 * presense of TEAM_CONFIG/TEAM_MASTER. They don't require
-		 * DEVICETYPE. */
-		t = svGetValue (parsed, "TEAM_CONFIG", FALSE);
-		if (t)
-			type = g_strdup (TYPE_TEAM);
 	}
 
 	if (!type)
@@ -5146,6 +5117,8 @@ connection_from_file_full (const char *filename,
 	else if (!strcasecmp (type, TYPE_BRIDGE))
 		connection = bridge_connection_from_ifcfg (filename, parsed, error);
 	else {
+		g_assert (out_unhandled != NULL);
+
 		connection = create_unhandled_connection (filename, parsed, "unrecognized", out_unhandled);
 		if (!connection)
 			PARSE_WARNING ("connection type was unrecognized but device was not uniquely identified; device may be managed");

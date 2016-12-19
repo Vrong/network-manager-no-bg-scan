@@ -23,6 +23,8 @@
 
 #include "nm-device-generic.h"
 
+G_BEGIN_DECLS
+
 #define NM_TYPE_DEVICE_VXLAN            (nm_device_vxlan_get_type ())
 #define NM_DEVICE_VXLAN(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_DEVICE_VXLAN, NMDeviceVxlan))
 #define NM_DEVICE_VXLAN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  NM_TYPE_DEVICE_VXLAN, NMDeviceVxlanClass))
@@ -52,4 +54,6 @@ typedef NMDeviceClass NMDeviceVxlanClass;
 
 GType nm_device_vxlan_get_type (void);
 
-#endif /* __NETWORKMANAGER_DEVICE_VXLAN_H__ */
+G_END_DECLS
+
+#endif	/* NM_DEVICE_VXLAN_H */

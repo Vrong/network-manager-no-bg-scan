@@ -239,10 +239,7 @@ activate_connection (NMConnection *connection,
 			nm_secret_agent_simple_enable (NM_SECRET_AGENT_SIMPLE (agent),
 			                               nm_object_get_path (NM_OBJECT (connection)));
 		}
-		g_signal_connect (agent,
-		                  NM_SECRET_AGENT_SIMPLE_REQUEST_SECRETS,
-		                  G_CALLBACK (secrets_requested),
-		                  connection);
+		g_signal_connect (agent, "request-secrets", G_CALLBACK (secrets_requested), connection);
 	}
 
 	specific_object_path = specific_object ? nm_object_get_path (specific_object) : NULL;
@@ -381,7 +378,7 @@ listbox_active_changed (GObject    *object,
 }
 
 static NmtNewtForm *
-nmt_connect_connection_list (gboolean is_top)
+nmt_connect_connection_list (void)
 {
 	int screen_width, screen_height;
 	NmtNewtForm *form;
@@ -413,7 +410,7 @@ nmt_connect_connection_list (gboolean is_top)
 	listbox_active_changed (G_OBJECT (list), NULL, activate);
 	g_signal_connect (activate, "clicked", G_CALLBACK (activate_clicked), list);
 
-	quit = nmt_newt_button_box_add_end (NMT_NEWT_BUTTON_BOX (bbox), is_top ? _("Quit") : _("Back"));
+	quit = nmt_newt_button_box_add_end (NMT_NEWT_BUTTON_BOX (bbox), _("Quit"));
 	nmt_newt_widget_set_exit_on_activate (quit, TRUE);
 
 	nmt_newt_form_set_content (form, grid);
@@ -447,10 +444,10 @@ nmt_connect_connection (const char *identifier)
 }
 
 NmtNewtForm *
-nmtui_connect (gboolean is_top, int argc, char **argv)
+nmtui_connect (int argc, char **argv)
 {
 	if (argc == 2)
 		return nmt_connect_connection (argv[1]);
 	else
-		return nmt_connect_connection_list (is_top);
+		return nmt_connect_connection_list ();
 }

@@ -21,6 +21,8 @@
 
 #include "nmt-newt-widget.h"
 
+G_BEGIN_DECLS
+
 #define NMT_TYPE_NEWT_CONTAINER            (nmt_newt_container_get_type ())
 #define NMT_NEWT_CONTAINER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NMT_TYPE_NEWT_CONTAINER, NmtNewtContainer))
 #define NMT_NEWT_CONTAINER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), NMT_TYPE_NEWT_CONTAINER, NmtNewtContainerClass))
@@ -53,5 +55,7 @@ void           nmt_newt_container_remove       (NmtNewtContainer *container,
                                                 NmtNewtWidget    *widget);
 
 GSList        *nmt_newt_container_get_children (NmtNewtContainer *container);
+
+G_END_DECLS
 
 #endif /* NMT_NEWT_CONTAINER_H */

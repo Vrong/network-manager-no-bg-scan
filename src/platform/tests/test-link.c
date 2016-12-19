@@ -30,7 +30,7 @@
 #include "nm-platform-utils.h"
 
 #include "test-common.h"
-#include "nm-test-utils-core.h"
+#include "nm-test-utils.h"
 
 #define LO_INDEX 1
 #define LO_NAME "lo"
@@ -60,12 +60,16 @@ test_bogus(void)
 	g_assert (!nm_platform_link_get_type (NM_PLATFORM_GET, BOGUS_IFINDEX));
 	g_assert (!nm_platform_link_get_type_name (NM_PLATFORM_GET, BOGUS_IFINDEX));
 
+	g_test_expect_message ("NetworkManager", G_LOG_LEVEL_MESSAGE, "*failure changing link: *");
 	g_assert (!nm_platform_link_set_up (NM_PLATFORM_GET, BOGUS_IFINDEX, NULL));
 
+	g_test_expect_message ("NetworkManager", G_LOG_LEVEL_MESSAGE, "*failure changing link: *");
 	g_assert (!nm_platform_link_set_down (NM_PLATFORM_GET, BOGUS_IFINDEX));
 
+	g_test_expect_message ("NetworkManager", G_LOG_LEVEL_MESSAGE, "*failure changing link: *");
 	g_assert (!nm_platform_link_set_arp (NM_PLATFORM_GET, BOGUS_IFINDEX));
 
+	g_test_expect_message ("NetworkManager", G_LOG_LEVEL_MESSAGE, "*failure changing link: *");
 	g_assert (!nm_platform_link_set_noarp (NM_PLATFORM_GET, BOGUS_IFINDEX));
 
 	g_assert (!nm_platform_link_is_up (NM_PLATFORM_GET, BOGUS_IFINDEX));
@@ -76,6 +80,7 @@ test_bogus(void)
 	g_assert (!addrlen);
 	g_assert (!nm_platform_link_get_address (NM_PLATFORM_GET, BOGUS_IFINDEX, NULL));
 
+	g_test_expect_message ("NetworkManager", G_LOG_LEVEL_MESSAGE, "*failure changing link: *");
 	g_assert (!nm_platform_link_set_mtu (NM_PLATFORM_GET, BOGUS_IFINDEX, MTU));
 
 	g_assert (!nm_platform_link_get_mtu (NM_PLATFORM_GET, BOGUS_IFINDEX));
@@ -221,7 +226,7 @@ test_slave (int master, int type, SignalData *master_changed)
 	g_assert_cmpint (nm_platform_link_get_master (NM_PLATFORM_GET, ifindex), ==, master);
 
 	accept_signals (link_changed, 1, 3);
-	accept_signals (master_changed, 0, 2);
+	accept_signals (master_changed, 0, 1);
 
 	/* enslaveing brings put the slave */
 	if (NM_IN_SET (link_type, NM_LINK_TYPE_BOND, NM_LINK_TYPE_TEAM))
@@ -297,9 +302,9 @@ test_slave (int master, int type, SignalData *master_changed)
 	switch (type) {
 	case NM_LINK_TYPE_BRIDGE:
 		if (nmtstp_is_sysfs_writable ()) {
-			g_assert (nm_platform_sysctl_slave_set_option (NM_PLATFORM_GET, ifindex, "priority", "614"));
+			g_assert (nm_platform_sysctl_slave_set_option (NM_PLATFORM_GET, ifindex, "priority", "789"));
 			value = nm_platform_sysctl_slave_get_option (NM_PLATFORM_GET, ifindex, "priority");
-			g_assert_cmpstr (value, ==, "614");
+			g_assert_cmpstr (value, ==, "789");
 			g_free (value);
 		}
 		break;
@@ -398,9 +403,9 @@ test_software (NMLinkType link_type, const char *link_typename)
 	switch (link_type) {
 	case NM_LINK_TYPE_BRIDGE:
 		if (nmtstp_is_sysfs_writable ()) {
-			g_assert (nm_platform_sysctl_master_set_option (NM_PLATFORM_GET, ifindex, "forward_delay", "628"));
+			g_assert (nm_platform_sysctl_master_set_option (NM_PLATFORM_GET, ifindex, "forward_delay", "789"));
 			value = nm_platform_sysctl_master_get_option (NM_PLATFORM_GET, ifindex, "forward_delay");
-			g_assert_cmpstr (value, ==, "628");
+			g_assert_cmpstr (value, ==, "789");
 			g_free (value);
 		}
 		break;
@@ -510,13 +515,13 @@ test_bridge_addr (void)
 		g_assert (!nm_platform_link_get_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex));
 		g_assert_cmpint (_nm_platform_uint8_inv (plink->inet6_addr_gen_mode_inv), ==, NM_IN6_ADDR_GEN_MODE_EUI64);
 
-		g_assert (nm_platform_link_set_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex, TRUE) == NM_PLATFORM_ERROR_SUCCESS);
+		g_assert (nm_platform_link_set_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex, TRUE));
 		g_assert (nm_platform_link_get_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex));
 		plink = nm_platform_link_get (NM_PLATFORM_GET, link.ifindex);
 		g_assert (plink);
 		g_assert_cmpint (_nm_platform_uint8_inv (plink->inet6_addr_gen_mode_inv), ==, NM_IN6_ADDR_GEN_MODE_NONE);
 
-		g_assert (nm_platform_link_set_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex, FALSE) == NM_PLATFORM_ERROR_SUCCESS);
+		g_assert (nm_platform_link_set_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex, FALSE));
 		g_assert (!nm_platform_link_get_user_ipv6ll_enabled (NM_PLATFORM_GET, link.ifindex));
 		plink = nm_platform_link_get (NM_PLATFORM_GET, link.ifindex);
 		g_assert (plink);
@@ -567,7 +572,7 @@ test_internal (void)
 	g_assert (nm_platform_link_set_up (NM_PLATFORM_GET, ifindex, NULL));
 	g_assert (nm_platform_link_is_up (NM_PLATFORM_GET, ifindex));
 	g_assert (nm_platform_link_is_connected (NM_PLATFORM_GET, ifindex));
-	accept_signals (link_changed, 1, 2);
+	accept_signal (link_changed);
 	g_assert (nm_platform_link_set_down (NM_PLATFORM_GET, ifindex));
 	g_assert (!nm_platform_link_is_up (NM_PLATFORM_GET, ifindex));
 	g_assert (!nm_platform_link_is_connected (NM_PLATFORM_GET, ifindex));
@@ -587,7 +592,7 @@ test_internal (void)
 	g_assert (nm_platform_link_supports_vlans (NM_PLATFORM_GET, ifindex));
 
 	/* Set MAC address */
-	g_assert (nm_platform_link_set_address (NM_PLATFORM_GET, ifindex, mac, sizeof (mac)) == NM_PLATFORM_ERROR_SUCCESS);
+	g_assert (nm_platform_link_set_address (NM_PLATFORM_GET, ifindex, mac, sizeof (mac)));
 	address = nm_platform_link_get_address (NM_PLATFORM_GET, ifindex, &addrlen);
 	g_assert (addrlen == sizeof(mac));
 	g_assert (!memcmp (address, mac, addrlen));
@@ -773,31 +778,10 @@ test_software_detect (gconstpointer user_data)
 	}
 	case NM_LINK_TYPE_MACVLAN: {
 		NMPlatformLnkMacvlan lnk_macvlan = { };
-		const NMPlatformLink *dummy;
-		char buf[256];
-		int i;
 
 		lnk_macvlan.mode = MACVLAN_MODE_BRIDGE;
 		lnk_macvlan.no_promisc = FALSE;
 		lnk_macvlan.tap = FALSE;
-
-		/* Since in old kernel versions sysfs files for macvtaps are not
-		 * namespaced, the creation can fail if a macvtap in another namespace
-		 * has the same index. Try to detect this situation and skip already
-		 * used indexes.
-		 * http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=17af2bce88d31e65ed73d638bb752d2e13c66ced
-		 */
-		for (i = ifindex_parent + 1; i < ifindex_parent + 100; i++) {
-			snprintf (buf, sizeof (buf), "/sys/class/macvtap/tap%d", i);
-			if (!g_file_test (buf, G_FILE_TEST_IS_SYMLINK))
-				break;
-
-			_LOGD ("skipping ifindex %d as already used by a macvtap", i);
-
-			dummy = nmtstp_link_dummy_add (NM_PLATFORM_GET, FALSE, "dummy-tmp");
-			g_assert_cmpint (dummy->ifindex, ==, i);
-			nmtstp_link_del (NM_PLATFORM_GET, FALSE, dummy->ifindex, NULL);
-		}
 
 		if (!nmtstp_link_macvlan_add (NULL, ext, DEVICE_NAME, ifindex_parent, &lnk_macvlan))
 			g_error ("Failed adding MACVLAN interface");
@@ -1877,7 +1861,7 @@ _test_netns_setup (gpointer fixture, gconstpointer test_data)
 {
 	/* the singleton platform instance has netns support disabled.
 	 * Destroy the instance before the test and re-create it afterwards. */
-	g_object_unref (NM_PLATFORM_GET);
+	g_object_unref (nm_platform_get ());
 }
 
 static void
@@ -1935,14 +1919,6 @@ _test_netns_check_skip (void)
 
 /******************************************************************/
 
-#define _sysctl_assert_eq(plat, path, value) \
-	G_STMT_START { \
-		gs_free char *_val = NULL; \
-		\
-		_val = nm_platform_sysctl_get (plat, path); \
-		g_assert_cmpstr (_val, ==, value); \
-	} G_STMT_END
-
 static void
 test_netns_general (gpointer fixture, gconstpointer test_data)
 {
@@ -1978,19 +1954,13 @@ test_netns_general (gpointer fixture, gconstpointer test_data)
 			_ADD_DUMMY (p, nm_sprintf_buf (sbuf, "other-c-%s-%02d", id, i));
 	}
 
-	_sysctl_assert_eq (platform_1,"/sys/devices/virtual/net/dummy1_/ifindex",
-	                   nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_1, 0, "dummy1_", NM_LINK_TYPE_DUMMY)->ifindex));
-	_sysctl_assert_eq (platform_1, "/sys/devices/virtual/net/dummy2a/ifindex",
-	                   nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_1, 0, "dummy2a", NM_LINK_TYPE_DUMMY)->ifindex));
-	_sysctl_assert_eq (platform_1, "/sys/devices/virtual/net/dummy2b/ifindex",
-	                   NULL);
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_1, "/sys/devices/virtual/net/dummy1_/ifindex"), ==, nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_1, 0, "dummy1_", NM_LINK_TYPE_DUMMY)->ifindex));
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_1, "/sys/devices/virtual/net/dummy2a/ifindex"), ==, nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_1, 0, "dummy2a", NM_LINK_TYPE_DUMMY)->ifindex));
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_1, "/sys/devices/virtual/net/dummy2b/ifindex"), ==, NULL);
 
-	_sysctl_assert_eq (platform_2, "/sys/devices/virtual/net/dummy1_/ifindex",
-	                   nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_2, 0, "dummy1_", NM_LINK_TYPE_DUMMY)->ifindex));
-	_sysctl_assert_eq (platform_2, "/sys/devices/virtual/net/dummy2a/ifindex",
-	                   NULL);
-	_sysctl_assert_eq (platform_2, "/sys/devices/virtual/net/dummy2b/ifindex",
-	                   nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_2, 0, "dummy2b", NM_LINK_TYPE_DUMMY)->ifindex));
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_2, "/sys/devices/virtual/net/dummy1_/ifindex"), ==, nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_2, 0, "dummy1_", NM_LINK_TYPE_DUMMY)->ifindex));
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_2, "/sys/devices/virtual/net/dummy2a/ifindex"), ==, NULL);
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_2, "/sys/devices/virtual/net/dummy2b/ifindex"), ==, nm_sprintf_buf (sbuf, "%d", nmtstp_link_get_typed (platform_2, 0, "dummy2b", NM_LINK_TYPE_DUMMY)->ifindex));
 
 	for (i = 0; i < 10; i++) {
 		NMPlatform *pl;
@@ -2012,11 +1982,10 @@ test_netns_general (gpointer fixture, gconstpointer test_data)
 				path = "/proc/sys/net/ipv6/conf/dummy2b/disable_ipv6";
 		}
 		g_assert (nm_platform_sysctl_set (pl, path, nm_sprintf_buf (sbuf, "%d", j)));
-		_sysctl_assert_eq (pl, path, nm_sprintf_buf (sbuf, "%d", j));
+		g_assert_cmpstr (nm_platform_sysctl_get (pl, path), ==, nm_sprintf_buf (sbuf, "%d", j));
 	}
-
-	_sysctl_assert_eq (platform_1, "/proc/sys/net/ipv6/conf/dummy2b/disable_ipv6", NULL);
-	_sysctl_assert_eq (platform_2, "/proc/sys/net/ipv6/conf/dummy2a/disable_ipv6", NULL);
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_1, "/proc/sys/net/ipv6/conf/dummy2b/disable_ipv6"), ==, NULL);
+	g_assert_cmpstr (nm_platform_sysctl_get (platform_2, "/proc/sys/net/ipv6/conf/dummy2a/disable_ipv6"), ==, NULL);
 
 	/* older kernels (Ubuntu 12.04) don't support ethtool -i for dummy devices. Work around that and
 	 * skip asserts that are known to fail. */

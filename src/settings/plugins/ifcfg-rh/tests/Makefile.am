@@ -49,8 +49,5 @@ test_ifcfg_rh_utils_LDADD = \
 @VALGRIND_RULES@
 TESTS = test-ifcfg-rh-utils test-ifcfg-rh
 
-check-local:
-	LD_BIND_NOW=1 LD_PRELOAD=$(builddir)/../.libs/libnm-settings-plugin-ifcfg-rh.so $(top_builddir)/src/NetworkManager --version >/dev/null
-
 endif
 

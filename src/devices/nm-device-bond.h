@@ -23,6 +23,8 @@
 
 #include "nm-device.h"
 
+G_BEGIN_DECLS
+
 #define NM_TYPE_DEVICE_BOND            (nm_device_bond_get_type ())
 #define NM_DEVICE_BOND(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_DEVICE_BOND, NMDeviceBond))
 #define NM_DEVICE_BOND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  NM_TYPE_DEVICE_BOND, NMDeviceBondClass))
@@ -35,4 +37,6 @@ typedef NMDeviceClass NMDeviceBondClass;
 
 GType nm_device_bond_get_type (void);
 
-#endif /* NM_DEVICE_BOND_H */
+G_END_DECLS
+
+#endif	/* NM_DEVICE_BOND_H */

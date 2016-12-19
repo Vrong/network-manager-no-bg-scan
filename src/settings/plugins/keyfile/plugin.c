@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <string.h>
 
+#include <gmodule.h>
 #include <glib/gstdio.h>
 
 #include "nm-connection.h"

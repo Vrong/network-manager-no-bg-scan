@@ -43,7 +43,7 @@
 NMClient *nm_client;
 static GMainLoop *loop;
 
-typedef NmtNewtForm * (*NmtuiSubprogram) (gboolean is_top, int argc, char **argv);
+typedef NmtNewtForm * (*NmtuiSubprogram) (int argc, char **argv);
 
 static const struct {
 	const char *name, *shortcut, *arg;
@@ -61,43 +61,22 @@ static const struct {
 	  nmtui_hostname }
 };
 static const int num_subprograms = G_N_ELEMENTS (subprograms);
-static NmtNewtForm *toplevel_form;
-
-static NmtNewtForm *
-quit_func (int argc, char **argv)
-{
-	if (toplevel_form)
-		nmt_newt_form_quit (toplevel_form);
-
-	nmtui_quit ();
-
-	return NULL;
-}
 
 static void
-main_list_activated (NmtNewtWidget *widget, NmtNewtListbox *listbox)
+quit_func (int argc, char **argv)
 {
-	NmtNewtForm *form;
-	NmtuiSubprogram sub;
-
-	sub = nmt_newt_listbox_get_active_key (listbox);
-	if (sub) {
-		form = sub (FALSE, 0, NULL);
-		if (form) {
-			nmt_newt_form_show (form);
-			g_object_unref (form);
-		}
-	}
+	nmtui_quit ();
 }
 
 static NmtNewtForm *
-nmtui_main (gboolean is_top, int argc, char **argv)
+nmtui_main (int argc, char **argv)
 {
 	NmtNewtForm *form;
 	NmtNewtWidget *widget, *ok;
 	NmtNewtGrid *grid;
 	NmtNewtListbox *listbox;
 	NmtNewtButtonBox *bbox;
+	NmtuiSubprogram subprogram = NULL;
 	int i;
 
 	form = g_object_new (NMT_TYPE_NEWT_FORM,
@@ -118,9 +97,8 @@ nmtui_main (gboolean is_top, int argc, char **argv)
 	                       NULL);
 	nmt_newt_grid_add (grid, widget, 0, 1);
 	nmt_newt_widget_set_padding (widget, 0, 1, 0, 1);
+	nmt_newt_widget_set_exit_on_activate (widget, TRUE);
 	listbox = NMT_NEWT_LISTBOX (widget);
-	g_signal_connect (widget, "activated",
-	                  G_CALLBACK (main_list_activated), listbox);
 
 	for (i = 0; i < num_subprograms; i++) {
 		nmt_newt_listbox_append (listbox, _(subprograms[i].display_name),
@@ -134,12 +112,17 @@ nmtui_main (gboolean is_top, int argc, char **argv)
 	bbox = NMT_NEWT_BUTTON_BOX (widget);
 
 	ok = nmt_newt_button_box_add_end (bbox, _("OK"));
-	g_signal_connect (ok, "activated",
-	                  G_CALLBACK (main_list_activated), listbox);
+	nmt_newt_widget_set_exit_on_activate (ok, TRUE);
 
-	toplevel_form = form;
+	widget = nmt_newt_form_run_sync (form);
+	if (widget)
+		subprogram = nmt_newt_listbox_get_active_key (listbox);
+	g_object_unref (form);
 
-	return form;
+	if (subprogram)
+		return subprogram (argc, argv);
+	else
+		return NULL;
 }
 
 /**
@@ -196,7 +179,7 @@ idle_run_subprogram (gpointer user_data)
 	NmtuiStartupData *data = user_data;
 	NmtNewtForm *form;
 
-	form = data->subprogram (TRUE, data->argc, data->argv);
+	form = data->subprogram (data->argc, data->argv);
 	if (form) {
 		g_signal_connect (form, "quit", G_CALLBACK (toplevel_form_quit), NULL);
 		nmt_newt_form_show (form);

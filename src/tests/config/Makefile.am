@@ -9,8 +9,8 @@ AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\""NetworkManager"\" \
 	-DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_INSIDE_DAEMON \
 	$(GLIB_CFLAGS) \
-	-DSRCDIR=\""$(abs_srcdir)"\" \
-	-DBUILDDIR=\""$(abs_builddir)"\"
+	-DSRCDIR=\""$(srcdir)"\" \
+	-DBUILDDIR=\""$(builddir)"\"
 
 noinst_PROGRAMS = \
 	test-config
@@ -21,14 +21,13 @@ test_config_SOURCES = \
 	test-config.c
 
 test_config_LDADD = \
-	$(top_builddir)/src/libNetworkManagerTest.la
+	$(top_builddir)/src/libNetworkManager.la
 
 @VALGRIND_RULES@
 TESTS = test-config
 
 EXTRA_DIST = \
 	NetworkManager.conf \
-	NetworkManager.state \
 	bad.conf \
 	global-dns-invalid.conf \
 	conf.d/00-overrides.conf \

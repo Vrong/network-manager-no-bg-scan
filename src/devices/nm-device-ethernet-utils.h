@@ -19,6 +19,8 @@
 #ifndef __NETWORKMANAGER_DEVICE_ETHERNET_UTILS_H__
 #define __NETWORKMANAGER_DEVICE_ETHERNET_UTILS_H__
 
-char *nm_device_ethernet_utils_get_default_wired_name (NMConnection *const *connections);
+#include "nm-default.h"
+
+char *nm_device_ethernet_utils_get_default_wired_name (const GSList *connections);
 
 #endif  /* NETWORKMANAGER_DEVICE_ETHERNET_UTILS_H */

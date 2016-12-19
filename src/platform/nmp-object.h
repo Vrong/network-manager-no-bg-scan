@@ -94,9 +94,9 @@ typedef enum { /*< skip >*/
 	NMP_CACHE_ID_TYPE_MAX = __NMP_CACHE_ID_TYPE_MAX - 1,
 } NMPCacheIdType;
 
-typedef struct _NMPCacheId NMPCacheId;
+typedef struct _NMPObject NMPObject;
 
-struct _NMPCacheId {
+typedef struct {
 	union {
 		NMMultiIndexId base;
 		guint8 _id_type; /* NMPCacheIdType as guint8 */
@@ -136,7 +136,7 @@ struct _NMPCacheId {
 			struct in6_addr _misaligned_network;
 		} routes_by_destination_ip6;
 	};
-};
+} NMPCacheId;
 
 extern NMPCacheId _nmp_cache_id_static;
 #define NMP_CACHE_ID_STATIC  (&_nmp_cache_id_static)

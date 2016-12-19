@@ -19,6 +19,10 @@
 #ifndef NMTUI_HOSTNAME_H
 #define NMTUI_HOSTNAME_H
 
-NmtNewtForm *nmtui_hostname (gboolean is_top, int argc, char **argv);
+G_BEGIN_DECLS
+
+NmtNewtForm *nmtui_hostname (int argc, char **argv);
+
+G_END_DECLS
 
 #endif /* NMTUI_HOSTNAME_H */

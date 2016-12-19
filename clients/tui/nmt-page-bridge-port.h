@@ -21,6 +21,8 @@
 
 #include "nmt-editor-page.h"
 
+G_BEGIN_DECLS
+
 #define NMT_TYPE_PAGE_BRIDGE_PORT            (nmt_page_bridge_port_get_type ())
 #define NMT_PAGE_BRIDGE_PORT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NMT_TYPE_PAGE_BRIDGE_PORT, NmtPageBridgePort))
 #define NMT_PAGE_BRIDGE_PORT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), NMT_TYPE_PAGE_BRIDGE_PORT, NmtPageBridgePortClass))
@@ -41,5 +43,7 @@ typedef struct {
 GType nmt_page_bridge_port_get_type (void);
 
 NmtEditorPage *nmt_page_bridge_port_new (NMConnection *conn);
+
+G_END_DECLS
 
 #endif /* NMT_PAGE_BRIDGE_PORT_H */

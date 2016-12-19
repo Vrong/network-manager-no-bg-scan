@@ -21,10 +21,12 @@
 
 #include "nmt-newt.h"
 
+G_BEGIN_DECLS
+
 typedef gboolean (*NmtAddConnectionTypeFilter) (GType    connection_type,
                                                 gpointer user_data);
 
-NmtNewtForm *nmtui_edit (gboolean is_top, int argc, char **argv);
+NmtNewtForm *nmtui_edit (int argc, char **argv);
 
 void nmt_add_connection      (void);
 void nmt_add_connection_full (const char                 *primary_text,
@@ -36,5 +38,7 @@ void nmt_add_connection_full (const char                 *primary_text,
 void nmt_edit_connection     (NMConnection               *connection);
 
 void nmt_remove_connection   (NMRemoteConnection         *connection);
+
+G_END_DECLS
 
 #endif /* NMTUI_EDIT_H */

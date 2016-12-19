@@ -26,7 +26,7 @@
 
 #include "nm-core-internal.h"
 
-#include "nm-test-utils-core.h"
+#include "nm-test-utils.h"
 
 #define DEBUG 1
 

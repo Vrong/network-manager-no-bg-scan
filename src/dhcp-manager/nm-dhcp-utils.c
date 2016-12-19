@@ -28,14 +28,11 @@
 #include "nm-utils.h"
 #include "NetworkManagerUtils.h"
 #include "nm-platform.h"
-#include "nm-dhcp-client-logging.h"
-#include "nm-core-internal.h"
 
 /********************************************/
 
 static gboolean
-ip4_process_dhcpcd_rfc3442_routes (const char *iface,
-                                   const char *str,
+ip4_process_dhcpcd_rfc3442_routes (const char *str,
                                    guint32 priority,
                                    NMIP4Config *ip4_config,
                                    guint32 *gwaddr)
@@ -48,7 +45,7 @@ ip4_process_dhcpcd_rfc3442_routes (const char *iface,
 		goto out;
 
 	if ((g_strv_length (routes) % 2) != 0) {
-		_LOG2W (LOGD_DHCP4, iface, "  classless static routes provided, but invalid");
+		nm_log_warn (LOGD_DHCP4, "  classless static routes provided, but invalid");
 		goto out;
 	}
 
@@ -64,16 +61,16 @@ ip4_process_dhcpcd_rfc3442_routes (const char *iface,
 			errno = 0;
 			rt_cidr = strtol (slash + 1, NULL, 10);
 			if (errno || rt_cidr > 32) {
-				_LOG2W (LOGD_DHCP4, iface, "DHCP provided invalid classless static route cidr: '%s'", slash + 1);
+				nm_log_warn (LOGD_DHCP4, "DHCP provided invalid classless static route cidr: '%s'", slash + 1);
 				continue;
 			}
 		}
 		if (inet_pton (AF_INET, *r, &rt_addr) <= 0) {
-			_LOG2W (LOGD_DHCP4, iface, "DHCP provided invalid classless static route address: '%s'", *r);
+			nm_log_warn (LOGD_DHCP4, "DHCP provided invalid classless static route address: '%s'", *r);
 			continue;
 		}
 		if (inet_pton (AF_INET, *(r + 1), &rt_route) <= 0) {
-			_LOG2W (LOGD_DHCP4, iface, "DHCP provided invalid classless static route gateway: '%s'", *(r + 1));
+			nm_log_warn (LOGD_DHCP4, "DHCP provided invalid classless static route gateway: '%s'", *(r + 1));
 			continue;
 		}
 
@@ -82,12 +79,12 @@ ip4_process_dhcpcd_rfc3442_routes (const char *iface,
 			/* FIXME: how to handle multiple routers? */
 			*gwaddr = rt_route;
 		} else {
-			_LOG2I (LOGD_DHCP4, iface, "  classless static route %s/%d gw %s", *r, rt_cidr, *(r + 1));
+			nm_log_info (LOGD_DHCP4, "  classless static route %s/%d gw %s", *r, rt_cidr, *(r + 1));
 			memset (&route, 0, sizeof (route));
 			route.network = rt_addr;
 			route.plen = rt_cidr;
 			route.gateway = rt_route;
-			route.rt_source = NM_IP_CONFIG_SOURCE_DHCP;
+			route.source = NM_IP_CONFIG_SOURCE_DHCP;
 			route.metric = priority;
 			nm_ip4_config_add_route (ip4_config, &route);
 		}
@@ -163,8 +160,7 @@ error:
 }
 
 static gboolean
-ip4_process_dhclient_rfc3442_routes (const char *iface,
-                                     const char *str,
+ip4_process_dhclient_rfc3442_routes (const char *str,
                                      guint32 priority,
                                      NMIP4Config *ip4_config,
                                      guint32 *gwaddr)
@@ -176,7 +172,7 @@ ip4_process_dhclient_rfc3442_routes (const char *iface,
 
 	o = octets = g_strsplit_set (str, " .", 0);
 	if (g_strv_length (octets) < 5) {
-		_LOG2W (LOGD_DHCP4, iface, "ignoring invalid classless static routes '%s'", str);
+		nm_log_warn (LOGD_DHCP4, "ignoring invalid classless static routes '%s'", str);
 		goto out;
 	}
 
@@ -184,7 +180,7 @@ ip4_process_dhclient_rfc3442_routes (const char *iface,
 		memset (&route, 0, sizeof (route));
 		o = (char **) process_dhclient_rfc3442_route ((const char **) o, &route, &success);
 		if (!success) {
-			_LOG2W (LOGD_DHCP4, iface, "ignoring invalid classless static routes");
+			nm_log_warn (LOGD_DHCP4, "ignoring invalid classless static routes");
 			break;
 		}
 
@@ -196,13 +192,13 @@ ip4_process_dhclient_rfc3442_routes (const char *iface,
 			char addr[INET_ADDRSTRLEN];
 
 			/* normal route */
-			route.rt_source = NM_IP_CONFIG_SOURCE_DHCP;
+			route.source = NM_IP_CONFIG_SOURCE_DHCP;
 			route.metric = priority;
 			nm_ip4_config_add_route (ip4_config, &route);
 
-			_LOG2I (LOGD_DHCP4, iface, "  classless static route %s/%d gw %s",
-			        nm_utils_inet4_ntop (route.network, addr), route.plen,
-			        nm_utils_inet4_ntop (route.gateway, NULL));
+			nm_log_info (LOGD_DHCP4, "  classless static route %s/%d gw %s",
+			             nm_utils_inet4_ntop (route.network, addr), route.plen,
+			             nm_utils_inet4_ntop (route.gateway, NULL));
 		}
 	}
 
@@ -212,8 +208,7 @@ out:
 }
 
 static gboolean
-ip4_process_classless_routes (const char *iface,
-                              GHashTable *options,
+ip4_process_classless_routes (GHashTable *options,
                               guint32 priority,
                               NMIP4Config *ip4_config,
                               guint32 *gwaddr)
@@ -262,7 +257,7 @@ ip4_process_classless_routes (const char *iface,
 	p = str;
 	while (*p) {
 		if (!g_ascii_isdigit (*p) && (*p != ' ') && (*p != '.') && (*p != '/')) {
-			_LOG2W (LOGD_DHCP4, iface, "ignoring invalid classless static routes '%s'", str);
+			nm_log_warn (LOGD_DHCP4, "ignoring invalid classless static routes '%s'", str);
 			return FALSE;
 		}
 		p++;
@@ -270,17 +265,14 @@ ip4_process_classless_routes (const char *iface,
 
 	if (strchr (str, '/')) {
 		/* dhcpcd format */
-		return ip4_process_dhcpcd_rfc3442_routes (iface, str, priority, ip4_config, gwaddr);
+		return ip4_process_dhcpcd_rfc3442_routes (str, priority, ip4_config, gwaddr);
 	}
 
-	return ip4_process_dhclient_rfc3442_routes (iface, str, priority, ip4_config, gwaddr);
+	return ip4_process_dhclient_rfc3442_routes (str, priority, ip4_config, gwaddr);
 }
 
 static void
-process_classful_routes (const char *iface,
-                         GHashTable *options,
-                         guint32 priority,
-                         NMIP4Config *ip4_config)
+process_classful_routes (GHashTable *options, guint32 priority, NMIP4Config *ip4_config)
 {
 	const char *str;
 	char **searches, **s;
@@ -291,7 +283,7 @@ process_classful_routes (const char *iface,
 
 	searches = g_strsplit (str, " ", 0);
 	if ((g_strv_length (searches) % 2)) {
-		_LOG2I (LOGD_DHCP, iface, "  static routes provided, but invalid");
+		nm_log_info (LOGD_DHCP, "  static routes provided, but invalid");
 		goto out;
 	}
 
@@ -300,11 +292,11 @@ process_classful_routes (const char *iface,
 		guint32 rt_addr, rt_route;
 
 		if (inet_pton (AF_INET, *s, &rt_addr) <= 0) {
-			_LOG2W (LOGD_DHCP, iface, "DHCP provided invalid static route address: '%s'", *s);
+			nm_log_warn (LOGD_DHCP, "DHCP provided invalid static route address: '%s'", *s);
 			continue;
 		}
 		if (inet_pton (AF_INET, *(s + 1), &rt_route) <= 0) {
-			_LOG2W (LOGD_DHCP, iface, "DHCP provided invalid static route gateway: '%s'", *(s + 1));
+			nm_log_warn (LOGD_DHCP, "DHCP provided invalid static route gateway: '%s'", *(s + 1));
 			continue;
 		}
 
@@ -322,11 +314,11 @@ process_classful_routes (const char *iface,
 			route.plen = 32;
 		}
 		route.gateway = rt_route;
-		route.rt_source = NM_IP_CONFIG_SOURCE_DHCP;
+		route.source = NM_IP_CONFIG_SOURCE_DHCP;
 		route.metric = priority;
 
 		nm_ip4_config_add_route (ip4_config, &route);
-		_LOG2I (LOGD_DHCP, iface, "  static route %s",
+		nm_log_info (LOGD_DHCP, "  static route %s",
 		             nm_platform_ip4_route_to_string (&route, NULL, 0));
 	}
 
@@ -335,10 +327,7 @@ out:
 }
 
 static void
-process_domain_search (const char *iface,
-                       const char *str,
-                       GFunc add_func,
-                       gpointer user_data)
+process_domain_search (const char *str, GFunc add_func, gpointer user_data)
 {
 	char **searches, **s;
 	char *unescaped, *p;
@@ -359,14 +348,14 @@ process_domain_search (const char *iface,
 	} while (*p++);
 
 	if (strchr (unescaped, '\\')) {
-		_LOG2W (LOGD_DHCP, iface, "  invalid domain search: '%s'", unescaped);
+		nm_log_warn (LOGD_DHCP, "  invalid domain search: '%s'", unescaped);
 		goto out;
 	}
 
 	searches = g_strsplit (unescaped, " ", 0);
 	for (s = searches; *s; s++) {
 		if (strlen (*s)) {
-			_LOG2I (LOGD_DHCP, iface, "  domain search '%s'", *s);
+			nm_log_info (LOGD_DHCP, "  domain search '%s'", *s);
 			add_func (*s, user_data);
 		}
 	}
@@ -404,29 +393,29 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 
 	str = g_hash_table_lookup (options, "ip_address");
 	if (str && (inet_pton (AF_INET, str, &addr) > 0))
-		_LOG2I (LOGD_DHCP4, iface, "  address %s", str);
+		nm_log_info (LOGD_DHCP4, "  address %s", str);
 	else
 		goto error;
 
 	str = g_hash_table_lookup (options, "subnet_mask");
 	if (str && (inet_pton (AF_INET, str, &tmp_addr) > 0)) {
 		plen = nm_utils_ip4_netmask_to_prefix (tmp_addr);
-		_LOG2I (LOGD_DHCP4, iface, "  plen %d (%s)", plen, str);
+		nm_log_info (LOGD_DHCP4, "  plen %d (%s)", plen, str);
 	} else {
 		/* Get default netmask for the IP according to appropriate class. */
 		plen = nm_utils_ip4_get_default_prefix (addr);
-		_LOG2I (LOGD_DHCP4, iface, "  plen %d (default)", plen);
+		nm_log_info (LOGD_DHCP4, "  plen %d (default)", plen);
 	}
 	nm_platform_ip4_address_set_addr (&address, addr, plen);
 
 	/* Routes: if the server returns classless static routes, we MUST ignore
 	 * the 'static_routes' option.
 	 */
-	if (!ip4_process_classless_routes (iface, options, priority, ip4_config, &gwaddr))
-		process_classful_routes (iface, options, priority, ip4_config);
+	if (!ip4_process_classless_routes (options, priority, ip4_config, &gwaddr))
+		process_classful_routes (options, priority, ip4_config);
 
 	if (gwaddr) {
-		_LOG2I (LOGD_DHCP4, iface, "  gateway %s", nm_utils_inet4_ntop (gwaddr, NULL));
+		nm_log_info (LOGD_DHCP4, "  gateway %s", nm_utils_inet4_ntop (gwaddr, NULL));
 		nm_ip4_config_set_gateway (ip4_config, gwaddr);
 	} else {
 		/* If the gateway wasn't provided as a classless static route with a
@@ -441,10 +430,10 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 				/* FIXME: how to handle multiple routers? */
 				if (inet_pton (AF_INET, *s, &gwaddr) > 0) {
 					nm_ip4_config_set_gateway (ip4_config, gwaddr);
-					_LOG2I (LOGD_DHCP4, iface, "  gateway %s", *s);
+					nm_log_info (LOGD_DHCP4, "  gateway %s", *s);
 					break;
 				} else
-					_LOG2W (LOGD_DHCP4, iface, "ignoring invalid gateway '%s'", *s);
+					nm_log_warn (LOGD_DHCP4, "ignoring invalid gateway '%s'", *s);
 			}
 			g_strfreev (routers);
 		}
@@ -466,7 +455,7 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 	if (str) {
 		if (inet_pton (AF_INET, str, &tmp_addr) > 0) {
 
-			_LOG2I (LOGD_DHCP4, iface, "  server identifier %s", str);
+			nm_log_info (LOGD_DHCP4, "  server identifier %s", str);
 			if (   nm_utils_ip4_address_clear_host_address(tmp_addr, address.plen) != nm_utils_ip4_address_clear_host_address(address.address, address.plen)
 			    && !nm_ip4_config_get_direct_route_for_host (ip4_config, tmp_addr)) {
 				/* DHCP server not on assigned subnet and the no direct route was returned. Add route */
@@ -476,29 +465,29 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 				route.plen = 32;
 				/* this will be a device route if gwaddr is 0 */
 				route.gateway = gwaddr;
-				route.rt_source = NM_IP_CONFIG_SOURCE_DHCP;
+				route.source = NM_IP_CONFIG_SOURCE_DHCP;
 				route.metric = priority;
 				nm_ip4_config_add_route (ip4_config, &route);
-				_LOG2D (LOGD_IP, iface, "adding route for server identifier: %s",
-				        nm_platform_ip4_route_to_string (&route, NULL, 0));
+				nm_log_dbg (LOGD_IP, "adding route for server identifier: %s",
+				                      nm_platform_ip4_route_to_string (&route, NULL, 0));
 			}
 		}
 		else
-			_LOG2W (LOGD_DHCP4, iface, "ignoring invalid server identifier '%s'", str);
+			nm_log_warn (LOGD_DHCP4, "ignoring invalid server identifier '%s'", str);
 	}
 
 	str = g_hash_table_lookup (options, "dhcp_lease_time");
 	if (str) {
 		address.lifetime = address.preferred = strtoul (str, NULL, 10);
-		_LOG2I (LOGD_DHCP4, iface, "  lease time %u", address.lifetime);
+		nm_log_info (LOGD_DHCP4, "  lease time %u", address.lifetime);
 	}
 
-	address.addr_source = NM_IP_CONFIG_SOURCE_DHCP;
+	address.source = NM_IP_CONFIG_SOURCE_DHCP;
 	nm_ip4_config_add_address (ip4_config, &address);
 
 	str = g_hash_table_lookup (options, "host_name");
 	if (str)
-		_LOG2I (LOGD_DHCP4, iface, "  hostname '%s'", str);
+		nm_log_info (LOGD_DHCP4, "  hostname '%s'", str);
 
 	str = g_hash_table_lookup (options, "domain_name_servers");
 	if (str) {
@@ -509,10 +498,10 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 			if (inet_pton (AF_INET, *s, &tmp_addr) > 0) {
 				if (tmp_addr) {
 					nm_ip4_config_add_nameserver (ip4_config, tmp_addr);
-					_LOG2I (LOGD_DHCP4, iface, "  nameserver '%s'", *s);
+					nm_log_info (LOGD_DHCP4, "  nameserver '%s'", *s);
 				}
 			} else
-				_LOG2W (LOGD_DHCP4, iface, "ignoring invalid nameserver '%s'", *s);
+				nm_log_warn (LOGD_DHCP4, "ignoring invalid nameserver '%s'", *s);
 		}
 		g_strfreev (dns);
 	}
@@ -523,7 +512,7 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 		char **s;
 
 		for (s = domains; *s; s++) {
-			_LOG2I (LOGD_DHCP4, iface, "  domain name '%s'", *s);
+			nm_log_info (LOGD_DHCP4, "  domain name '%s'", *s);
 			nm_ip4_config_add_domain (ip4_config, *s);
 		}
 		g_strfreev (domains);
@@ -531,7 +520,7 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 
 	str = g_hash_table_lookup (options, "domain_search");
 	if (str)
-		process_domain_search (iface, str, ip4_add_domain_search, ip4_config);
+		process_domain_search (str, ip4_add_domain_search, ip4_config);
 
 	str = g_hash_table_lookup (options, "netbios_name_servers");
 	if (str) {
@@ -542,10 +531,10 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 			if (inet_pton (AF_INET, *s, &tmp_addr) > 0) {
 				if (tmp_addr) {
 					nm_ip4_config_add_wins (ip4_config, tmp_addr);
-					_LOG2I (LOGD_DHCP4, iface, "  wins '%s'", *s);
+					nm_log_info (LOGD_DHCP4, "  wins '%s'", *s);
 				}
 			} else
-				_LOG2W (LOGD_DHCP4, iface, "ignoring invalid WINS server '%s'", *s);
+				nm_log_warn (LOGD_DHCP4, "ignoring invalid WINS server '%s'", *s);
 		}
 		g_strfreev (nbns);
 	}
@@ -565,7 +554,7 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 
 	str = g_hash_table_lookup (options, "nis_domain");
 	if (str) {
-		_LOG2I (LOGD_DHCP4, iface, "  NIS domain '%s'", str);
+		nm_log_info (LOGD_DHCP4, "  NIS domain '%s'", str);
 		nm_ip4_config_set_nis_domain (ip4_config, str);
 	}
 
@@ -578,10 +567,10 @@ nm_dhcp_utils_ip4_config_from_options (int ifindex,
 			if (inet_pton (AF_INET, *s, &tmp_addr) > 0) {
 				if (tmp_addr) {
 					nm_ip4_config_add_nis_server (ip4_config, tmp_addr);
-					_LOG2I (LOGD_DHCP4, iface, "  nis '%s'", *s);
+					nm_log_info (LOGD_DHCP4, "  nis '%s'", *s);
 				}
 			} else
-				_LOG2W (LOGD_DHCP4, iface, "ignoring invalid NIS server '%s'", *s);
+				nm_log_warn (LOGD_DHCP4, "ignoring invalid NIS server '%s'", *s);
 		}
 		g_strfreev (nis);
 	}
@@ -626,8 +615,8 @@ nm_dhcp_utils_ip6_config_from_options (int ifindex,
 
 	g_hash_table_iter_init (&iter, options);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		_LOG2D (LOGD_DHCP6, iface, "(%s): option '%s'=>'%s'",
-		        iface, (const char *) key, (const char *) value);
+		nm_log_dbg (LOGD_DHCP6, "(%s): option '%s'=>'%s'",
+		            iface, (const char *) key, (const char *) value);
 	}
 
 	ip6_config = nm_ip6_config_new (ifindex);
@@ -635,27 +624,27 @@ nm_dhcp_utils_ip6_config_from_options (int ifindex,
 	str = g_hash_table_lookup (options, "max_life");
 	if (str) {
 		address.lifetime = strtoul (str, NULL, 10);
-		_LOG2I (LOGD_DHCP6, iface, "  valid_lft %u", address.lifetime);
+		nm_log_info (LOGD_DHCP6, "  valid_lft %u", address.lifetime);
 	}
 
 	str = g_hash_table_lookup (options, "preferred_life");
 	if (str) {
 		address.preferred = strtoul (str, NULL, 10);
-		_LOG2I (LOGD_DHCP6, iface, "  preferred_lft %u", address.preferred);
+		nm_log_info (LOGD_DHCP6, "  preferred_lft %u", address.preferred);
 	}
 
 	str = g_hash_table_lookup (options, "ip6_address");
 	if (str) {
 		if (!inet_pton (AF_INET6, str, &tmp_addr)) {
-			_LOG2W (LOGD_DHCP6, iface, "(%s): DHCP returned invalid address '%s'",
-			        iface, str);
+			nm_log_warn (LOGD_DHCP6, "(%s): DHCP returned invalid address '%s'",
+			             iface, str);
 			goto error;
 		}
 
 		address.address = tmp_addr;
-		address.addr_source = NM_IP_CONFIG_SOURCE_DHCP;
+		address.source = NM_IP_CONFIG_SOURCE_DHCP;
 		nm_ip6_config_add_address (ip6_config, &address);
-		_LOG2I (LOGD_DHCP6, iface, "  address %s", str);
+		nm_log_info (LOGD_DHCP6, "  address %s", str);
 	} else if (info_only == FALSE) {
 		/* No address in Managed mode is a hard error */
 		goto error;
@@ -663,7 +652,7 @@ nm_dhcp_utils_ip6_config_from_options (int ifindex,
 
 	str = g_hash_table_lookup (options, "host_name");
 	if (str)
-		_LOG2I (LOGD_DHCP6, iface, "  hostname '%s'", str);
+		nm_log_info (LOGD_DHCP6, "  hostname '%s'", str);
 
 	str = g_hash_table_lookup (options, "dhcp6_name_servers");
 	if (str) {
@@ -674,17 +663,17 @@ nm_dhcp_utils_ip6_config_from_options (int ifindex,
 			if (inet_pton (AF_INET6, *s, &tmp_addr) > 0) {
 				if (!IN6_IS_ADDR_UNSPECIFIED (&tmp_addr)) {
 					nm_ip6_config_add_nameserver (ip6_config, &tmp_addr);
-					_LOG2I (LOGD_DHCP6, iface, "  nameserver '%s'", *s);
+					nm_log_info (LOGD_DHCP6, "  nameserver '%s'", *s);
 				}
 			} else
-				_LOG2W (LOGD_DHCP6, iface, "ignoring invalid nameserver '%s'", *s);
+				nm_log_warn (LOGD_DHCP6, "ignoring invalid nameserver '%s'", *s);
 		}
 		g_strfreev (dns);
 	}
 
 	str = g_hash_table_lookup (options, "dhcp6_domain_search");
 	if (str)
-		process_domain_search (iface, str, ip6_add_domain_search, ip6_config);
+		process_domain_search (str, ip6_add_domain_search, ip6_config);
 
 	return ip6_config;
 
@@ -696,9 +685,18 @@ error:
 char *
 nm_dhcp_utils_duid_to_string (const GByteArray *duid)
 {
+	guint32 i = 0;
+	GString *s;
+
 	g_return_val_if_fail (duid != NULL, NULL);
 
-	return _nm_utils_bin2str (duid->data, duid->len, FALSE);
+	s = g_string_sized_new (MIN (duid->len * 3, 50));
+	while (i < duid->len) {
+		if (s->len)
+			g_string_append_c (s, ':');
+		g_string_append_printf (s, "%02x", duid->data[i++]);
+	}
+	return g_string_free (s, FALSE);
 }
 
 /**

@@ -25,6 +25,8 @@
 #include <nm-settings-connection.h>
 #include "net_parser.h"
 
+G_BEGIN_DECLS
+
 #define NM_TYPE_IFNET_CONNECTION            (nm_ifnet_connection_get_type ())
 #define NM_IFNET_CONNECTION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_IFNET_CONNECTION, NMIfnetConnection))
 #define NM_IFNET_CONNECTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), NM_TYPE_IFNET_CONNECTION, NMIfnetConnectionClass))
@@ -47,4 +49,5 @@ NMIfnetConnection *nm_ifnet_connection_new (NMConnection *source,
 
 const char *nm_ifnet_connection_get_conn_name (NMIfnetConnection *connection);
 
-#endif /* __NETWORKMANAGER_IFNET_CONNECTION_H__ */
+G_END_DECLS
+#endif				/* NM_IFNET_CONNECTION_H */

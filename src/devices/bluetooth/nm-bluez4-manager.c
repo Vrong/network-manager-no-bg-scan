@@ -21,22 +21,20 @@
 
 #include "nm-default.h"
 
-#include "nm-bluez4-manager.h"
-
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include "nm-bluez4-adapter.h"
 #include "nm-bluez-manager.h"
+#include "nm-bluez4-manager.h"
+#include "nm-bluez4-adapter.h"
 #include "nm-bluez-common.h"
 #include "nm-core-internal.h"
-#include "nm-settings.h"
 
 typedef struct {
 	gulong name_owner_changed_id;
 
-	NMSettings *settings;
+	NMConnectionProvider *provider;
 
 	GDBusProxy *proxy;
 
@@ -157,7 +155,7 @@ default_adapter_changed (GDBusProxy *proxy, const char *path, NMBluez4Manager *s
 
 	/* Add the new default adapter */
 	if (path) {
-		priv->adapter = nm_bluez4_adapter_new (path, priv->settings);
+		priv->adapter = nm_bluez4_adapter_new (path, priv->provider);
 		g_signal_connect (priv->adapter, "initialized", G_CALLBACK (adapter_initialized), self);
 	}
 }
@@ -225,14 +223,12 @@ name_owner_changed_cb (GObject *object,
 /****************************************************************/
 
 NMBluez4Manager *
-nm_bluez4_manager_new (NMSettings *settings)
+nm_bluez4_manager_new (NMConnectionProvider *provider)
 {
 	NMBluez4Manager *instance;
 
-	g_return_val_if_fail (NM_IS_SETTINGS (settings), NULL);
-
 	instance = g_object_new (NM_TYPE_BLUEZ4_MANAGER, NULL);
-	NM_BLUEZ4_MANAGER_GET_PRIVATE (instance)->settings = g_object_ref (settings);
+	NM_BLUEZ4_MANAGER_GET_PRIVATE (instance)->provider = provider;
 	return instance;
 }
 
@@ -268,8 +264,6 @@ dispose (GObject *object)
 	g_clear_object (&priv->adapter);
 
 	G_OBJECT_CLASS (nm_bluez4_manager_parent_class)->dispose (object);
-
-	g_clear_object (&priv->settings);
 }
 
 static void

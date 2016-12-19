@@ -23,6 +23,8 @@
 
 #include "nm-device-ethernet.h"
 
+G_BEGIN_DECLS
+
 #define NM_TYPE_DEVICE_VETH            (nm_device_veth_get_type ())
 #define NM_DEVICE_VETH(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_DEVICE_VETH, NMDeviceVeth))
 #define NM_DEVICE_VETH_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  NM_TYPE_DEVICE_VETH, NMDeviceVethClass))
@@ -32,9 +34,11 @@
 
 #define NM_DEVICE_VETH_PEER "peer"
 
-typedef struct _NMDeviceVeth NMDeviceVeth;
-typedef struct _NMDeviceVethClass NMDeviceVethClass;
+typedef NMDeviceEthernet NMDeviceVeth;
+typedef NMDeviceEthernetClass NMDeviceVethClass;
 
 GType nm_device_veth_get_type (void);
 
-#endif /* __NETWORKMANAGER_DEVICE_VETH_H__ */
+G_END_DECLS
+
+#endif	/* NM_DEVICE_VETH_H */

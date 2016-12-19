@@ -1,7 +1,5 @@
 SUBDIRS = config
 
-@GNOME_CODE_COVERAGE_RULES@
-
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/shared \
 	-I$(top_builddir)/shared \
@@ -14,10 +12,7 @@ AM_CPPFLAGS = \
 	-I$(top_builddir)/src \
 	-DG_LOG_DOMAIN=\""NetworkManager"\" \
 	-DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_INSIDE_DAEMON \
-	$(GLIB_CFLAGS) \
-	$(CODE_COVERAGE_CFLAGS)
-
-AM_LDFLAGS = $(CODE_COVERAGE_LDFLAGS)
+	$(GLIB_CFLAGS)
 
 noinst_PROGRAMS = \
 	test-general \
@@ -52,7 +47,6 @@ test_ip6_config_LDADD = \
 
 test_route_manager_fake_CPPFLAGS = \
 	$(AM_CPPFLAGS) \
-	$(GUDEV_CFLAGS) \
 	-I$(top_srcdir)/src/platform/tests \
 	-DSETUP=nm_fake_platform_setup \
 	-DKERNEL_HACKS=0
@@ -62,7 +56,7 @@ test_route_manager_fake_SOURCES = \
 	test-route-manager.c
 
 test_route_manager_fake_LDADD = \
-	$(top_builddir)/src/libNetworkManagerTest.la
+	$(top_builddir)/src/libNetworkManager.la
 
 test_route_manager_linux_SOURCES = \
 	$(top_srcdir)/src/platform/tests/test-common.c \
@@ -70,7 +64,6 @@ test_route_manager_linux_SOURCES = \
 
 test_route_manager_linux_CPPFLAGS = \
 	$(AM_CPPFLAGS) \
-	$(GUDEV_CFLAGS) \
 	-I$(top_srcdir)/src/platform/tests \
 	-DSETUP=nm_linux_platform_setup \
 	-DKERNEL_HACKS=1
@@ -130,6 +123,7 @@ test_systemd_SOURCES = \
 	test-systemd.c
 
 test_systemd_LDADD = \
+	$(top_builddir)/src/libNetworkManager-base.la \
 	$(top_builddir)/src/libsystemd-nm.la
 
 ####### utils test #######

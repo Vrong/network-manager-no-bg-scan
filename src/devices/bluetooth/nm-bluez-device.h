@@ -22,6 +22,7 @@
 #define __NETWORKMANAGER_BLUEZ_DEVICE_H__
 
 #include "nm-connection.h"
+#include "nm-connection-provider.h"
 
 #define NM_TYPE_BLUEZ_DEVICE            (nm_bluez_device_get_type ())
 #define NM_BLUEZ_DEVICE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_BLUEZ_DEVICE, NMBluezDevice))
@@ -58,7 +59,7 @@ GType nm_bluez_device_get_type (void);
 
 NMBluezDevice *nm_bluez_device_new (const char *path,
                                     const char *adapter_address,
-                                    NMSettings *settings,
+                                    NMConnectionProvider *provider,
                                     int bluez_version);
 
 const char *nm_bluez_device_get_path (NMBluezDevice *self);

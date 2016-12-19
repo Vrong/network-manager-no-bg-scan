@@ -19,7 +19,9 @@
 #ifndef __NETWORKMANAGER_DNS_PLUGIN_H__
 #define __NETWORKMANAGER_DNS_PLUGIN_H__
 
+#include "nm-default.h"
 #include "nm-dns-manager.h"
+
 #include "nm-config-data.h"
 
 #define NM_TYPE_DNS_PLUGIN            (nm_dns_plugin_get_type ())

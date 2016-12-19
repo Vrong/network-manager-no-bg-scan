@@ -67,13 +67,6 @@
 <td class="function_type">const <span class="returnvalue">char</span> *
 </td>
 <td class="function_name">
-<a class="link" href="NMSettingConnection.html#nm-setting-connection-get-stable-id" title="nm_setting_connection_get_stable_id ()">nm_setting_connection_get_stable_id</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">const <span class="returnvalue">char</span> *
-</td>
-<td class="function_name">
 <a class="link" href="NMSettingConnection.html#nm-setting-connection-get-interface-name" title="nm_setting_connection_get_interface_name ()">nm_setting_connection_get_interface_name</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
@@ -346,12 +339,6 @@
 <td class="property_flags">Read / Write</td>
 </tr>
 <tr>
-<td class="property_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
-<td class="property_name"><a class="link" href="NMSettingConnection.html#NMSettingConnection--stable-id" title="The “stable-id” property">stable-id</a></td>
-<td class="property_flags">Read / Write</td>
-</tr>
-<tr>
 <td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint64"><span class="type">guint64</span></a></td>
 <td class="property_name"><a class="link" href="NMSettingConnection.html#NMSettingConnection--timestamp" title="The “timestamp” property">timestamp</a></td>
 <td class="property_flags">Read / Write / Construct</td>
@@ -408,10 +395,6 @@
 <tr>
 <td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="NMSettingConnection.html#NM-SETTING-CONNECTION-UUID:CAPS" title="NM_SETTING_CONNECTION_UUID">NM_SETTING_CONNECTION_UUID</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="NMSettingConnection.html#NM-SETTING-CONNECTION-STABLE-ID:CAPS" title="NM_SETTING_CONNECTION_STABLE_ID">NM_SETTING_CONNECTION_STABLE_ID</a></td>
 </tr>
 <tr>
 <td class="define_keyword">#define</td>
@@ -568,33 +551,6 @@ nm_setting_connection_get_uuid (<em class="parameter"><code><a class="link" href
 <a name="nm-setting-connection-get-uuid.returns"></a><h4>Returns</h4>
 <p> the connection UUID</p>
 </div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="nm-setting-connection-get-stable-id"></a><h3>nm_setting_connection_get_stable_id ()</h3>
-<pre class="programlisting">const <span class="returnvalue">char</span> *
-nm_setting_connection_get_stable_id (<em class="parameter"><code><a class="link" href="NMSettingConnection.html" title="NMSettingConnection"><span class="type">NMSettingConnection</span></a> *setting</code></em>);</pre>
-<p>Returns the <a class="link" href="NMSettingConnection.html#NMSettingConnection--stable-id" title="The “stable-id” property"><span class="type">“stable_id”</span></a> property of the connection.</p>
-<div class="refsect3">
-<a name="nm-setting-connection-get-stable-id.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>setting</p></td>
-<td class="parameter_description"><p>the <a class="link" href="NMSettingConnection.html" title="NMSettingConnection"><span class="type">NMSettingConnection</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="nm-setting-connection-get-stable-id.returns"></a><h4>Returns</h4>
-<p> the stable-id for the connection</p>
-</div>
-<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1441,12 +1397,6 @@ enabled for the connection.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="NM-SETTING-CONNECTION-STABLE-ID:CAPS"></a><h3>NM_SETTING_CONNECTION_STABLE_ID</h3>
-<pre class="programlisting">#define NM_SETTING_CONNECTION_STABLE_ID      "stable-id"
-</pre>
-</div>
-<hr>
-<div class="refsect2">
 <a name="NM-SETTING-CONNECTION-INTERFACE-NAME:CAPS"></a><h3>NM_SETTING_CONNECTION_INTERFACE_NAME</h3>
 <pre class="programlisting">#define NM_SETTING_CONNECTION_INTERFACE_NAME "interface-name"
 </pre>
@@ -1767,20 +1717,6 @@ supported.</p>
 slave.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: NULL</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NMSettingConnection--stable-id"></a><h3>The <code class="literal">“stable-id”</code> property</h3>
-<pre class="programlisting">  “stable-id”                <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
-<p>This token to generate stable IDs for the connection. If unset,
-the UUID will be used instead.</p>
-<p>The stable-id is used instead of the connection UUID for generating
-IPv6 stable private addresses with ipv6.addr-gen-mode=stable-privacy.
-It is also used to seed the generated cloned MAC address for
-ethernet.cloned-mac-address=stable and wifi.cloned-mac-address=stable.</p>
-<p>Flags: Read / Write</p>
-<p>Default value: NULL</p>
-<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">

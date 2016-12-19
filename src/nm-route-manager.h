@@ -18,6 +18,9 @@
  * Copyright (C) 2015 Red Hat, Inc.
  */
 
+
+#include "nm-default.h"
+
 #ifndef __NETWORKMANAGER_ROUTE_MANAGER_H__
 #define __NETWORKMANAGER_ROUTE_MANAGER_H__
 

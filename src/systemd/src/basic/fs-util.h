@@ -61,9 +61,6 @@ int mkfifo_atomic(const char *path, mode_t mode);
 
 int get_files_in_directory(const char *path, char ***list);
 
-int tmp_dir(const char **ret);
-int var_tmp_dir(const char **ret);
-
 #define INOTIFY_EVENT_MAX (sizeof(struct inotify_event) + NAME_MAX + 1)
 
 #define FOREACH_INOTIFY_EVENT(e, buffer, sz) \
@@ -75,5 +72,3 @@ union inotify_event_buffer {
         struct inotify_event ev;
         uint8_t raw[INOTIFY_EVENT_MAX];
 };
-
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);

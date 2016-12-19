@@ -77,10 +77,8 @@ add_security (GHashTable *security)
 	/* Hex format begins with " */
 	is_hex_ssid = (ssid[0] != '"');
 	if ((value = g_hash_table_lookup (security, "disabled")) != NULL) {
-		if (strcmp (value, "1") == 0) {
-			destroy_security (security);
+		if (strcmp (value, "1") == 0)
 			return NULL;
-		}
 	}
 
 	/* Default priority is 1 */
@@ -113,7 +111,6 @@ add_security (GHashTable *security)
 static void
 add_key_value (GHashTable * network, gchar * line)
 {
-	gpointer orig_key, orig_value;
 	gchar **key_value;
 
 	if (g_str_has_prefix (line, "network={"))
@@ -136,14 +133,6 @@ add_key_value (GHashTable * network, gchar * line)
 	    && !g_str_has_prefix (key_value[0], "wep_key")
 	    && strcmp (key_value[0], "ssid") != 0)
 		strip_string (key_value[1], '"');
-
-	/* This sucks */
-	if (g_hash_table_lookup_extended (network, key_value[0], &orig_key, &orig_value)) {
-		g_hash_table_remove (network, orig_key);
-		g_free (orig_key);
-		g_free (orig_value);
-	}
-
 	g_hash_table_insert (network, g_strdup (key_value[0]),
 			     g_strdup (key_value[1]));
 	g_strfreev (key_value);

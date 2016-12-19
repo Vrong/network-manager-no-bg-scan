@@ -22,6 +22,7 @@
 #ifndef __NETWORKMANAGER_SUPPLICANT_INTERFACE_H__
 #define __NETWORKMANAGER_SUPPLICANT_INTERFACE_H__
 
+#include "nm-default.h"
 #include "nm-supplicant-types.h"
 
 /*
@@ -163,5 +164,7 @@ NMSupplicantFeature nm_supplicant_interface_get_ap_support (NMSupplicantInterfac
 
 void nm_supplicant_interface_set_ap_support (NMSupplicantInterface *self,
                                              NMSupplicantFeature apmode);
+
+NMSupplicantFeature nm_supplicant_interface_get_mac_randomization_support (NMSupplicantInterface *self);
 
 #endif	/* NM_SUPPLICANT_INTERFACE_H */

@@ -428,27 +428,10 @@ static void
 request_secrets_from_ui (NMSecretAgentSimpleRequest *request)
 {
 	GPtrArray *secrets;
-	NMSecretAgentSimplePrivate *priv;
 	NMSecretAgentSimpleSecret *secret;
 	const char *title;
 	char *msg;
 	gboolean ok = TRUE;
-
-	priv = NM_SECRET_AGENT_SIMPLE_GET_PRIVATE (request->self);
-	g_return_if_fail (priv->enabled);
-
-	/* We only handle requests for connection with @path if set. */
-	if (priv->path && !g_str_has_prefix (request->request_id, priv->path)) {
-		gs_free_error GError *error = NULL;
-
-		error = g_error_new (NM_SECRET_AGENT_ERROR, NM_SECRET_AGENT_ERROR_FAILED,
-		                     "Request for %s secrets doesn't match path %s",
-		                     request->request_id, priv->path);
-		request->callback (NM_SECRET_AGENT_OLD (request->self), request->connection,
-		                   NULL, error, request->callback_data);
-		g_hash_table_remove (priv->requests, request->request_id);
-		return;
-	}
 
 	secrets = g_ptr_array_new_with_free_func ((GDestroyNotify) nm_secret_agent_simple_secret_free);
 
@@ -472,14 +455,19 @@ request_secrets_from_ui (NMSecretAgentSimpleRequest *request)
 		s_con = nm_connection_get_setting_connection (request->connection);
 
 		title = _("Wired 802.1X authentication");
-		msg = g_strdup_printf (_("Secrets are required to access the wired network '%s'"),
-		                       nm_connection_get_id (request->connection));
+		msg = NULL;
 
+		secret = nm_secret_agent_simple_secret_new (_("Network name"),
+		                                            NM_SETTING (s_con),
+		                                            NM_SETTING_CONNECTION_ID,
+		                                            NULL,
+		                                            NULL,
+		                                            FALSE);
+		g_ptr_array_add (secrets, secret);
 		ok = add_8021x_secrets (request, secrets);
 	} else if (nm_connection_is_type (request->connection, NM_SETTING_PPPOE_SETTING_NAME)) {
 		title = _("DSL authentication");
-		msg = g_strdup_printf (_("Secrets are required for the DSL connection '%s'"),
-		                       nm_connection_get_id (request->connection));
+		msg = NULL;
 
 		ok = add_pppoe_secrets (request, secrets);
 	} else if (nm_connection_is_type (request->connection, NM_SETTING_GSM_SETTING_NAME)) {
@@ -751,18 +739,11 @@ nm_secret_agent_simple_enable (NMSecretAgentSimple *self, const char *path)
 {
 	NMSecretAgentSimplePrivate *priv = NM_SECRET_AGENT_SIMPLE_GET_PRIVATE (self);
 	GList *requests, *iter;
-	gs_free char *path_full = NULL;
+	GError *error;
 
-	/* The path is only used to match a request_id with the current
-	 * connection. Since the request_id is "${CONNECTION_PATH}/${SETTING}",
-	 * add a trailing '/' to the path to match the full connection path.
-	 */
-	path_full = path ? g_strdup_printf ("%s/", path) : NULL;
-
-	if (g_strcmp0 (path_full, priv->path) != 0) {
+	if (g_strcmp0 (path, priv->path) != 0) {
 		g_free (priv->path);
-		priv->path = path_full;
-		path_full = NULL;
+		priv->path = g_strdup (path);
 	}
 
 	if (priv->enabled)
@@ -771,9 +752,21 @@ nm_secret_agent_simple_enable (NMSecretAgentSimple *self, const char *path)
 
 	/* Service pending secret requests. */
 	requests = g_hash_table_get_values (priv->requests);
-	for (iter = requests; iter; iter = g_list_next (iter))
-		request_secrets_from_ui (iter->data);
+	for (iter = requests; iter; iter = g_list_next (iter)) {
+		NMSecretAgentSimpleRequest *request = iter->data;
 
+		if (g_str_has_prefix (request->request_id, priv->path)) {
+			request_secrets_from_ui (request);
+		} else {
+			/* We only handle requests for connection with @path if set. */
+			error = g_error_new (NM_SECRET_AGENT_ERROR, NM_SECRET_AGENT_ERROR_FAILED,
+			                     "Request for %s secrets doesn't match path %s",
+			                     request->request_id, priv->path);
+			request->callback (NM_SECRET_AGENT_OLD (self), request->connection, NULL, error, request->callback_data);
+			g_hash_table_remove (priv->requests, request->request_id);
+			g_error_free (error);
+		}
+	}
 	g_list_free (requests);
 }
 
@@ -814,7 +807,7 @@ nm_secret_agent_simple_class_init (NMSecretAgentSimpleClass *klass)
 	 * When the dialog is complete, the app must call
 	 * nm_secret_agent_simple_response() with the results.
 	 */
-	signals[REQUEST_SECRETS] = g_signal_new (NM_SECRET_AGENT_SIMPLE_REQUEST_SECRETS,
+	signals[REQUEST_SECRETS] = g_signal_new ("request-secrets",
 	                                         G_TYPE_FROM_CLASS (klass),
 	                                         0, 0, NULL, NULL, NULL,
 	                                         G_TYPE_NONE,

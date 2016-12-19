@@ -23,6 +23,8 @@
 
 #include "nm-device.h"
 
+G_BEGIN_DECLS
+
 #define NM_TYPE_TEST_DEVICE            (nm_test_device_get_type ())
 #define NM_TEST_DEVICE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_TEST_DEVICE, NMTestDevice))
 #define NM_TEST_DEVICE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  NM_TYPE_TEST_DEVICE, NMTestDeviceClass))
@@ -43,4 +45,6 @@ GType nm_test_device_get_type (void);
 
 NMDevice *nm_test_device_new (const char *hwaddr);
 
-#endif /* __NETWORKMANAGER_TEST_DEVICE_H__ */
+G_END_DECLS
+
+#endif	/* NM_DEVICE_H */

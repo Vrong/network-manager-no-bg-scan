@@ -25,8 +25,10 @@
 #define __NETWORKMANAGER_IFUPDOWN_CONNECTION_H__
 
 #include <nm-settings-connection.h>
-
+#include "nm-default.h"
 #include "interface_parser.h"
+
+G_BEGIN_DECLS
 
 #define NM_TYPE_IFUPDOWN_CONNECTION            (nm_ifupdown_connection_get_type ())
 #define NM_IFUPDOWN_CONNECTION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_IFUPDOWN_CONNECTION, NMIfupdownConnection))
@@ -46,5 +48,7 @@ typedef struct {
 GType nm_ifupdown_connection_get_type (void);
 
 NMIfupdownConnection *nm_ifupdown_connection_new (if_block *block);
+
+G_END_DECLS
 
 #endif /* __NETWORKMANAGER_IFUPDOWN_CONNECTION_H__ */

@@ -546,7 +546,7 @@ nm_active_connection_set_device (NMActiveConnection *self, NMDevice *device)
 
 		g_signal_connect (device, NM_DEVICE_STATE_CHANGED,
 		                  G_CALLBACK (device_state_changed), self);
-		g_signal_connect (device, "notify::" NM_DEVICE_MASTER,
+		g_signal_connect (device, "notify::master",
 		                  G_CALLBACK (device_master_changed), self);
 		g_signal_connect (device, "notify::" NM_DEVICE_METERED,
 		                  G_CALLBACK (device_metered_changed), self);
@@ -719,14 +719,14 @@ nm_active_connection_get_assumed (NMActiveConnection *self)
 
 /****************************************************************/
 
-static void unwatch_parent (NMActiveConnection *self, gboolean unref);
+static void unwatch_parent (NMActiveConnection *self);
 
 static void
 parent_destroyed (gpointer user_data, GObject *parent)
 {
 	NMActiveConnection *self = user_data;
 
-	unwatch_parent (self, FALSE);
+	unwatch_parent (self);
 	g_signal_emit (self, signals[PARENT_ACTIVE], 0, NULL);
 }
 
@@ -741,20 +741,19 @@ parent_state_cb (NMActiveConnection *parent_ac,
 	if (parent_state < NM_ACTIVE_CONNECTION_STATE_ACTIVATED)
 		return;
 
-	unwatch_parent (self, TRUE);
+	unwatch_parent (self);
 	g_signal_emit (self, signals[PARENT_ACTIVE], 0, parent_ac);
 }
 
 static void
-unwatch_parent (NMActiveConnection *self, gboolean unref)
+unwatch_parent (NMActiveConnection *self)
 {
 	NMActiveConnectionPrivate *priv = NM_ACTIVE_CONNECTION_GET_PRIVATE (self);
 
 	g_signal_handlers_disconnect_by_func (priv->parent,
 	                                      (GCallback) parent_state_cb,
 	                                      self);
-	if (unref)
-		g_object_weak_unref ((GObject *) priv->parent, parent_destroyed, self);
+	g_object_weak_unref ((GObject *) priv->parent, parent_destroyed, self);
 	priv->parent = NULL;
 }
 
@@ -1136,7 +1135,7 @@ dispose (GObject *object)
 	g_clear_object (&priv->master);
 
 	if (priv->parent)
-		unwatch_parent (self, TRUE);
+		unwatch_parent (self);
 
 	g_clear_object (&priv->subject);
 

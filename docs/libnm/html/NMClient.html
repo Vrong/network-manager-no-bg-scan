@@ -617,16 +617,6 @@
 <tbody>
 <tr>
 <td class="signal_type"><span class="returnvalue">void</span></td>
-<td class="signal_name"><a class="link" href="NMClient.html#NMClient-active-connection-added" title="The “active-connection-added” signal">active-connection-added</a></td>
-<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
-</tr>
-<tr>
-<td class="signal_type"><span class="returnvalue">void</span></td>
-<td class="signal_name"><a class="link" href="NMClient.html#NMClient-active-connection-removed" title="The “active-connection-removed” signal">active-connection-removed</a></td>
-<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
-</tr>
-<tr>
-<td class="signal_type"><span class="returnvalue">void</span></td>
 <td class="signal_name"><a class="link" href="NMClient.html#NMClient-any-device-added" title="The “any-device-added” signal">any-device-added</a></td>
 <td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
 </tr>
@@ -782,14 +772,6 @@
 <tr>
 <td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="NMClient.html#NM-CLIENT-CONNECTION-REMOVED:CAPS" title="NM_CLIENT_CONNECTION_REMOVED">NM_CLIENT_CONNECTION_REMOVED</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="NMClient.html#NM-CLIENT-ACTIVE-CONNECTION-ADDED:CAPS" title="NM_CLIENT_ACTIVE_CONNECTION_ADDED">NM_CLIENT_ACTIVE_CONNECTION_ADDED</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="NMClient.html#NM-CLIENT-ACTIVE-CONNECTION-REMOVED:CAPS" title="NM_CLIENT_ACTIVE_CONNECTION_REMOVED">NM_CLIENT_ACTIVE_CONNECTION_REMOVED</a></td>
 </tr>
 <tr>
 <td class="datatype_keyword">enum</td>
@@ -3161,18 +3143,6 @@ nm_client_reload_connections_finish (<em class="parameter"><code><a class="link"
 </div>
 <hr>
 <div class="refsect2">
-<a name="NM-CLIENT-ACTIVE-CONNECTION-ADDED:CAPS"></a><h3>NM_CLIENT_ACTIVE_CONNECTION_ADDED</h3>
-<pre class="programlisting">#define NM_CLIENT_ACTIVE_CONNECTION_ADDED "active-connection-added"
-</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NM-CLIENT-ACTIVE-CONNECTION-REMOVED:CAPS"></a><h3>NM_CLIENT_ACTIVE_CONNECTION_REMOVED</h3>
-<pre class="programlisting">#define NM_CLIENT_ACTIVE_CONNECTION_REMOVED "active-connection-removed"
-</pre>
-</div>
-<hr>
-<div class="refsect2">
 <a name="NMClientPermission"></a><h3>enum NMClientPermission</h3>
 <p><a class="link" href="NMClient.html#NMClientPermission" title="enum NMClientPermission"><span class="type">NMClientPermission</span></a> values indicate various permissions that NetworkManager
 clients can obtain to perform certain tasks on behalf of the current user.</p>
@@ -3292,21 +3262,6 @@ clients can obtain to perform certain tasks on behalf of the current user.</p>
 <td class="enum_member_name"><p><a name="NM-CLIENT-PERMISSION-RELOAD:CAPS"></a>NM_CLIENT_PERMISSION_RELOAD</p></td>
 <td class="enum_member_description">
 <p>controls access to Reload.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="NM-CLIENT-PERMISSION-CHECKPOINT-ROLLBACK:CAPS"></a>NM_CLIENT_PERMISSION_CHECKPOINT_ROLLBACK</p></td>
-<td class="enum_member_description">
-<p>permission to create checkpoints.</p>
-</td>
-<td class="enum_member_annotations"> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="NM-CLIENT-PERMISSION-ENABLE-DISABLE-STATISTICS:CAPS"></a>NM_CLIENT_PERMISSION_ENABLE_DISABLE_STATISTICS</p></td>
-<td class="enum_member_description">
-<p>controls whether device
- statistics can be globally enabled or disabled</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
@@ -3603,80 +3558,6 @@ see <a class="link" href="NMClient.html#nm-client-get-primary-connection" title=
 </div>
 <div class="refsect1">
 <a name="NMClient.signal-details"></a><h2>Signal Details</h2>
-<div class="refsect2">
-<a name="NMClient-active-connection-added"></a><h3>The <code class="literal">“active-connection-added”</code> signal</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="NMClient.html" title="NMClient"><span class="type">NMClient</span></a>           *client,
-               <a class="link" href="NMActiveConnection.html" title="NMActiveConnection"><span class="type">NMActiveConnection</span></a> *active_connection,
-               <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)</pre>
-<p>Notifies that a <a class="link" href="NMActiveConnection.html" title="NMActiveConnection"><span class="type">NMActiveConnection</span></a> has been added.</p>
-<div class="refsect3">
-<a name="NMClient-active-connection-added.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>client</p></td>
-<td class="parameter_description"><p>the settings object that received the signal</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>active_connection</p></td>
-<td class="parameter_description"><p>the new active connection</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>user_data</p></td>
-<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p>Flags: <a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NMClient-active-connection-removed"></a><h3>The <code class="literal">“active-connection-removed”</code> signal</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="NMClient.html" title="NMClient"><span class="type">NMClient</span></a>           *client,
-               <a class="link" href="NMActiveConnection.html" title="NMActiveConnection"><span class="type">NMActiveConnection</span></a> *active_connection,
-               <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)</pre>
-<p>Notifies that a <a class="link" href="NMActiveConnection.html" title="NMActiveConnection"><span class="type">NMActiveConnection</span></a> has been removed.</p>
-<div class="refsect3">
-<a name="NMClient-active-connection-removed.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>client</p></td>
-<td class="parameter_description"><p>the settings object that received the signal</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>active_connection</p></td>
-<td class="parameter_description"><p>the removed active connection</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>user_data</p></td>
-<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p>Flags: <a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
-</div>
-<hr>
 <div class="refsect2">
 <a name="NMClient-any-device-added"></a><h3>The <code class="literal">“any-device-added”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>

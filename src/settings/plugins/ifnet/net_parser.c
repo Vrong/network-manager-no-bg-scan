@@ -501,13 +501,13 @@ GList *
 ifnet_get_connection_names (void)
 {
 	GList *names = g_hash_table_get_keys (conn_table);
-	GList *iter, *result = NULL;
+	GList *result = NULL;
 
-	for (iter = names; iter; iter = iter->next) {
-		if (!ignore_connection_name (iter->data))
-			result = g_list_prepend (result, iter->data);
+	while (names) {
+		if (!ignore_connection_name (names->data))
+			result = g_list_prepend (result, names->data);
+		names = names->next;
 	}
-
 	g_list_free (names);
 	return g_list_reverse (result);
 }

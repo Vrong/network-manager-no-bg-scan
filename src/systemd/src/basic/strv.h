@@ -25,7 +25,9 @@
 #include <stddef.h>
 
 #include "alloc-util.h"
+#if 0 /* NM_IGNORED */
 #include "extract-word.h"
+#endif /* NM_IGNORED */
 #include "macro.h"
 #include "util.h"
 
@@ -50,7 +52,6 @@ int strv_extend_strv(char ***a, char **b, bool filter_duplicates);
 int strv_extend_strv_concat(char ***a, char **b, const char *suffix);
 int strv_extend(char ***l, const char *value);
 int strv_extendf(char ***l, const char *format, ...) _printf_(2,0);
-int strv_extend_front(char ***l, const char *value);
 int strv_push(char ***l, char *value);
 int strv_push_pair(char ***l, char *a, char *b);
 int strv_push_prepend(char ***l, char *value);
@@ -69,10 +70,8 @@ bool strv_equal(char **a, char **b);
 char **strv_new(const char *x, ...) _sentinel_;
 char **strv_new_ap(const char *x, va_list ap);
 
-#define STRV_IGNORE ((const char *) -1)
-
 static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ? x : STRV_IGNORE;
+        return x ? x : (const char *) -1;
 }
 
 static inline bool strv_isempty(char * const *l) {
@@ -82,7 +81,9 @@ static inline bool strv_isempty(char * const *l) {
 char **strv_split(const char *s, const char *separator);
 char **strv_split_newlines(const char *s);
 
+#if 0 /* NM_IGNORED */
 int strv_split_extract(char ***t, const char *s, const char *separators, ExtractFlags flags);
+#endif /* NM_IGNORED */
 
 char *strv_join(char **l, const char *separator);
 char *strv_join_quoted(char **l);

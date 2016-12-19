@@ -385,11 +385,10 @@ parse_capabilities (NMSupplicantInterface *self, GVariant *capabilities)
 
 	g_return_if_fail (capabilities && g_variant_is_of_type (capabilities, G_VARIANT_TYPE_VARDICT));
 
-	if (   g_variant_lookup (capabilities, "Scan", "^a&s", &array)
-	    && array) {
-		if (g_strv_contains (array, "active"))
+	if (g_variant_lookup (capabilities, "Scan", "^a&s", &array)) {
+		if (_nm_utils_string_in_list ("active", array))
 			have_active = TRUE;
-		if (g_strv_contains (array, "ssid"))
+		if (_nm_utils_string_in_list ("ssid", array))
 			have_ssid = TRUE;
 		g_free (array);
 	}
@@ -503,6 +502,12 @@ nm_supplicant_interface_set_ap_support (NMSupplicantInterface *self,
 		priv->ap_support = ap_support;
 }
 
+NMSupplicantFeature
+nm_supplicant_interface_get_mac_randomization_support (NMSupplicantInterface *self)
+{
+	return NM_SUPPLICANT_INTERFACE_GET_PRIVATE (self)->mac_randomization_support;
+}
+
 static void
 set_preassoc_scan_mac_cb (GDBusProxy *proxy, GAsyncResult *result, gpointer user_data)
 {
@@ -557,7 +562,7 @@ iface_introspect_cb (GDBusProxy *proxy, GAsyncResult *result, gpointer user_data
 			                   g_variant_new ("(ssv)",
 			                                  WPAS_DBUS_IFACE_INTERFACE,
 			                                  "PreassocMacAddr",
-			                                  g_variant_new_string ("0")),
+			                                  g_variant_new_string ("1")),
 			                   G_DBUS_CALL_FLAGS_NONE,
 			                   -1,
 			                   priv->init_cancellable,
@@ -1217,7 +1222,9 @@ set_mac_randomization_cb (GDBusProxy *proxy, GAsyncResult *result, gpointer user
 		return;
 	}
 
-	_LOGT ("config: set MAC randomization to 0");
+	_LOGI ("config: set MAC randomization to %s",
+	       nm_supplicant_config_get_mac_randomization (priv->cfg));
+
 	add_network (self);
 }
 
@@ -1248,20 +1255,23 @@ set_ap_scan_cb (GDBusProxy *proxy, GAsyncResult *result, gpointer user_data)
 	       nm_supplicant_config_get_ap_scan (priv->cfg));
 
 	if (priv->mac_randomization_support == NM_SUPPLICANT_FEATURE_YES) {
+		const char *mac_randomization = nm_supplicant_config_get_mac_randomization (priv->cfg);
+
 		/* Enable/disable association MAC address randomization */
 		g_dbus_proxy_call (priv->iface_proxy,
 		                   DBUS_INTERFACE_PROPERTIES ".Set",
 		                   g_variant_new ("(ssv)",
 		                                  WPAS_DBUS_IFACE_INTERFACE,
 		                                  "MacAddr",
-		                                  g_variant_new_string ("0")),
+		                                  g_variant_new_string (mac_randomization)),
 		                   G_DBUS_CALL_FLAGS_NONE,
 		                   -1,
 		                   priv->assoc_cancellable,
 		                   (GAsyncReadyCallback) set_mac_randomization_cb,
 		                   self);
-	} else
+	} else {
 		add_network (self);
+	}
 }
 
 gboolean
@@ -1288,6 +1298,7 @@ nm_supplicant_interface_set_config (NMSupplicantInterface *self,
 
 	g_clear_object (&priv->cfg);
 	if (cfg) {
+		priv->assoc_cancellable = g_cancellable_new ();
 		priv->cfg = g_object_ref (cfg);
 		g_dbus_proxy_call (priv->iface_proxy,
 		                   DBUS_INTERFACE_PROPERTIES ".Set",
@@ -1525,13 +1536,9 @@ dispose (GObject *object)
 		g_signal_handlers_disconnect_by_data (priv->iface_proxy, NM_SUPPLICANT_INTERFACE (object));
 	g_clear_object (&priv->iface_proxy);
 
-	if (priv->init_cancellable)
-		g_cancellable_cancel (priv->init_cancellable);
-	g_clear_object (&priv->init_cancellable);
-
-	if (priv->other_cancellable)
-		g_cancellable_cancel (priv->other_cancellable);
-	g_clear_object (&priv->other_cancellable);
+	nm_clear_g_cancellable (&priv->init_cancellable);
+	nm_clear_g_cancellable (&priv->other_cancellable);
+	nm_clear_g_cancellable (&priv->assoc_cancellable);
 
 	g_clear_object (&priv->wpas_proxy);
 	g_clear_pointer (&priv->bss_proxies, (GDestroyNotify) g_hash_table_destroy);

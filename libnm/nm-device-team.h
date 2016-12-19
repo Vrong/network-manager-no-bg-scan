@@ -39,7 +39,6 @@ G_BEGIN_DECLS
 #define NM_DEVICE_TEAM_HW_ADDRESS  "hw-address"
 #define NM_DEVICE_TEAM_CARRIER     "carrier"
 #define NM_DEVICE_TEAM_SLAVES      "slaves"
-#define NM_DEVICE_TEAM_CONFIG      "config"
 
 /**
  * NMDeviceTeam:
@@ -60,8 +59,6 @@ GType nm_device_team_get_type (void);
 const char      *nm_device_team_get_hw_address (NMDeviceTeam *device);
 gboolean         nm_device_team_get_carrier    (NMDeviceTeam *device);
 const GPtrArray *nm_device_team_get_slaves     (NMDeviceTeam *device);
-NM_AVAILABLE_IN_1_4
-const char      *nm_device_team_get_config     (NMDeviceTeam *device);
 
 G_END_DECLS
 

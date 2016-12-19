@@ -24,7 +24,7 @@
 
 #include "nm-dnsmasq-utils.h"
 
-#include "nm-test-utils-core.h"
+#include "nm-test-utils.h"
 
 static void
 test_address_ranges (void)

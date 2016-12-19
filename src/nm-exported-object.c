@@ -29,7 +29,6 @@
 
 #include "nm-device.h"
 #include "nm-active-connection.h"
-#include "nmdbus-device-statistics.h"
 
 #if NM_MORE_ASSERTS >= 2
 #define _ASSERT_NO_EARLY_EXPORT
@@ -269,16 +268,12 @@ nm_exported_object_class_add_interface (NMExportedObjectClass *object_class,
 	g_return_if_fail (NM_IS_EXPORTED_OBJECT_CLASS (object_class));
 	g_return_if_fail (g_type_is_a (dbus_skeleton_type, G_TYPE_DBUS_INTERFACE_SKELETON));
 
-	classinfo = g_type_get_qdata (G_TYPE_FROM_CLASS (object_class),
-	                              nm_exported_object_class_info_quark ());
-	if (!classinfo) {
-		classinfo = g_slice_new (NMExportedObjectClassInfo);
-		classinfo->skeleton_types = NULL;
-		classinfo->methods = g_array_new (FALSE, FALSE, sizeof (NMExportedObjectDBusMethodImpl));
-		classinfo->properties = g_hash_table_new (g_str_hash, g_str_equal);
-		g_type_set_qdata (G_TYPE_FROM_CLASS (object_class),
-		                  nm_exported_object_class_info_quark (), classinfo);
-	}
+	classinfo = g_slice_new (NMExportedObjectClassInfo);
+	classinfo->skeleton_types = NULL;
+	classinfo->methods = g_array_new (FALSE, FALSE, sizeof (NMExportedObjectDBusMethodImpl));
+	classinfo->properties = g_hash_table_new (g_str_hash, g_str_equal);
+	g_type_set_qdata (G_TYPE_FROM_CLASS (object_class),
+	                  nm_exported_object_class_info_quark (), classinfo);
 
 	classinfo->skeleton_types = g_slist_prepend (classinfo->skeleton_types,
 	                                             GSIZE_TO_POINTER (dbus_skeleton_type));
@@ -357,6 +352,8 @@ nm_exported_object_class_add_interface (NMExportedObjectClass *object_class,
 			                            g_free);
 		}
 	}
+
+	g_assert_cmpint (n_method_signals, ==, classinfo->methods->len);
 
 	g_type_class_unref (dbus_object_class);
 }
@@ -594,9 +591,7 @@ _create_export_path (NMExportedObjectClass *klass)
 			g_hash_table_insert (prefix_counters, g_strdup (class_export_path), counter);
 		}
 
-		NM_PRAGMA_WARNING_DISABLE("-Wformat-nonliteral")
 		return g_strdup_printf (class_export_path, (*counter)++);
-		NM_PRAGMA_WARNING_REENABLE
 	}
 
 	return g_strdup (class_export_path);
@@ -911,8 +906,7 @@ vtype_found:
 	value_variant = g_dbus_gvalue_to_gvariant (&value, vtype);
 	g_value_unset (&value);
 
-	if (   (   NM_IS_DEVICE (self)
-	        && !NMDBUS_IS_DEVICE_STATISTICS_SKELETON (ifdata->interface))
+	if (   NM_IS_DEVICE (self)
 	    || NM_IS_ACTIVE_CONNECTION (self)) {
 		/* This PropertiesChanged signal is nodaways deprecated in favor
 		 * of "org.freedesktop.DBus.Properties"'s PropertiesChanged signal.
@@ -935,14 +929,10 @@ vtype_found:
 		 *
 		 * The releases of 1.2.0 and 1.4.0 failed to realize above and broke this behavior.
 		 * This special handling here is to bring back the 1.0.0 behavior.
-		 *
-		 * The Device.Statistics signal is special, because it was only added with 1.4.0
-		 * and didn't have above behavior. So let's save the overhead of emitting multiple
-		 * deprecated signals for wrong interfaces. */
+		 */
 		for (i = 0, j = 0; i < priv->num_interfaces; i++) {
 			ifdata = &priv->interfaces[i];
-			if (   ifdata->property_changed_signal_id
-			    && !NMDBUS_IS_DEVICE_STATISTICS_SKELETON (ifdata->interface)) {
+			if (ifdata->property_changed_signal_id) {
 				j++;
 				g_hash_table_insert (ifdata->pending_notifies,
 				                     (gpointer) dbus_property_name,

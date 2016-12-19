@@ -23,6 +23,9 @@
 
 #include "nm-setting-private.h"
 
+gboolean    _nm_utils_string_in_list   (const char *str,
+                                        const char **valid_strings);
+
 gboolean    _nm_utils_string_slist_validate (GSList *list,
                                              const char **valid_values);
 

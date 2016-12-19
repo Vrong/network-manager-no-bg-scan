@@ -23,6 +23,8 @@
 
 #include "nm-device.h"
 
+G_BEGIN_DECLS
+
 #define NM_TYPE_DEVICE_VLAN            (nm_device_vlan_get_type ())
 #define NM_DEVICE_VLAN(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_DEVICE_VLAN, NMDeviceVlan))
 #define NM_DEVICE_VLAN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  NM_TYPE_DEVICE_VLAN, NMDeviceVlanClass))
@@ -45,4 +47,6 @@ typedef NMDeviceClass NMDeviceVlanClass;
 
 GType nm_device_vlan_get_type (void);
 
-#endif /* __NETWORKMANAGER_DEVICE_VLAN_H__ */
+G_END_DECLS
+
+#endif	/* NM_DEVICE_VLAN_H */

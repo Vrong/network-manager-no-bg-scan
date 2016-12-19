@@ -32,13 +32,6 @@
                           OUT s         domains);
 <link linkend="gdbus-method-org-freedesktop-NetworkManager.CheckConnectivity">CheckConnectivity</link>        (OUT u         connectivity);
 <link linkend="gdbus-method-org-freedesktop-NetworkManager.state">state</link>                    (OUT u         state);
-<link linkend="gdbus-method-org-freedesktop-NetworkManager.CheckpointCreate">CheckpointCreate</link>         (IN  ao        devices,
-                          IN  u         rollback_timeout,
-                          IN  u         flags,
-                          OUT o         checkpoint);
-<link linkend="gdbus-method-org-freedesktop-NetworkManager.CheckpointDestroy">CheckpointDestroy</link>        (IN  o         checkpoint);
-<link linkend="gdbus-method-org-freedesktop-NetworkManager.CheckpointRollback">CheckpointRollback</link>       (IN  o         checkpoint,
-                          OUT a{su}     result);
 </synopsis>
   </refsynopsisdiv>
   <refsect1 role="signal_proto">
@@ -100,12 +93,11 @@ Reload (IN  u flags);
         (0x04) means to restart the DNS plugin. This is for example useful when using
         dnsmasq plugin, which uses additional configuration in /etc/NetworkManager/dnsmasq.d.
         If you edit those files, you can restart the DNS plugin. This action shortly interrupts
-        name resolution.
+        rename resolution.
         Note that flags may affect each other. For example, restarting the DNS plugin (0x04)
         implicitly updates DNS too (0x02). Or when reloading the configuration (0x01), changes
         to DNS setting also cause a DNS update (0x02). However, (0x01) does not involve restarting
-        the DNS plugin (0x04) or update resolv.conf (0x02), unless the DNS related configuration
-        changes in NetworkManager.conf.
+        the DNS plugin (0x02), unless an entirely different plugin is selected.
 </para>
 <variablelist role="params">
 <varlistentry>
@@ -371,77 +363,6 @@ state (OUT u state);
 <varlistentry>
   <term><literal>OUT u <parameter>state</parameter></literal>:</term>
   <listitem><para><link linkend="NMState">NMState</link></para></listitem>
-</varlistentry>
-</variablelist>
-</refsect2>
-<refsect2 role="method" id="gdbus-method-org-freedesktop-NetworkManager.CheckpointCreate">
-  <title>The CheckpointCreate() method</title>
-  <indexterm zone="gdbus-method-org-freedesktop-NetworkManager.CheckpointCreate"><primary sortas="Manager.CheckpointCreate">org.freedesktop.NetworkManager.CheckpointCreate()</primary></indexterm>
-<programlisting>
-CheckpointCreate (IN  ao devices,
-                  IN  u  rollback_timeout,
-                  IN  u  flags,
-                  OUT o  checkpoint);
-</programlisting>
-<para>        <parameter>devices</parameter>: a list of device paths for which a checkpoint should be created. An empty list means all managed devices.
-        <parameter>rollback_timeout</parameter>: the time in seconds until NetworkManager will automatically rollback to the checkpoint. Set to zero for infinite.
-        <parameter>flags</parameter>: optional flags that influence the creation.
-        <parameter>checkpoint</parameter>: on success, returns the path of the checkpoint.
-</para><para>        Create a checkpoint of the current networking configuration
-        for given interfaces. If <parameter>rollback_timeout</parameter> is not zero, a
-        rollback is automatically performed after the given timeout.
-</para>
-<variablelist role="params">
-<varlistentry>
-  <term><literal>IN ao <parameter>devices</parameter></literal>:</term>
-  <listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><literal>IN u <parameter>rollback_timeout</parameter></literal>:</term>
-  <listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><literal>IN u <parameter>flags</parameter></literal>:</term>
-  <listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><literal>OUT o <parameter>checkpoint</parameter></literal>:</term>
-  <listitem><para></para></listitem>
-</varlistentry>
-</variablelist>
-</refsect2>
-<refsect2 role="method" id="gdbus-method-org-freedesktop-NetworkManager.CheckpointDestroy">
-  <title>The CheckpointDestroy() method</title>
-  <indexterm zone="gdbus-method-org-freedesktop-NetworkManager.CheckpointDestroy"><primary sortas="Manager.CheckpointDestroy">org.freedesktop.NetworkManager.CheckpointDestroy()</primary></indexterm>
-<programlisting>
-CheckpointDestroy (IN  o checkpoint);
-</programlisting>
-<para>        Destroy a previously created checkpoint.
-</para>
-<variablelist role="params">
-<varlistentry>
-  <term><literal>IN o <parameter>checkpoint</parameter></literal>:</term>
-  <listitem><para>the checkpoint to be destroyed. Set to empty to cancel all pending checkpoints.</para></listitem>
-</varlistentry>
-</variablelist>
-</refsect2>
-<refsect2 role="method" id="gdbus-method-org-freedesktop-NetworkManager.CheckpointRollback">
-  <title>The CheckpointRollback() method</title>
-  <indexterm zone="gdbus-method-org-freedesktop-NetworkManager.CheckpointRollback"><primary sortas="Manager.CheckpointRollback">org.freedesktop.NetworkManager.CheckpointRollback()</primary></indexterm>
-<programlisting>
-CheckpointRollback (IN  o     checkpoint,
-                    OUT a{su} result);
-</programlisting>
-<para>        Rollback a checkpoint before the timeout is reached.
-</para>
-<variablelist role="params">
-<varlistentry>
-  <term><literal>IN o <parameter>checkpoint</parameter></literal>:</term>
-  <listitem><para>the checkpoint to be rolled back.</para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><literal>OUT a{su} <parameter>result</parameter></literal>:</term>
-  <listitem><para>on return, a dictionary of devices and results. Devices are represented by their original D-Bus path; each result is a <link linkend="NMRollbackResult">RollbackResult</link>.</para></listitem>
 </varlistentry>
 </variablelist>
 </refsect2>

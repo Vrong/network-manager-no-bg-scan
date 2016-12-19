@@ -21,6 +21,8 @@
 #ifndef NM_SETTING_PRIVATE_H
 #define NM_SETTING_PRIVATE_H
 
+#include "nm-default.h"
+
 #include "nm-connection.h"
 
 #define NM_SETTING_SECRET_FLAGS_ALL \

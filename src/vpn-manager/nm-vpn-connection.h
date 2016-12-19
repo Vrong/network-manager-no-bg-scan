@@ -47,7 +47,27 @@
 
 #define NM_VPN_ROUTE_METRIC_DEFAULT     50
 
-typedef struct _NMVpnConnectionClass NMVpnConnectionClass;
+
+struct _NMVpnConnection {
+	NMActiveConnection parent;
+};
+
+typedef struct {
+	NMActiveConnectionClass parent;
+
+	/* Signals */
+	void (*vpn_state_changed) (NMVpnConnection *self,
+	                           NMVpnConnectionState new_state,
+	                           NMVpnConnectionStateReason reason);
+
+	/* not exported over D-Bus */
+	void (*internal_state_changed) (NMVpnConnection *self,
+	                                NMVpnConnectionState new_state,
+	                                NMVpnConnectionState old_state,
+	                                NMVpnConnectionStateReason reason);
+
+	void (*internal_failed_retry)  (NMVpnConnection *self);
+} NMVpnConnectionClass;
 
 GType nm_vpn_connection_get_type (void);
 

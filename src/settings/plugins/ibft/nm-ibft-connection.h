@@ -21,6 +21,8 @@
 #ifndef NM_IBFT_CONNECTION_H
 #define NM_IBFT_CONNECTION_H
 
+G_BEGIN_DECLS
+
 #include <nm-settings-connection.h>
 
 #define NM_TYPE_IBFT_CONNECTION            (nm_ibft_connection_get_type ())
@@ -42,5 +44,7 @@ GType nm_ibft_connection_get_type (void);
 
 NMIbftConnection *nm_ibft_connection_new (const GPtrArray *block,
                                           GError **error);
+
+G_END_DECLS
 
 #endif /* NM_IBFT_CONNECTION_H */

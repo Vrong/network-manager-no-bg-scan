@@ -55,7 +55,7 @@
 #include "writer.h"
 #include "utils.h"
 
-#include "nm-test-utils-core.h"
+#include "nm-test-utils.h"
 
 /*****************************************************************************/
 
@@ -67,14 +67,11 @@ _connection_from_file (const char *filename,
 {
 	NMConnection *connection;
 	GError *error = NULL;
-	char *unhandled_fallback = NULL;
 
 	g_assert (!out_unhandled || !*out_unhandled);
 
-	connection = connection_from_file_test (filename, network_file, test_type,
-	                                        out_unhandled ?: &unhandled_fallback, &error);
+	connection = connection_from_file_test (filename, network_file, test_type, out_unhandled, &error);
 	g_assert_no_error (error);
-	g_assert (!unhandled_fallback);
 
 	if (out_unhandled && *out_unhandled)
 		nmtst_assert_connection_verifies (connection);
@@ -92,12 +89,13 @@ _connection_from_file_fail (const char *filename,
 	NMConnection *connection;
 	GError *local = NULL;
 	char *unhandled = NULL;
+	char **p_unhandled = (nmtst_get_rand_int () % 2) ? &unhandled : NULL;
 
-	connection = connection_from_file_test (filename, network_file, test_type, &unhandled, &local);
+	connection = connection_from_file_test (filename, network_file, test_type, p_unhandled, &local);
 
 	g_assert (!connection);
 	g_assert (local);
-	g_assert (!unhandled);
+	g_assert (!p_unhandled || !*p_unhandled);
 	g_propagate_error (error, local);
 }
 
@@ -109,14 +107,11 @@ _writer_new_connection (NMConnection *connection,
 	gboolean success;
 	GError *error = NULL;
 	char *filename = NULL;
-	gs_unref_object NMConnection *con_verified = NULL;
 
 	g_assert (NM_IS_CONNECTION (connection));
 	g_assert (ifcfg_dir);
 
-	con_verified = nmtst_connection_duplicate_and_normalize (connection);
-
-	success = writer_new_connection (con_verified,
+	success = writer_new_connection (connection,
 	                                 ifcfg_dir,
 	                                 &filename,
 	                                 &error);
@@ -1735,69 +1730,6 @@ test_read_dns_options (void)
 		g_assert_cmpstr (options[i], ==, option);
 	}
 
-	g_object_unref (connection);
-}
-
-static void
-test_clear_master (void)
-{
-	NMSettingConnection *s_con;
-	NMConnection *connection;
-	char *unmanaged = NULL;
-	char *testfile = NULL, *keyfile;
-	GError *error = NULL;
-	gboolean success;
-	shvarFile *f;
-	char *val;
-
-	/* 1. load the bridge slave connection from disk */
-	connection = _connection_from_file (TEST_IFCFG_DIR "/network-scripts/ifcfg-test-bridge-component",
-	                                    NULL, TYPE_ETHERNET, &unmanaged);
-	g_assert_cmpstr (unmanaged, ==, NULL);
-
-	s_con = nm_connection_get_setting_connection (connection);
-	g_assert (s_con);
-
-	g_assert_cmpstr (nm_setting_connection_get_master (s_con), ==, "br0");
-	g_assert_cmpstr (nm_setting_connection_get_slave_type (s_con), ==, "bridge");
-
-	/* 2. write the connection to a new file */
-	_writer_new_connection (connection,
-	                        TEST_SCRATCH_DIR "/network-scripts/",
-	                        &testfile);
-
-	/* 3. clear master and slave-type */
-	g_object_set (s_con,
-	              NM_SETTING_CONNECTION_MASTER, NULL,
-	              NM_SETTING_CONNECTION_SLAVE_TYPE, NULL,
-	              NULL);
-
-	g_assert_cmpstr (nm_setting_connection_get_master (s_con), ==, NULL);
-	g_assert_cmpstr (nm_setting_connection_get_slave_type (s_con), ==, NULL);
-
-	/* 4. update the connection on disk */
-	keyfile = utils_get_keys_path (testfile);
-	success = writer_update_connection (connection,
-	                                    TEST_SCRATCH_DIR "/network-scripts/",
-	                                    testfile,
-	                                    keyfile,
-	                                    &error);
-	g_assert_no_error (error);
-	g_assert (success);
-	unlink (keyfile);
-	g_free (keyfile);
-
-	/* 5. check that BRIDGE variable has been removed */
-	f = svOpenFile (testfile, &error);
-	g_assert_no_error (error);
-	g_assert (f);
-
-	val = svGetValue (f, "BRIDGE", FALSE);
-	g_assert (!val);
-	svCloseFile (f);
-
-	unlink (testfile);
-	g_free (testfile);
 	g_object_unref (connection);
 }
 
@@ -8430,15 +8362,15 @@ test_write_fcoe_mode (gconstpointer user_data)
 }
 
 static void
-test_read_team_master (gconstpointer user_data)
+test_read_team_master (void)
 {
-	const char *const PATH_NAME = user_data;
 	NMConnection *connection;
 	NMSettingConnection *s_con;
 	NMSettingTeam *s_team;
 	const char *expected_config = "{ \"device\": \"team0\", \"link_watch\": { \"name\": \"ethtool\" } }";
 
-	connection = _connection_from_file (PATH_NAME, NULL, TYPE_ETHERNET, NULL);
+	connection = _connection_from_file (TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-master",
+	                                    NULL, TYPE_ETHERNET, NULL);
 
 	g_assert_cmpstr (nm_connection_get_interface_name (connection), ==, "team0");
 
@@ -8449,31 +8381,6 @@ test_read_team_master (gconstpointer user_data)
 	s_team = nm_connection_get_setting_team (connection);
 	g_assert (s_team);
 	g_assert_cmpstr (nm_setting_team_get_config (s_team), ==, expected_config);
-
-	g_object_unref (connection);
-}
-
-static void
-test_read_team_master_invalid (gconstpointer user_data)
-{
-	const char *const PATH_NAME = user_data;
-	NMConnection *connection;
-	NMSettingConnection *s_con;
-	NMSettingTeam *s_team;
-
-	g_test_expect_message ("NetworkManager", G_LOG_LEVEL_MESSAGE, "*ignoring invalid team configuration*");
-	connection = _connection_from_file (PATH_NAME, NULL, TYPE_ETHERNET, NULL);
-	g_test_assert_expected_messages ();
-
-	g_assert_cmpstr (nm_connection_get_interface_name (connection), ==, "team0");
-
-	s_con = nm_connection_get_setting_connection (connection);
-	g_assert (s_con);
-	g_assert_cmpstr (nm_setting_connection_get_connection_type (s_con), ==, NM_SETTING_TEAM_SETTING_NAME);
-
-	s_team = nm_connection_get_setting_team (connection);
-	g_assert (s_team);
-	g_assert (nm_setting_team_get_config (s_team) == NULL);
 
 	g_object_unref (connection);
 }
@@ -8571,15 +8478,15 @@ test_write_team_master (void)
 }
 
 static void
-test_read_team_port (gconstpointer user_data)
+test_read_team_port (void)
 {
-	const char *const PATH_NAME = user_data;
 	NMConnection *connection;
 	NMSettingConnection *s_con;
 	NMSettingTeamPort *s_team_port;
 	const char *expected_config = "{ \"p4p1\": { \"prio\": -10, \"sticky\": true } }";
 
-	connection = _connection_from_file (PATH_NAME, NULL, TYPE_ETHERNET, NULL);
+	connection = _connection_from_file (TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-port",
+	                                    NULL, TYPE_ETHERNET, NULL);
 
 	s_con = nm_connection_get_setting_connection (connection);
 	g_assert (s_con);
@@ -8874,7 +8781,6 @@ int main (int argc, char **argv)
 	g_test_add_data_func (TPATH "static-ip6-only-gw/2001:db8:8:4::2", "2001:db8:8:4::2", test_write_wired_static_ip6_only_gw);
 	g_test_add_data_func (TPATH "static-ip6-only-gw/::ffff:255.255.255.255", "::ffff:255.255.255.255", test_write_wired_static_ip6_only_gw);
 	g_test_add_func (TPATH "read-dns-options", test_read_dns_options);
-	g_test_add_func (TPATH "clear-master", test_clear_master);
 
 	nmtst_add_test_func (TPATH "read-static",           test_read_wired_static, TEST_IFCFG_DIR"/network-scripts/ifcfg-test-wired-static",           "System test-wired-static",           GINT_TO_POINTER (TRUE));
 	nmtst_add_test_func (TPATH "read-static-bootproto", test_read_wired_static, TEST_IFCFG_DIR"/network-scripts/ifcfg-test-wired-static-bootproto", "System test-wired-static-bootproto", GINT_TO_POINTER (FALSE));
@@ -9073,12 +8979,9 @@ int main (int argc, char **argv)
 	g_test_add_func (TPATH "bridge/write-component", test_write_bridge_component);
 	g_test_add_func (TPATH "bridge/read-missing-stp", test_read_bridge_missing_stp);
 
-	g_test_add_data_func (TPATH "team/read-master-1", TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-master-1", test_read_team_master);
-	g_test_add_data_func (TPATH "team/read-master-2", TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-master-2", test_read_team_master);
-	g_test_add_data_func (TPATH "team/read-master-invalid", TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-master-invalid", test_read_team_master_invalid);
+	g_test_add_func (TPATH "team/read-master", test_read_team_master);
 	g_test_add_func (TPATH "team/write-master", test_write_team_master);
-	g_test_add_data_func (TPATH "team/read-port-1", TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-port-1", test_read_team_port);
-	g_test_add_data_func (TPATH "team/read-port-2", TEST_IFCFG_DIR"/network-scripts/ifcfg-test-team-port-2", test_read_team_port);
+	g_test_add_func (TPATH "team/read-port", test_read_team_port);
 	g_test_add_func (TPATH "team/write-port", test_write_team_port);
 	g_test_add_func (TPATH "team/read-port-empty-config", test_read_team_port_empty_config);
 

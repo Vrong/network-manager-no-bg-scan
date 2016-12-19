@@ -528,42 +528,9 @@ check_connection_mac_address (NMConnection *orig,
 }
 
 static gboolean
-check_connection_infiniband_mac_address (NMConnection *orig,
-                                         NMConnection *candidate,
-                                         GHashTable *settings)
-{
-	GHashTable *props;
-	const char *orig_mac = NULL, *cand_mac = NULL;
-	NMSettingInfiniband *s_infiniband_orig, *s_infiniband_cand;
-
-	props = check_property_in_hash (settings,
-	                                NM_SETTING_INFINIBAND_SETTING_NAME,
-	                                NM_SETTING_INFINIBAND_MAC_ADDRESS);
-	if (!props)
-		return TRUE;
-
-	/* If one of the MAC addresses is NULL, we accept that connection */
-	s_infiniband_orig = nm_connection_get_setting_infiniband (orig);
-	if (s_infiniband_orig)
-		orig_mac = nm_setting_infiniband_get_mac_address (s_infiniband_orig);
-
-	s_infiniband_cand = nm_connection_get_setting_infiniband (candidate);
-	if (s_infiniband_cand)
-		cand_mac = nm_setting_infiniband_get_mac_address (s_infiniband_cand);
-
-	if (!orig_mac || !cand_mac) {
-		remove_from_hash (settings, props,
-		                  NM_SETTING_INFINIBAND_SETTING_NAME,
-		                  NM_SETTING_INFINIBAND_MAC_ADDRESS);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-static gboolean
 check_connection_cloned_mac_address (NMConnection *orig,
-                                     NMConnection *candidate,
-                                     GHashTable *settings)
+                              NMConnection *candidate,
+                              GHashTable *settings)
 {
 	GHashTable *props;
 	const char *orig_mac = NULL, *cand_mac = NULL;
@@ -583,12 +550,6 @@ check_connection_cloned_mac_address (NMConnection *orig,
 	s_wired_cand = nm_connection_get_setting_wired (candidate);
 	if (s_wired_cand)
 		cand_mac = nm_setting_wired_get_cloned_mac_address (s_wired_cand);
-
-	/* special cloned mac address entires are accepted. */
-	if (NM_CLONED_MAC_IS_SPECIAL (orig_mac))
-		orig_mac = NULL;
-	if (NM_CLONED_MAC_IS_SPECIAL (cand_mac))
-		cand_mac = NULL;
 
 	if (!orig_mac || !cand_mac) {
 		remove_from_hash (settings, props,
@@ -671,9 +632,6 @@ check_possible_match (NMConnection *orig,
 		return NULL;
 
 	if (!check_connection_mac_address (orig, candidate, settings))
-		return NULL;
-
-	if (!check_connection_infiniband_mac_address (orig, candidate, settings))
 		return NULL;
 
 	if (!check_connection_cloned_mac_address (orig, candidate, settings))

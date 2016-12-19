@@ -21,6 +21,8 @@
 
 #include "nmt-newt-button.h"
 
+G_BEGIN_DECLS
+
 #define NMT_TYPE_NEWT_POPUP            (nmt_newt_popup_get_type ())
 #define NMT_NEWT_POPUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NMT_TYPE_NEWT_POPUP, NmtNewtPopup))
 #define NMT_NEWT_POPUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), NMT_TYPE_NEWT_POPUP, NmtNewtPopupClass))
@@ -54,5 +56,7 @@ void           nmt_newt_popup_set_active    (NmtNewtPopup      *popup,
 const char    *nmt_newt_popup_get_active_id (NmtNewtPopup      *popup);
 void           nmt_newt_popup_set_active_id (NmtNewtPopup      *popup,
                                              const char        *active_id);
+
+G_END_DECLS
 
 #endif /* NMT_NEWT_POPUP_H */

@@ -77,14 +77,6 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
-</td>
-<td class="function_name">
-<a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-get-vt" title="nm_vpn_editor_plugin_get_vt ()">nm_vpn_editor_plugin_get_vt</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
 <a class="link" href="NMConnection.html" title="NMConnection"><span class="returnvalue">NMConnection</span></a> *
 </td>
 <td class="function_name">
@@ -113,29 +105,6 @@
 </td>
 <td class="function_name">
 <a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-load-from-file" title="nm_vpn_editor_plugin_load_from_file ()">nm_vpn_editor_plugin_load_from_file</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
-<a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="returnvalue">NMVpnEditorPlugin</span></a> *
-</td>
-<td class="function_name">
-<a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-load" title="nm_vpn_editor_plugin_load ()">nm_vpn_editor_plugin_load</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">struct <span class="returnvalue">_NMVpnPluginInfo</span> *
-</td>
-<td class="function_name">
-<a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-get-plugin-info" title="nm_vpn_editor_plugin_get_plugin_info ()">nm_vpn_editor_plugin_get_plugin_info</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
-<span class="returnvalue">void</span>
-</td>
-<td class="function_name">
-<a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-set-plugin-info" title="nm_vpn_editor_plugin_set_plugin_info ()">nm_vpn_editor_plugin_set_plugin_info</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 </tbody>
@@ -217,10 +186,6 @@
 <tr>
 <td class="datatype_keyword"> </td>
 <td class="function_name"><a class="link" href="NMVpnEditorPlugin.html#NMVpnEditor-struct" title="NMVpnEditor">NMVpnEditor</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword"> </td>
-<td class="function_name"><a class="link" href="NMVpnEditorPlugin.html#NMVpnEditorPluginVT" title="NMVpnEditorPluginVT">NMVpnEditorPluginVT</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -304,53 +269,6 @@ nm_vpn_editor_plugin_get_capabilities (<em class="parameter"><code><a class="lin
 </div>
 <hr>
 <div class="refsect2">
-<a name="nm-vpn-editor-plugin-get-vt"></a><h3>nm_vpn_editor_plugin_get_vt ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
-nm_vpn_editor_plugin_get_vt (<em class="parameter"><code><a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> *plugin</code></em>,
-                             <em class="parameter"><code><a class="link" href="NMVpnEditorPlugin.html#NMVpnEditorPluginVT" title="NMVpnEditorPluginVT"><span class="type">NMVpnEditorPluginVT</span></a> *vt</code></em>,
-                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> vt_size</code></em>);</pre>
-<p>Returns an opaque VT function table for the plugin to extend
-functionality. The actual meaning of NMVpnEditorPluginVT is not
-defined in public API of libnm, instead it must be agreed by
-both the plugin and the caller. See the header-only file
-'nm-vpn-editor-plugin-call.h' which defines the meaning.</p>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-get-vt.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>plugin</p></td>
-<td class="parameter_description"><p>the <a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vt</p></td>
-<td class="parameter_description"><p> buffer to be filled with the VT table of the plugin. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vt_size</p></td>
-<td class="parameter_description"><p>the size of the buffer. Can be 0 to only query the
-size of plugin's VT.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-get-vt.returns"></a><h4>Returns</h4>
-<p> the actual size of the <em class="parameter"><code>plugin</code></em>
-'s virtual function table.</p>
-</div>
-<p class="since">Since: 1.4</p>
-</div>
-<hr>
-<div class="refsect2">
 <a name="nm-vpn-editor-plugin-import"></a><h3>nm_vpn_editor_plugin_import ()</h3>
 <pre class="programlisting"><a class="link" href="NMConnection.html" title="NMConnection"><span class="returnvalue">NMConnection</span></a> *
 nm_vpn_editor_plugin_import (<em class="parameter"><code><a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> *plugin</code></em>,
@@ -427,8 +345,7 @@ function.</p>
  is not an absolute path name, it assumes the file
 is in the plugin directory of NetworkManager. In any case, the call
 will do certain checks on the file before passing it to dlopen.
-A consequence for that is, that you cannot omit the ".so" suffix
-as you could for <a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-load" title="nm_vpn_editor_plugin_load ()"><code class="function">nm_vpn_editor_plugin_load()</code></a>.</p>
+A consequence for that is, that you cannot omit the ".so" suffix.</p>
 <div class="refsect3">
 <a name="nm-vpn-editor-plugin-load-from-file.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
@@ -486,119 +403,6 @@ loading the shared library. </p></td>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 <p class="since">Since: 1.2</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="nm-vpn-editor-plugin-load"></a><h3>nm_vpn_editor_plugin_load ()</h3>
-<pre class="programlisting"><a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="returnvalue">NMVpnEditorPlugin</span></a> *
-nm_vpn_editor_plugin_load (<em class="parameter"><code>const <span class="type">char</span> *plugin_name</code></em>,
-                           <em class="parameter"><code>const <span class="type">char</span> *check_service</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
-<p>Load the shared libary <em class="parameter"><code>plugin_name</code></em>
- and create a new
-<a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> instace via the <a class="link" href="NMVpnEditorPlugin.html#NMVpnEditorPluginFactory" title="NMVpnEditorPluginFactory ()"><span class="type">NMVpnEditorPluginFactory</span></a>
-function.</p>
-<p>This is similar to <a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-load-from-file" title="nm_vpn_editor_plugin_load_from_file ()"><code class="function">nm_vpn_editor_plugin_load_from_file()</code></a>, but
-it does no validation of the plugin name, instead passes it directly
-to <code class="function">dlopen()</code>. If you have the full path to a plugin file,
-<a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-load-from-file" title="nm_vpn_editor_plugin_load_from_file ()"><code class="function">nm_vpn_editor_plugin_load_from_file()</code></a> is preferred.</p>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-load.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>plugin_name</p></td>
-<td class="parameter_description"><p>The name of the shared library to load.
-This path will be directly passed to <code class="function">dlopen()</code> without
-further checks.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>check_service</p></td>
-<td class="parameter_description"><p>if not-null, check that the loaded plugin advertises
-the given service.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>error</p></td>
-<td class="parameter_description"><p>on failure the error reason.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-load.returns"></a><h4>Returns</h4>
-<p> a new plugin instance or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on error. </p>
-<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
-</div>
-<p class="since">Since: 1.4</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="nm-vpn-editor-plugin-get-plugin-info"></a><h3>nm_vpn_editor_plugin_get_plugin_info ()</h3>
-<pre class="programlisting">struct <span class="returnvalue">_NMVpnPluginInfo</span> *
-nm_vpn_editor_plugin_get_plugin_info (<em class="parameter"><code><a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> *plugin</code></em>);</pre>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-get-plugin-info.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>plugin</p></td>
-<td class="parameter_description"><p>the <a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> instance</p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-get-plugin-info.returns"></a><h4>Returns</h4>
-<p> if set, return the <span class="type">NMVpnPluginInfo</span> instance. </p>
-<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
-</div>
-<p class="since">Since: 1.4</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="nm-vpn-editor-plugin-set-plugin-info"></a><h3>nm_vpn_editor_plugin_set_plugin_info ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-nm_vpn_editor_plugin_set_plugin_info (<em class="parameter"><code><a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> *plugin</code></em>,
-                                      <em class="parameter"><code><span class="type">struct _NMVpnPluginInfo</span> *plugin_info</code></em>);</pre>
-<p>Set or clear the plugin-info instance.
-This takes a weak reference on <em class="parameter"><code>plugin_info</code></em>
-, to avoid circular
-reference as the plugin-info might also reference the editor-plugin.</p>
-<div class="refsect3">
-<a name="nm-vpn-editor-plugin-set-plugin-info.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>plugin</p></td>
-<td class="parameter_description"><p>the <a class="link" href="NMVpnEditorPlugin.html" title="NMVpnEditorPlugin"><span class="type">NMVpnEditorPlugin</span></a> instance</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>plugin_info</p></td>
-<td class="parameter_description"><p> a <span class="type">NMVpnPluginInfo</span> instance or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p class="since">Since: 1.4</p>
 </div>
 </div>
 <div class="refsect1">
@@ -687,12 +491,6 @@ reference as the plugin-info might also reference the editor-plugin.</p>
 	                            GError **error);
 
 	char * (*get_suggested_filename) (NMVpnEditorPlugin *plugin, NMConnection *connection);
-
-	void (*notify_plugin_info_set) (NMVpnEditorPlugin *plugin,
-	                                struct _NMVpnPluginInfo *plugin_info);
-
-	const NMVpnEditorPluginVT *(*get_vt) (NMVpnEditorPlugin *plugin,
-	                                      gsize *out_vt_size);
 } NMVpnEditorPluginInterface;
 </pre>
 <p>Interface for VPN editor plugins.</p>
@@ -743,17 +541,6 @@ name.  Returned value will be <a href="/usr/share/gtk-doc/html/glibglib-Standard
 the caller.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="NMVpnEditorPluginInterface.notify-plugin-info-set"></a>notify_plugin_info_set</code></em> ()</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="NMVpnEditorPluginInterface.get-vt"></a>get_vt</code></em> ()</p></td>
-<td class="struct_member_description"><p>return a virtual function table to implement further functions in
-the plugin, without requiring to update libnm. Used by <a class="link" href="NMVpnEditorPlugin.html#nm-vpn-editor-plugin-get-vt" title="nm_vpn_editor_plugin_get_vt ()"><code class="function">nm_vpn_editor_plugin_get_vt()</code></a>.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
 </tbody>
 </table></div>
 </div>
@@ -762,11 +549,6 @@ the plugin, without requiring to update libnm. Used by <a class="link" href="NMV
 <div class="refsect2">
 <a name="NMVpnEditor-struct"></a><h3>NMVpnEditor</h3>
 <pre class="programlisting">typedef struct _NMVpnEditor NMVpnEditor;</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NMVpnEditorPluginVT"></a><h3>NMVpnEditorPluginVT</h3>
-<pre class="programlisting">typedef struct _NMVpnEditorPluginVT NMVpnEditorPluginVT;</pre>
 </div>
 </div>
 <div class="refsect1">

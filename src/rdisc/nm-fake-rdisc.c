@@ -233,20 +233,15 @@ receive_ra (gpointer user_data)
 	NMFakeRDisc *self = user_data;
 	NMFakeRDiscPrivate *priv = NM_FAKE_RDISC_GET_PRIVATE (self);
 	NMRDisc *rdisc = NM_RDISC (self);
-	NMRDiscDataInternal *rdata = rdisc->rdata;
 	FakeRa *ra = priv->ras->data;
 	NMRDiscConfigMap changed = 0;
 	guint32 now = nm_utils_get_monotonic_timestamp_s ();
 	guint i;
-	NMRDiscDHCPLevel dhcp_level;
 
 	priv->receive_ra_id = 0;
 
-	/* preserve the "most managed" level  on updates. */
-	dhcp_level = MAX (rdata->public.dhcp_level, ra->dhcp_level);
-
-	if (rdata->public.dhcp_level != dhcp_level) {
-		rdata->public.dhcp_level = dhcp_level;
+	if (rdisc->dhcp_level != ra->dhcp_level) {
+		rdisc->dhcp_level = ra->dhcp_level;
 		changed |= NM_RDISC_CONFIG_DHCP_LEVEL;
 	}
 
@@ -267,8 +262,6 @@ receive_ra (gpointer user_data)
 			.lifetime = item->lifetime,
 			.preference = item->preference,
 		};
-
-		g_assert (route.plen > 0 && route.plen <= 128);
 
 		if (nm_rdisc_add_route (rdisc, &route))
 			changed |= NM_RDISC_CONFIG_ROUTES;
@@ -301,13 +294,13 @@ receive_ra (gpointer user_data)
 			changed |= NM_RDISC_CONFIG_DNS_DOMAINS;
 	}
 
-	if (rdata->public.mtu != ra->mtu) {
-		rdata->public.mtu = ra->mtu;
+	if (rdisc->mtu != ra->mtu) {
+		rdisc->mtu = ra->mtu;
 		changed |= NM_RDISC_CONFIG_MTU;
 	}
 
-	if (rdata->public.hop_limit != ra->hop_limit) {
-		rdata->public.hop_limit = ra->hop_limit;
+	if (rdisc->hop_limit != ra->hop_limit) {
+		rdisc->hop_limit = ra->hop_limit;
 		changed |= NM_RDISC_CONFIG_HOP_LIMIT;
 	}
 
@@ -351,10 +344,15 @@ nm_fake_rdisc_emit_new_ras (NMFakeRDisc *self)
 NMRDisc *
 nm_fake_rdisc_new (int ifindex, const char *ifname)
 {
-	return g_object_new (NM_TYPE_FAKE_RDISC,
-	                     NM_RDISC_IFINDEX, ifindex,
-	                     NM_RDISC_IFNAME, ifname,
-	                     NULL);
+	NMRDisc *rdisc = g_object_new (NM_TYPE_FAKE_RDISC, NULL);
+
+	rdisc->ifindex = ifindex;
+	rdisc->ifname = g_strdup (ifname);
+	rdisc->max_addresses = NM_RDISC_MAX_ADDRESSES_DEFAULT;
+	rdisc->rtr_solicitations = NM_RDISC_RTR_SOLICITATIONS_DEFAULT;
+	rdisc->rtr_solicitation_interval = NM_RDISC_RTR_SOLICITATION_INTERVAL_DEFAULT;
+
+	return rdisc;
 }
 
 static void
@@ -387,10 +385,10 @@ nm_fake_rdisc_class_init (NMFakeRDiscClass *klass)
 	rdisc_class->start = start;
 	rdisc_class->send_rs = send_rs;
 
-	signals[RS_SENT] =
-	    g_signal_new (NM_FAKE_RDISC_RS_SENT,
-	                  G_OBJECT_CLASS_TYPE (klass),
-	                  G_SIGNAL_RUN_FIRST,
-	                  0,  NULL, NULL, NULL,
-	                  G_TYPE_NONE, 0);
+	signals[RS_SENT] = g_signal_new (
+			NM_FAKE_RDISC_RS_SENT,
+			G_OBJECT_CLASS_TYPE (klass),
+			G_SIGNAL_RUN_FIRST,
+			0,  NULL, NULL, NULL,
+			G_TYPE_NONE, 0);
 }

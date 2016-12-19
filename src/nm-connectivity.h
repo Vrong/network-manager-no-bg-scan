@@ -21,6 +21,8 @@
 #ifndef __NETWORKMANAGER_CONNECTIVITY_H__
 #define __NETWORKMANAGER_CONNECTIVITY_H__
 
+
+#include "nm-default.h"
 #include "nm-dbus-interface.h"
 
 #define NM_TYPE_CONNECTIVITY            (nm_connectivity_get_type ())

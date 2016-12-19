@@ -482,7 +482,7 @@ impl_ppp_manager_set_ip4_config (NMPPPManager *manager,
 		address.plen = u32;
 
 	if (address.address && address.plen && address.plen <= 32) {
-		address.addr_source = NM_IP_CONFIG_SOURCE_PPP;
+		address.source = NM_IP_CONFIG_SOURCE_PPP;
 		nm_ip4_config_add_address (config, &address);
 	} else {
 		_LOGE ("invalid IPv4 address received!");
@@ -540,7 +540,7 @@ iid_value_to_ll6_addr (GVariant *dict,
 	out_addr->s6_addr16[0] = htons (0xfe80);
 	memcpy (out_addr->s6_addr + 8, &iid, sizeof (iid));
 	if (out_iid)
-		nm_utils_ipv6_interface_identifier_get_from_addr (out_iid, out_addr);
+		nm_utils_ipv6_interface_identfier_get_from_addr (out_iid, out_addr);
 	return TRUE;
 }
 
@@ -595,7 +595,7 @@ nm_ppp_manager_class_init (NMPPPManagerClass *manager_class)
 
 	g_type_class_add_private (manager_class, sizeof (NMPPPManagerPrivate));
 
-	exported_object_class->export_path = NM_DBUS_PATH "/PPP";
+	exported_object_class->export_path = NM_DBUS_PATH "/PPP/%u";
 	exported_object_class->export_on_construction = TRUE;
 
 	object_class->dispose = dispose;
@@ -834,6 +834,7 @@ create_pppd_cmd_line (NMPPPManager *self,
                       NMSettingPppoe *pppoe,
                       NMSettingAdsl  *adsl,
                       const char *ppp_name,
+                      guint baud_override,
                       GError **err)
 {
 	NMPPPManagerPrivate *priv = NM_PPP_MANAGER_GET_PRIVATE (self);
@@ -925,6 +926,8 @@ create_pppd_cmd_line (NMPPPManager *self,
 
 	if (nm_setting_ppp_get_baud (setting))
 		nm_cmd_line_add_int (cmd, nm_setting_ppp_get_baud (setting));
+	else if (baud_override)
+		nm_cmd_line_add_int (cmd, (int) baud_override);
 
 	/* noauth by default, because we certainly don't have any information
 	 * with which to verify anything the peer gives us if we ask it to
@@ -1023,12 +1026,13 @@ nm_ppp_manager_start (NMPPPManager *manager,
                       NMActRequest *req,
                       const char *ppp_name,
                       guint32 timeout_secs,
+                      guint baud_override,
                       GError **err)
 {
 	NMPPPManagerPrivate *priv;
 	NMConnection *connection;
 	NMSettingPpp *s_ppp;
-	gs_unref_object NMSettingPpp *s_ppp_free = NULL;
+	gboolean s_ppp_created = FALSE;
 	NMSettingPppoe *pppoe_setting;
 	NMSettingAdsl *adsl_setting;
 	NMCmdLine *ppp_cmd;
@@ -1056,27 +1060,30 @@ nm_ppp_manager_start (NMPPPManager *manager,
 		nm_utils_modprobe (NULL, FALSE, "ppp_generic", NULL);
 
 	connection = nm_act_request_get_applied_connection (req);
-	g_return_val_if_fail (connection, FALSE);
+	g_assert (connection);
 
 	s_ppp = nm_connection_get_setting_ppp (connection);
 	if (!s_ppp) {
 		/* If the PPP settings are all default we may not have a PPP setting yet,
 		 * so just make a default one here.
 		 */
-		s_ppp = s_ppp_free = NM_SETTING_PPP (nm_setting_ppp_new ());
+		s_ppp = NM_SETTING_PPP (nm_setting_ppp_new ());
+		s_ppp_created = TRUE;
 	}
-
+	
 	pppoe_setting = nm_connection_get_setting_pppoe (connection);
 	if (pppoe_setting) {
 		/* We can't modify the applied connection's setting, make a copy */
-		if (!s_ppp_free)
-			s_ppp = s_ppp_free = NM_SETTING_PPP (nm_setting_duplicate ((NMSetting *) s_ppp));
+		if (!s_ppp_created) {
+			s_ppp = NM_SETTING_PPP (nm_setting_duplicate ((NMSetting *) s_ppp));
+			s_ppp_created = TRUE;
+		}
 		pppoe_fill_defaults (s_ppp);
 	}
 
 	adsl_setting = (NMSettingAdsl *) nm_connection_get_setting (connection, NM_TYPE_SETTING_ADSL);
 
-	ppp_cmd = create_pppd_cmd_line (manager, s_ppp, pppoe_setting, adsl_setting, ppp_name, err);
+	ppp_cmd = create_pppd_cmd_line (manager, s_ppp, pppoe_setting, adsl_setting, ppp_name, baud_override, err);
 	if (!ppp_cmd)
 		goto out;
 
@@ -1103,6 +1110,9 @@ nm_ppp_manager_start (NMPPPManager *manager,
 	priv->act_req = g_object_ref (req);
 
 out:
+	if (s_ppp_created)
+		g_object_unref (s_ppp);
+
 	if (ppp_cmd)
 		nm_cmd_line_destroy (ppp_cmd);
 

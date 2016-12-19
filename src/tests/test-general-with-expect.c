@@ -30,7 +30,7 @@
 #include "NetworkManagerUtils.h"
 #include "nm-multi-index.h"
 
-#include "nm-test-utils-core.h"
+#include "nm-test-utils.h"
 
 #ifndef CLOCK_BOOTTIME
 #define CLOCK_BOOTTIME 7

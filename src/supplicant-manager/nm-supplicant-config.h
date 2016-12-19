@@ -25,8 +25,10 @@
 #include <nm-setting-wireless.h>
 #include <nm-setting-wireless-security.h>
 #include <nm-setting-8021x.h>
-
+#include "nm-default.h"
 #include "nm-supplicant-types.h"
+
+G_BEGIN_DECLS
 
 #define NM_TYPE_SUPPLICANT_CONFIG            (nm_supplicant_config_get_type ())
 #define NM_SUPPLICANT_CONFIG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_SUPPLICANT_CONFIG, NMSupplicantConfig))
@@ -52,6 +54,8 @@ NMSupplicantConfig *nm_supplicant_config_new (void);
 
 guint32 nm_supplicant_config_get_ap_scan (NMSupplicantConfig *self);
 
+const char *nm_supplicant_config_get_mac_randomization (NMSupplicantConfig *self);
+
 gboolean nm_supplicant_config_fast_required (NMSupplicantConfig *self);
 
 GVariant *nm_supplicant_config_to_variant (NMSupplicantConfig *self);
@@ -61,6 +65,8 @@ GHashTable *nm_supplicant_config_get_blobs (NMSupplicantConfig *self);
 gboolean nm_supplicant_config_add_setting_wireless (NMSupplicantConfig *self,
                                                     NMSettingWireless *setting,
                                                     guint32 fixed_freq,
+                                                    NMSupplicantFeature mac_randomization_support,
+                                                    NMSettingMacRandomization mac_randomization_fallback,
                                                     GError **error);
 
 gboolean nm_supplicant_config_add_setting_wireless_security (NMSupplicantConfig *self,
@@ -80,4 +86,6 @@ gboolean nm_supplicant_config_add_setting_8021x (NMSupplicantConfig *self,
                                                  gboolean wired,
                                                  GError **error);
 
-#endif /* __NETWORKMANAGER_SUPPLICANT_CONFIG_H__ */
+G_END_DECLS
+
+#endif	/* NM_SUPPLICANT_CONFIG_H */

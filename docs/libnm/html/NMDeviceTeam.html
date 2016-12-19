@@ -64,13 +64,6 @@
 <a class="link" href="NMDeviceTeam.html#nm-device-team-get-slaves" title="nm_device_team_get_slaves ()">nm_device_team_get_slaves</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
-<tr>
-<td class="function_type">const <span class="returnvalue">char</span> *
-</td>
-<td class="function_name">
-<a class="link" href="NMDeviceTeam.html#nm-device-team-get-config" title="nm_device_team_get_config ()">nm_device_team_get_config</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
 </tbody>
 </table></div>
 </div>
@@ -86,12 +79,6 @@
 <tr>
 <td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
 <td class="property_name"><a class="link" href="NMDeviceTeam.html#NMDeviceTeam--carrier" title="The “carrier” property">carrier</a></td>
-<td class="property_flags">Read</td>
-</tr>
-<tr>
-<td class="property_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
-<td class="property_name"><a class="link" href="NMDeviceTeam.html#NMDeviceTeam--config" title="The “config” property">config</a></td>
 <td class="property_flags">Read</td>
 </tr>
 <tr>
@@ -128,10 +115,6 @@
 <tr>
 <td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="NMDeviceTeam.html#NM-DEVICE-TEAM-SLAVES:CAPS" title="NM_DEVICE_TEAM_SLAVES">NM_DEVICE_TEAM_SLAVES</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="NMDeviceTeam.html#NM-DEVICE-TEAM-CONFIG:CAPS" title="NM_DEVICE_TEAM_CONFIG">NM_DEVICE_TEAM_CONFIG</a></td>
 </tr>
 <tr>
 <td class="datatype_keyword"> </td>
@@ -242,34 +225,6 @@ copy used by the device, and must not be modified. </p>
 <p><span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> NMDevice]</span></p>
 </div>
 </div>
-<hr>
-<div class="refsect2">
-<a name="nm-device-team-get-config"></a><h3>nm_device_team_get_config ()</h3>
-<pre class="programlisting">const <span class="returnvalue">char</span> *
-nm_device_team_get_config (<em class="parameter"><code><a class="link" href="NMDeviceTeam.html" title="NMDeviceTeam"><span class="type">NMDeviceTeam</span></a> *device</code></em>);</pre>
-<p>Gets the current JSON configuration of the <a class="link" href="NMDeviceTeam.html" title="NMDeviceTeam"><span class="type">NMDeviceTeam</span></a></p>
-<div class="refsect3">
-<a name="nm-device-team-get-config.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>device</p></td>
-<td class="parameter_description"><p>a <a class="link" href="NMDeviceTeam.html" title="NMDeviceTeam"><span class="type">NMDeviceTeam</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="nm-device-team-get-config.returns"></a><h4>Returns</h4>
-<p> the current configuration. This is the internal string used by the
-device, and must not be modified.</p>
-</div>
-<p class="since">Since: 1.4</p>
-</div>
 </div>
 <div class="refsect1">
 <a name="NMDeviceTeam.other_details"></a><h2>Types and Values</h2>
@@ -292,12 +247,6 @@ device, and must not be modified.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="NM-DEVICE-TEAM-CONFIG:CAPS"></a><h3>NM_DEVICE_TEAM_CONFIG</h3>
-<pre class="programlisting">#define NM_DEVICE_TEAM_CONFIG      "config"
-</pre>
-</div>
-<hr>
-<div class="refsect2">
 <a name="NMDeviceTeam-struct"></a><h3>NMDeviceTeam</h3>
 <pre class="programlisting">typedef struct _NMDeviceTeam NMDeviceTeam;</pre>
 </div>
@@ -310,15 +259,6 @@ device, and must not be modified.</p>
 <p>Whether the device has carrier.</p>
 <p>Flags: Read</p>
 <p>Default value: FALSE</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="NMDeviceTeam--config"></a><h3>The <code class="literal">“config”</code> property</h3>
-<pre class="programlisting">  “config”                   <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
-<p>The current JSON configuration of the device.</p>
-<p>Flags: Read</p>
-<p>Default value: NULL</p>
-<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">

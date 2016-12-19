@@ -21,6 +21,8 @@
 #ifndef __WIFI_UTILS_PRIVATE_H__
 #define __WIFI_UTILS_PRIVATE_H__
 
+
+#include "nm-default.h"
 #include "nm-dbus-interface.h"
 #include "wifi-utils.h"
 

@@ -21,6 +21,8 @@
 #ifndef __NETWORKMANAGER_WWAN_FACTORY_H__
 #define __NETWORKMANAGER_WWAN_FACTORY_H__
 
+#include "nm-default.h"
+
 #define NM_TYPE_WWAN_FACTORY (nm_wwan_factory_get_type ())
 #define NM_WWAN_FACTORY(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), NM_TYPE_WWAN_FACTORY, NMWwanFactory))
 

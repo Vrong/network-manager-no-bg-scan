@@ -872,7 +872,6 @@ nmc_team_check_config (const char *config, char **out_config, GError **error)
  * @filter_val: connection to find (connection name, UUID or path)
  * @start: where to start in @list. The location is updated so that the function
  *   can be called multiple times (for connections with the same name).
- * @complete: print possible completions
  *
  * Find a connection in @list according to @filter_val. @filter_type determines
  * what property is used for comparison. When @filter_type is NULL, compare
@@ -886,8 +885,7 @@ NMConnection *
 nmc_find_connection (const GPtrArray *connections,
                      const char *filter_type,
                      const char *filter_val,
-                     int *start,
-                     gboolean complete)
+                     int *start)
 {
 	NMConnection *connection;
 	NMConnection *found = NULL;
@@ -909,36 +907,20 @@ nmc_find_connection (const GPtrArray *connections,
 		 * type. If 'path' filter type is specified, comparison against
 		 * numeric index (in addition to the whole path) is allowed.
 		 */
-		if (!filter_type || strcmp (filter_type, "id")  == 0) {
-			if (complete)
-				nmc_complete_strings (filter_val, id, NULL);
-			if (strcmp (filter_val, id) == 0)
-				goto found;
+		if (   (   (!filter_type || strcmp (filter_type, "id")  == 0)
+		        && strcmp (filter_val, id) == 0)
+		    || (   (!filter_type || strcmp (filter_type, "uuid") == 0)
+		        && strcmp (filter_val, uuid) == 0)
+		    || (   (!filter_type || strcmp (filter_type, "path") == 0)
+		        && (g_strcmp0 (filter_val, path) == 0 || (filter_type && g_strcmp0 (filter_val, path_num) == 0)))) {
+			if (!start)
+				return connection;
+			if (found) {
+				*start = i;
+				return found;
+			}
+			found = connection;
 		}
-
-		if (!filter_type || strcmp (filter_type, "uuid") == 0) {
-			if (complete && (filter_type || *filter_val))
-				nmc_complete_strings (filter_val, uuid, NULL);
-			if (strcmp (filter_val, uuid) == 0)
-				goto found;
-		}
-
-		if (!filter_type || strcmp (filter_type, "path") == 0) {
-			if (complete && (filter_type || *filter_val))
-				nmc_complete_strings (filter_val, path, filter_type ? path_num : NULL, NULL);
-		        if (g_strcmp0 (filter_val, path) == 0 || (filter_type && g_strcmp0 (filter_val, path_num) == 0))
-				goto found;
-		}
-
-		continue;
-found:
-		if (!start)
-			return connection;
-		if (found) {
-			*start = i;
-			return found;
-		}
-		found = connection;
 	}
 
 	if (start)
@@ -1058,15 +1040,13 @@ get_secrets_from_user (const char *request_id,
 						nmc_rl_pre_input_deftext = g_strdup (secret->value);
 					}
 				}
-				if (msg)
-					g_print ("%s\n", msg);
+				g_print ("%s\n", msg);
 				pwd = nmc_readline_echo (secret->password ? echo_on : TRUE,
 				                         "%s (%s): ", secret->name, secret->prop_name);
 				if (!pwd)
 					pwd = g_strdup ("");
 			} else {
-				if (msg)
-					g_print ("%s\n", msg);
+				g_print ("%s\n", msg);
 				g_printerr (_("Warning: password for '%s' not given in 'passwd-file' "
 				              "and nmcli cannot ask without '--ask' option.\n"),
 				            secret->prop_name);
@@ -1117,7 +1097,7 @@ nmc_secrets_requested (NMSecretAgentSimple *agent,
 		p = strrchr (path, '/');
 		if (p)
 			*p = '\0';
-		connection = nmc_find_connection (nmc->connections, "path", path, NULL, FALSE);
+		connection = nmc_find_connection (nmc->connections, "path", path, NULL);
 		g_free (path);
 	}
 
@@ -1356,33 +1336,6 @@ nmc_rl_gen_func_basic (const char *text, int state, const char **words)
 	return NULL;
 }
 
-char *
-nmc_rl_gen_func_ifnames (const char *text, int state)
-{
-	int i;
-	const GPtrArray *devices;
-	const char **ifnames;
-	char *ret;
-
-	nm_cli.get_client (&nm_cli);
-	devices = nm_client_get_devices (nm_cli.client);
-	if (devices->len == 0)
-		return NULL;
-
-	ifnames = g_new (const char *, devices->len + 1);
-	for (i = 0; i < devices->len; i++) {
-		NMDevice *dev = g_ptr_array_index (devices, i);
-		const char *ifname = nm_device_get_iface (dev);
-		ifnames[i] = ifname;
-	}
-	ifnames[i] = NULL;
-
-	ret = nmc_rl_gen_func_basic (text, state, ifnames);
-
-	g_free (ifnames);
-	return ret;
-}
-
 /* for pre-filling a string to readline prompt */
 char *nmc_rl_pre_input_deftext;
 
@@ -1440,120 +1393,4 @@ nmc_parse_lldp_capabilities (guint value)
 	}
 
 	return g_string_free (str, FALSE);
-}
-
-/**
- * nmc_do_cmd:
- * @nmc: Client instance
- * @cmds: Command table
- * @cmd: Command
- * @argc: Argument count
- * @argv: Arguments vector
- *
- * Picks the right callback to handle command from the command table.
- * If --help argument follows and the usage callback is specified for the command
- * it calls the usage callback.
- *
- * The command table is terminated with a %NULL command. The terminating
- * entry's handlers are called if the command is empty.
- *
- * Returns: a nmcli return code
- */
-NMCResultCode
-nmc_do_cmd (NmCli *nmc, const NMCCommand cmds[], const char *cmd, int argc, char **argv)
-{
-	const NMCCommand *c;
-
-	if (argc == 0 && nmc->complete)
-		return nmc->return_value;
-
-	if (argc == 1 && nmc->complete) {
-		for (c = cmds; c->cmd; ++c) {
-			if (!*cmd || matches (cmd, c->cmd) == 0)
-				g_print ("%s\n", c->cmd);
-		}
-		return nmc->return_value;
-	}
-
-	for (c = cmds; c->cmd; ++c) {
-		if (cmd && matches (cmd, c->cmd) == 0)
-			break;
-	}
-
-	if (c->cmd) {
-		/* A valid command was specified. */
-		if (c->usage && nmc_arg_is_help (*(argv+1)))
-			c->usage ();
-		else
-			nmc->return_value = c->func (nmc, argc-1, argv+1);
-	} else if (cmd) {
-		/* Not a known command. */
-		if (nmc_arg_is_help (cmd) && c->usage) {
-			c->usage ();
-		} else {
-			g_string_printf (nmc->return_text, _("Error: argument '%s' not understood. Try passing --help instead."), cmd);
-			nmc->return_value = NMC_RESULT_ERROR_USER_INPUT;
-		}
-	} else if (c->func) {
-		/* No command, run the default handler. */
-		nmc->return_value = c->func (nmc, argc, argv);
-	} else {
-		/* No command and no default handler. */
-		g_string_printf (nmc->return_text, _("Error: missing argument. Try passing --help."));
-		nmc->return_value = NMC_RESULT_ERROR_USER_INPUT;
-	}
-
-	return nmc->return_value;
-}
-
-/**
- * nmc_complete_strings:
- * @prefix: a string to match
- * @...: a %NULL-terminated list of candidate strings
- *
- * Prints all the matching candidates for completion. Useful when there's
- * no better way to suggest completion other than a hardcoded string list.
- */
-void
-nmc_complete_strings (const char *prefix, ...)
-{
-	va_list args;
-	const char *candidate;
-
-	va_start (args, prefix);
-	while ((candidate = va_arg (args, const char *))) {
-		if (!*prefix || matches (prefix, candidate) == 0)
-			g_print ("%s\n", candidate);
-	}
-	va_end (args);
-}
-
-/**
- * nmc_complete_bool:
- * @prefix: a string to match
- * @...: a %NULL-terminated list of candidate strings
- *
- * Prints all the matching possible boolean values for completion.
- */
-void
-nmc_complete_bool (const char *prefix)
-{
-	nmc_complete_strings (prefix, "true", "yes", "on",
-	                              "false", "no", "off", NULL);
-}
-
-/**
- * nmc_error_get_simple_message:
- * @error: a GError
- *
- * Returns a simplified message for some errors hard to understand.
- */
-const char *
-nmc_error_get_simple_message (GError *error)
-{
-	/* Return a clear message instead of the obscure D-Bus policy error */
-	if (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_ACCESS_DENIED))
-		return _("access denied");
-	else
-		return error->message;
 }

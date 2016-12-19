@@ -9,6 +9,8 @@ BUILT_SOURCES = $(GLIB_GENERATED)
 
 if ENABLE_TESTS
 
+certsdir = $(srcdir)/certs
+
 AM_CPPFLAGS = \
 	-I${top_srcdir}/shared \
 	-I${top_builddir}/shared \
@@ -16,7 +18,7 @@ AM_CPPFLAGS = \
 	-I$(top_builddir)/libnm-core \
 	-DNETWORKMANAGER_COMPILATION \
 	$(GLIB_CFLAGS) \
-	-DTEST_CERT_DIR=\"$(abs_srcdir)/certs\"
+	-DTEST_CERT_DIR=\"$(certsdir)\"
 
 noinst_PROGRAMS =		\
 	test-compare		\

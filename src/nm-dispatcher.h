@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 
+#include "nm-default.h"
 #include "nm-connection.h"
 
 typedef enum {
@@ -37,8 +38,7 @@ typedef enum {
 	DISPATCHER_ACTION_VPN_PRE_DOWN,
 	DISPATCHER_ACTION_VPN_DOWN,
 	DISPATCHER_ACTION_DHCP4_CHANGE,
-	DISPATCHER_ACTION_DHCP6_CHANGE,
-	DISPATCHER_ACTION_CONNECTIVITY_CHANGE
+	DISPATCHER_ACTION_DHCP6_CHANGE
 } DispatcherAction;
 
 typedef void (*DispatcherFunc) (guint call_id, gpointer user_data);
@@ -74,9 +74,6 @@ gboolean nm_dispatcher_call_vpn_sync (DispatcherAction action,
                                       const char *vpn_iface,
                                       NMIP4Config *vpn_ip4_config,
                                       NMIP6Config *vpn_ip6_config);
-
-gboolean nm_dispatcher_call_connectivity (DispatcherAction action,
-                                          NMConnectivityState state);
 
 void nm_dispatcher_call_cancel (guint call_id);
 

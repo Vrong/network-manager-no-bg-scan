@@ -16,7 +16,6 @@ AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\""NetworkManager-wwan"\" \
 	-DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_INSIDE_DAEMON \
 	$(GLIB_CFLAGS) \
-	$(LIBSYSTEMD_CFLAGS) \
 	$(MM_GLIB_CFLAGS)
 
 BUILT_SOURCES = $(null)
@@ -27,7 +26,7 @@ pkglib_LTLIBRARIES = libnm-wwan.la libnm-device-plugin-wwan.la
 
 GLIB_GENERATED = nm-modem-enum-types.h nm-modem-enum-types.c
 GLIB_MKENUMS_H_FLAGS = --identifier-prefix NM
-GLIB_MKENUMS_C_FLAGS = --identifier-prefix NM --fhead '\#include "nm-default.h"\n'
+GLIB_MKENUMS_C_FLAGS = --identifier-prefix NM
 nm_modem_enum_types_sources = $(srcdir)/nm-modem.h
 
 BUILT_SOURCES += $(GLIB_GENERATED)
@@ -42,13 +41,6 @@ libnm_wwan_la_SOURCES = \
 	\
 	$(GLIB_GENERATED)
 
-if WITH_OFONO
-libnm_wwan_la_SOURCES += \
-	nm-modem-ofono.c \
-	nm-modem-ofono.h \
-	$(NULL)
-endif
-
 WWAN_SYMBOL_VIS_FILE=$(srcdir)/wwan-exports.ver
 
 libnm_wwan_la_LDFLAGS = \
@@ -57,7 +49,6 @@ libnm_wwan_la_LDFLAGS = \
 libnm_wwan_la_LIBADD = \
 	$(top_builddir)/introspection/libnmdbus.la \
 	$(GLIB_LIBS) \
-	$(LIBSYSTEMD_LIBS) \
 	$(MM_GLIB_LIBS)
 
 ###########################################################
@@ -88,9 +79,7 @@ if ENABLE_TESTS
 
 check-local:
 	$(top_srcdir)/tools/check-exports.sh $(builddir)/.libs/libnm-device-plugin-wwan.so $(SYMBOL_VIS_FILE)
-	LD_BIND_NOW=1 LD_PRELOAD=$(builddir)/.libs/libnm-device-plugin-wwan.so $(top_builddir)/src/NetworkManager --version >/dev/null
 	$(top_srcdir)/tools/check-exports.sh $(builddir)/.libs/libnm-wwan.so $(WWAN_SYMBOL_VIS_FILE)
-	LD_BIND_NOW=1 LD_PRELOAD=$(builddir)/.libs/libnm-wwan.so $(top_builddir)/src/NetworkManager --version >/dev/null
 
 endif
 

@@ -2776,7 +2776,7 @@ verify (NMSetting *setting, NMConnection *connection, GError **error)
 		}
 	}
 
-	if (priv->phase1_peapver && !g_strv_contains (valid_phase1_peapver, priv->phase1_peapver)) {
+	if (priv->phase1_peapver && !_nm_utils_string_in_list (priv->phase1_peapver, valid_phase1_peapver)) {
 		g_set_error (error,
 		             NM_CONNECTION_ERROR,
 		             NM_CONNECTION_ERROR_INVALID_PROPERTY,
@@ -2786,7 +2786,7 @@ verify (NMSetting *setting, NMConnection *connection, GError **error)
 		return FALSE;
 	}
 
-	if (priv->phase1_peaplabel && !g_strv_contains (valid_phase1_peaplabel, priv->phase1_peaplabel)) {
+	if (priv->phase1_peaplabel && !_nm_utils_string_in_list (priv->phase1_peaplabel, valid_phase1_peaplabel)) {
 		g_set_error (error,
 		             NM_CONNECTION_ERROR,
 		             NM_CONNECTION_ERROR_INVALID_PROPERTY,
@@ -2796,7 +2796,7 @@ verify (NMSetting *setting, NMConnection *connection, GError **error)
 		return FALSE;
 	}
 
-	if (priv->phase1_fast_provisioning && !g_strv_contains (valid_phase1_fast_pac, priv->phase1_fast_provisioning)) {
+	if (priv->phase1_fast_provisioning && !_nm_utils_string_in_list (priv->phase1_fast_provisioning, valid_phase1_fast_pac)) {
 		g_set_error (error,
 		             NM_CONNECTION_ERROR,
 		             NM_CONNECTION_ERROR_INVALID_PROPERTY,
@@ -2806,7 +2806,7 @@ verify (NMSetting *setting, NMConnection *connection, GError **error)
 		return FALSE;
 	}
 
-	if (priv->phase2_auth && !g_strv_contains (valid_phase2_auth, priv->phase2_auth)) {
+	if (priv->phase2_auth && !_nm_utils_string_in_list (priv->phase2_auth, valid_phase2_auth)) {
 		g_set_error (error,
 		             NM_CONNECTION_ERROR,
 		             NM_CONNECTION_ERROR_INVALID_PROPERTY,
@@ -2816,7 +2816,7 @@ verify (NMSetting *setting, NMConnection *connection, GError **error)
 		return FALSE;
 	}
 
-	if (priv->phase2_autheap && !g_strv_contains (valid_phase2_autheap, priv->phase2_autheap)) {
+	if (priv->phase2_autheap && !_nm_utils_string_in_list (priv->phase2_autheap, valid_phase2_autheap)) {
 		g_set_error (error,
 		             NM_CONNECTION_ERROR,
 		             NM_CONNECTION_ERROR_INVALID_PROPERTY,
@@ -2915,6 +2915,15 @@ set_cert_prop_helper (const GValue *value, const char *prop_name, GError **error
 	return bytes;
 }
 
+static char *
+_g_value_dup_string_not_empty (const GValue *value)
+{
+	const gchar *str;
+
+	str = g_value_get_string (value);
+	return str && str[0] ? g_strdup (str) : NULL;
+}
+
 static void
 set_property (GObject *object, guint prop_id,
               const GValue *value, GParamSpec *pspec)
@@ -2955,7 +2964,7 @@ set_property (GObject *object, guint prop_id,
 		break;
 	case PROP_SUBJECT_MATCH:
 		g_free (priv->subject_match);
-		priv->subject_match = nm_strdup_not_empty (g_value_get_string (value));
+		priv->subject_match = _g_value_dup_string_not_empty (value);
 		break;
 	case PROP_ALTSUBJECT_MATCHES:
 		g_slist_free_full (priv->altsubject_matches, g_free);
@@ -2963,7 +2972,7 @@ set_property (GObject *object, guint prop_id,
 		break;
 	case PROP_DOMAIN_SUFFIX_MATCH:
 		g_free (priv->domain_suffix_match);
-		priv->domain_suffix_match = nm_strdup_not_empty (g_value_get_string (value));
+		priv->domain_suffix_match = _g_value_dup_string_not_empty (value);
 		break;
 	case PROP_CLIENT_CERT:
 		if (priv->client_cert)
@@ -3009,7 +3018,7 @@ set_property (GObject *object, guint prop_id,
 		break;
 	case PROP_PHASE2_SUBJECT_MATCH:
 		g_free (priv->phase2_subject_match);
-		priv->phase2_subject_match = nm_strdup_not_empty (g_value_get_string (value));
+		priv->phase2_subject_match = _g_value_dup_string_not_empty (value);
 		break;
 	case PROP_PHASE2_ALTSUBJECT_MATCHES:
 		g_slist_free_full (priv->phase2_altsubject_matches, g_free);
@@ -3017,7 +3026,7 @@ set_property (GObject *object, guint prop_id,
 		break;
 	case PROP_PHASE2_DOMAIN_SUFFIX_MATCH:
 		g_free (priv->phase2_domain_suffix_match);
-		priv->phase2_domain_suffix_match = nm_strdup_not_empty (g_value_get_string (value));
+		priv->phase2_domain_suffix_match = _g_value_dup_string_not_empty (value);
 		break;
 	case PROP_PHASE2_CLIENT_CERT:
 		if (priv->phase2_client_cert)

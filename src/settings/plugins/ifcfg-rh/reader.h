@@ -21,7 +21,10 @@
 #ifndef __READER_H__
 #define __READER_H__
 
-#include "nm-connection.h"
+#include <nm-connection.h>
+
+#include "nm-default.h"
+#include "shvar.h"
 
 NMConnection *connection_from_file (const char *filename,
                                     char **out_unhandled,

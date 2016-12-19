@@ -31,6 +31,10 @@
 #ifndef _SHVAR_H
 #define _SHVAR_H
 
+#include "nm-default.h"
+
+G_BEGIN_DECLS
+
 typedef struct _shvarFile shvarFile;
 struct _shvarFile {
 	char      *fileName;    /* read-only */
@@ -91,4 +95,6 @@ const char *svEscape (const char *s, char **to_free);
 /* Unescape a string in-place */
 void svUnescape (char *s);
 
-#endif /* _SHVAR_H */
+G_END_DECLS
+
+#endif /* ! _SHVAR_H */
