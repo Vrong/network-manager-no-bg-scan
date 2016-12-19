@@ -1,4 +1,4 @@
-network-manager (1.2.4-0ubuntu0.16.04.1) UNRELEASED; urgency=medium
+network-manager (1.2.4-0ubuntu0.16.04.1) xenial; urgency=medium
 
   * Rebase to upstream 1.2.4 release (LP: #1645698)
   * Patches merged upstream and dropped:
