@@ -44,3 +44,4 @@ disable_general_with_expect_test.patch
 #lp1574347-re-read-link-type-if-the-name-changed.diff
 libnm-Check-self-still-NMManager-or-not.patch
 dns-manager-don-t-merge-split-DNS-search-domains.patch
+manager-fix-state-transition-on-resuming-from-sleep.patch
