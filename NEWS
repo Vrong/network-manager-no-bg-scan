@@ -1,4 +1,20 @@
 ==============================================
+NetworkManager-1.2.6
+Overview of changes since NetworkManager-1.2.4
+==============================================
+
+This is a new stable release of NetworkManager.  Notable changes include:
+
+* Fixed emission of NM-style PropertiesChanged signals and deprecated them
+    for PropertiesChanged on "org.freedesktop.DBus.Properties" interface.
+* Fixed a bug that caused devices to stay unmanaged after resume from
+    sleep.
+* Fixed build without polkit support.
+* Fixed a regression that prevented the activation of multiple PPPoE
+    connections at the same time.
+* Other bug fixes.
+
+==============================================
 NetworkManager-1.2.4
 Overview of changes since NetworkManager-1.2.2
 ==============================================

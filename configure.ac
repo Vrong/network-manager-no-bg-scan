@@ -3,7 +3,7 @@ AC_PREREQ([2.63])
 dnl The NM version number
 m4_define([nm_major_version], [1])
 m4_define([nm_minor_version], [2])
-m4_define([nm_micro_version], [4])
+m4_define([nm_micro_version], [6])
 m4_define([nm_version],
           [nm_major_version.nm_minor_version.nm_micro_version])
 m4_define([nm_git_sha], [m4_esyscmd([ ( [ -d ./.git/ ] && [ "$(readlink -f ./.git/)" = "$(readlink -f "$(git rev-parse --git-dir 2>/dev/null)" 2>/dev/null)" ] && git rev-parse --verify -q HEAD 2>/dev/null ) || true ])])
@@ -472,7 +472,9 @@ if test "z$with_suspend_resume" = "z"; then
 fi
 
 case $with_suspend_resume in
-    upower) ;;
+    upower)
+        AC_DEFINE([SUSPEND_RESUME_UPOWER], 1, [Define to 1 to use UPower suspend api])
+	;;
     systemd)
         PKG_CHECK_MODULES(SYSTEMD_INHIBIT, [libsystemd >= 209],,
                           [PKG_CHECK_MODULES(SYSTEMD_INHIBIT, [libsystemd-login >= 183])])
@@ -485,9 +487,6 @@ case $with_suspend_resume in
         AC_MSG_ERROR(--with-suspend-resume must be one of [upower, systemd, consolekit])
         ;;
 esac
-AM_CONDITIONAL(SUSPEND_RESUME_UPOWER, test "x$with_suspend_resume" = "xupower")
-AM_CONDITIONAL(SUSPEND_RESUME_SYSTEMD, test "x$with_suspend_resume" = "xsystemd")
-AM_CONDITIONAL(SUSPEND_RESUME_CONSOLEKIT, test "x$with_suspend_resume" = "xconsolekit")
 
 # SELinux support
 AC_ARG_WITH(selinux, AS_HELP_STRING([--with-selinux=yes|no|auto], [Build with SELinux (default: auto)]),,[with_selinux=auto])

@@ -1920,8 +1920,10 @@ device_realized (NMDevice *device,
                  GParamSpec *pspec,
                  NMManager *self)
 {
+	gboolean real = nm_device_is_real (device);
+
 	/* Emit D-Bus signals */
-	g_signal_emit (self, signals[DEVICE_ADDED], 0, device);
+	g_signal_emit (self, signals[real ? DEVICE_ADDED : DEVICE_REMOVED], 0, device);
 	_notify (self, PROP_DEVICES);
 }
 
@@ -4102,16 +4104,26 @@ do_sleep_wake (NMManager *self, gboolean sleeping_changed)
 
 		if (waking_from_suspend) {
 			sleep_devices_clear (self);
-			/* Belatedly take down Wake-on-LAN devices; ideally we wouldn't have to do this
-			 * but for now it's the only way to make sure we re-check their connectivity.
-			 */
 			for (iter = priv->devices; iter; iter = iter->next) {
 				NMDevice *device = iter->data;
 
 				if (nm_device_is_software (device))
 					continue;
+
+				/* Belatedly take down Wake-on-LAN devices; ideally we wouldn't have to do this
+				 * but for now it's the only way to make sure we re-check their connectivity.
+				 */
 				if (device_is_wake_on_lan (device))
 					nm_device_set_unmanaged_by_flags (device, NM_UNMANAGED_SLEEPING, TRUE, NM_DEVICE_STATE_REASON_SLEEPING);
+
+				/* Check if the device is unmanaged but the state transition is still pending.
+				 * If so, change state now so that later we re-manage the device forcing a
+				 * re-check of available connections.
+				 */
+				if (   !nm_device_get_managed (device, FALSE)
+				    && nm_device_get_state (device) != NM_DEVICE_STATE_UNMANAGED) {
+					nm_device_state_changed (device, NM_DEVICE_STATE_UNMANAGED, NM_DEVICE_STATE_REASON_SLEEPING);
+				}
 			}
 		}
 
@@ -5957,7 +5969,8 @@ nm_manager_class_init (NMManagerClass *manager_class)
 	                  NULL, NULL, NULL,
 	                  G_TYPE_NONE, 1, G_TYPE_OBJECT);
 
-	/* D-Bus exported; emitted only for realized devices */
+	/* D-Bus exported; emitted only for realized devices when a device
+	 * becomes unrealized or removed */
 	signals[DEVICE_REMOVED] =
 	    g_signal_new (NM_MANAGER_DEVICE_REMOVED,
 	                  G_OBJECT_CLASS_TYPE (object_class),

@@ -400,7 +400,7 @@ StateChanged (u state);
 <programlisting>
 PropertiesChanged (a{sv} properties);
 </programlisting>
-<para>        NetworkManager's properties changed.
+<para>        DEPRECATED. Use the standard "PropertiesChanged" signal from "org.freedesktop.DBus.Properties" instead which exists since version NetworkManager 1.2.0.
 </para>
 <variablelist role="params">
 <varlistentry>

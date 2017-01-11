@@ -231,19 +231,15 @@
     <keyword type="property" name="The “nm-running-internal” property" link="NMObject.html#NMObject--nm-running-internal"/>
     <keyword type="property" name="The “path” property" link="NMObject.html#NMObject--path"/>
     <keyword type="function" name="nm_agent_manager_error_quark ()" link="libnm-nm-errors.html#nm-agent-manager-error-quark"/>
-    <keyword type="macro" name="NM_AGENT_MANAGER_ERROR" link="libnm-nm-errors.html#NM-AGENT-MANAGER-ERROR:CAPS"/>
     <keyword type="function" name="nm_connection_error_quark ()" link="libnm-nm-errors.html#nm-connection-error-quark"/>
     <keyword type="function" name="nm_crypto_error_quark ()" link="libnm-nm-errors.html#nm-crypto-error-quark"/>
     <keyword type="function" name="nm_device_error_quark ()" link="libnm-nm-errors.html#nm-device-error-quark"/>
     <keyword type="function" name="nm_manager_error_quark ()" link="libnm-nm-errors.html#nm-manager-error-quark"/>
-    <keyword type="macro" name="NM_MANAGER_ERROR" link="libnm-nm-errors.html#NM-MANAGER-ERROR:CAPS"/>
     <keyword type="function" name="nm_secret_agent_error_quark ()" link="libnm-nm-errors.html#nm-secret-agent-error-quark"/>
-    <keyword type="macro" name="NM_SECRET_AGENT_ERROR" link="libnm-nm-errors.html#NM-SECRET-AGENT-ERROR:CAPS"/>
     <keyword type="function" name="nm_settings_error_quark ()" link="libnm-nm-errors.html#nm-settings-error-quark"/>
-    <keyword type="macro" name="NM_SETTINGS_ERROR" link="libnm-nm-errors.html#NM-SETTINGS-ERROR:CAPS"/>
-    <keyword type="macro" name="NM_VPN_PLUGIN_ERROR" link="libnm-nm-errors.html#NM-VPN-PLUGIN-ERROR:CAPS"/>
     <keyword type="function" name="nm_vpn_plugin_error_quark ()" link="libnm-nm-errors.html#nm-vpn-plugin-error-quark"/>
     <keyword type="enum" name="enum NMAgentManagerError" link="libnm-nm-errors.html#NMAgentManagerError"/>
+    <keyword type="macro" name="NM_AGENT_MANAGER_ERROR" link="libnm-nm-errors.html#NM-AGENT-MANAGER-ERROR:CAPS"/>
     <keyword type="enum" name="enum NMConnectionError" link="libnm-nm-errors.html#NMConnectionError"/>
     <keyword type="macro" name="NM_CONNECTION_ERROR" link="libnm-nm-errors.html#NM-CONNECTION-ERROR:CAPS"/>
     <keyword type="enum" name="enum NMCryptoError" link="libnm-nm-errors.html#NMCryptoError"/>
@@ -251,9 +247,13 @@
     <keyword type="enum" name="enum NMDeviceError" link="libnm-nm-errors.html#NMDeviceError"/>
     <keyword type="macro" name="NM_DEVICE_ERROR" link="libnm-nm-errors.html#NM-DEVICE-ERROR:CAPS"/>
     <keyword type="enum" name="enum NMManagerError" link="libnm-nm-errors.html#NMManagerError"/>
+    <keyword type="macro" name="NM_MANAGER_ERROR" link="libnm-nm-errors.html#NM-MANAGER-ERROR:CAPS"/>
     <keyword type="enum" name="enum NMSecretAgentError" link="libnm-nm-errors.html#NMSecretAgentError"/>
+    <keyword type="macro" name="NM_SECRET_AGENT_ERROR" link="libnm-nm-errors.html#NM-SECRET-AGENT-ERROR:CAPS"/>
     <keyword type="enum" name="enum NMSettingsError" link="libnm-nm-errors.html#NMSettingsError"/>
+    <keyword type="macro" name="NM_SETTINGS_ERROR" link="libnm-nm-errors.html#NM-SETTINGS-ERROR:CAPS"/>
     <keyword type="enum" name="enum NMVpnPluginError" link="libnm-nm-errors.html#NMVpnPluginError"/>
+    <keyword type="macro" name="NM_VPN_PLUGIN_ERROR" link="libnm-nm-errors.html#NM-VPN-PLUGIN-ERROR:CAPS"/>
     <keyword type="macro" name="NM_AVAILABLE_IN_1_2" link="libnm-nm-dbus-interface.html#NM-AVAILABLE-IN-1-2:CAPS"/>
     <keyword type="macro" name="NM_DBUS_SERVICE" link="libnm-nm-dbus-interface.html#NM-DBUS-SERVICE:CAPS"/>
     <keyword type="macro" name="NM_DBUS_PATH" link="libnm-nm-dbus-interface.html#NM-DBUS-PATH:CAPS"/>
@@ -400,9 +400,6 @@
     <keyword type="function" name="nm_simple_connection_new_from_dbus ()" link="NMSimpleConnection.html#nm-simple-connection-new-from-dbus"/>
     <keyword type="function" name="nm_simple_connection_new_clone ()" link="NMSimpleConnection.html#nm-simple-connection-new-clone"/>
     <keyword type="struct" name="NMSimpleConnection" link="NMSimpleConnection.html#NMSimpleConnection-struct"/>
-    <keyword type="macro" name="NM_SETTING_PARAM_REQUIRED" link="NMSetting.html#NM-SETTING-PARAM-REQUIRED:CAPS"/>
-    <keyword type="macro" name="NM_SETTING_PARAM_SECRET" link="NMSetting.html#NM-SETTING-PARAM-SECRET:CAPS"/>
-    <keyword type="macro" name="NM_SETTING_PARAM_FUZZY_IGNORE" link="NMSetting.html#NM-SETTING-PARAM-FUZZY-IGNORE:CAPS"/>
     <keyword type="function" name="NMSettingClearSecretsWithFlagsFn ()" link="NMSetting.html#NMSettingClearSecretsWithFlagsFn"/>
     <keyword type="function" name="NMSettingValueIterFn ()" link="NMSetting.html#NMSettingValueIterFn"/>
     <keyword type="function" name="nm_setting_lookup_type ()" link="NMSetting.html#nm-setting-lookup-type"/>
@@ -417,6 +414,9 @@
     <keyword type="function" name="nm_setting_get_secret_flags ()" link="NMSetting.html#nm-setting-get-secret-flags"/>
     <keyword type="function" name="nm_setting_set_secret_flags ()" link="NMSetting.html#nm-setting-set-secret-flags"/>
     <keyword type="function" name="nm_setting_get_dbus_property_type ()" link="NMSetting.html#nm-setting-get-dbus-property-type"/>
+    <keyword type="macro" name="NM_SETTING_PARAM_REQUIRED" link="NMSetting.html#NM-SETTING-PARAM-REQUIRED:CAPS"/>
+    <keyword type="macro" name="NM_SETTING_PARAM_SECRET" link="NMSetting.html#NM-SETTING-PARAM-SECRET:CAPS"/>
+    <keyword type="macro" name="NM_SETTING_PARAM_FUZZY_IGNORE" link="NMSetting.html#NM-SETTING-PARAM-FUZZY-IGNORE:CAPS"/>
     <keyword type="macro" name="NM_SETTING_NAME" link="NMSetting.html#NM-SETTING-NAME:CAPS"/>
     <keyword type="enum" name="enum NMSettingSecretFlags" link="NMSetting.html#NMSettingSecretFlags"/>
     <keyword type="enum" name="enum NMSettingCompareFlags" link="NMSetting.html#NMSettingCompareFlags"/>
@@ -1245,7 +1245,6 @@
     <keyword type="property" name="The “owner” property" link="NMSettingTun.html#NMSettingTun--owner"/>
     <keyword type="property" name="The “pi” property" link="NMSettingTun.html#NMSettingTun--pi"/>
     <keyword type="property" name="The “vnet-hdr” property" link="NMSettingTun.html#NMSettingTun--vnet-hdr"/>
-    <keyword type="macro" name="NM_VLAN_FLAGS_ALL" link="NMSettingVlan.html#NM-VLAN-FLAGS-ALL:CAPS"/>
     <keyword type="function" name="nm_setting_vlan_new ()" link="NMSettingVlan.html#nm-setting-vlan-new"/>
     <keyword type="function" name="nm_setting_vlan_get_parent ()" link="NMSettingVlan.html#nm-setting-vlan-get-parent"/>
     <keyword type="function" name="nm_setting_vlan_get_id ()" link="NMSettingVlan.html#nm-setting-vlan-get-id"/>
@@ -1267,6 +1266,7 @@
     <keyword type="struct" name="NMSettingVlan" link="NMSettingVlan.html#NMSettingVlan-struct"/>
     <keyword type="enum" name="enum NMVlanPriorityMap" link="NMSettingVlan.html#NMVlanPriorityMap"/>
     <keyword type="enum" name="enum NMVlanFlags" link="NMSettingVlan.html#NMVlanFlags"/>
+    <keyword type="macro" name="NM_VLAN_FLAGS_ALL" link="NMSettingVlan.html#NM-VLAN-FLAGS-ALL:CAPS"/>
     <keyword type="property" name="The “egress-priority-map” property" link="NMSettingVlan.html#NMSettingVlan--egress-priority-map"/>
     <keyword type="property" name="The “flags” property" link="NMSettingVlan.html#NMSettingVlan--flags"/>
     <keyword type="property" name="The “id” property" link="NMSettingVlan.html#NMSettingVlan--id"/>
@@ -2166,11 +2166,11 @@
     <keyword type="macro" name="NM_UTILS_HWADDR_LEN_MAX" link="libnm-nm-utils.html#NM-UTILS-HWADDR-LEN-MAX:CAPS"/>
     <keyword type="macro" name="NM_UTILS_INET_ADDRSTRLEN" link="libnm-nm-utils.html#NM-UTILS-INET-ADDRSTRLEN:CAPS"/>
     <keyword type="struct" name="struct stat" link="libnm-nm-utils.html#stat"/>
-    <keyword type="macro" name="NM_VERSION_MIN_REQUIRED" link="libnm-nm-version.html#NM-VERSION-MIN-REQUIRED:CAPS"/>
-    <keyword type="macro" name="NM_VERSION_MAX_ALLOWED" link="libnm-nm-version.html#NM-VERSION-MAX-ALLOWED:CAPS"/>
     <keyword type="macro" name="NM_DEPRECATED_IN_0_9_10_FOR()" link="libnm-nm-version.html#NM-DEPRECATED-IN-0-9-10-FOR:CAPS"/>
     <keyword type="macro" name="NM_DEPRECATED_IN_1_0_FOR()" link="libnm-nm-version.html#NM-DEPRECATED-IN-1-0-FOR:CAPS"/>
     <keyword type="macro" name="NM_DEPRECATED_IN_1_2_FOR()" link="libnm-nm-version.html#NM-DEPRECATED-IN-1-2-FOR:CAPS"/>
+    <keyword type="macro" name="NM_VERSION_MIN_REQUIRED" link="libnm-nm-version.html#NM-VERSION-MIN-REQUIRED:CAPS"/>
+    <keyword type="macro" name="NM_VERSION_MAX_ALLOWED" link="libnm-nm-version.html#NM-VERSION-MAX-ALLOWED:CAPS"/>
     <keyword type="macro" name="NM_DEPRECATED_IN_0_9_10" link="libnm-nm-version.html#NM-DEPRECATED-IN-0-9-10:CAPS"/>
     <keyword type="macro" name="NM_AVAILABLE_IN_0_9_10" link="libnm-nm-version.html#NM-AVAILABLE-IN-0-9-10:CAPS"/>
     <keyword type="macro" name="NM_DEPRECATED_IN_1_0" link="libnm-nm-version.html#NM-DEPRECATED-IN-1-0:CAPS"/>
@@ -2661,5 +2661,14 @@
     <keyword type="constant" name="NM_VPN_EDITOR_PLUGIN_CAPABILITY_IMPORT" link="NMVpnEditorPlugin.html#NM-VPN-EDITOR-PLUGIN-CAPABILITY-IMPORT:CAPS"/>
     <keyword type="constant" name="NM_VPN_EDITOR_PLUGIN_CAPABILITY_EXPORT" link="NMVpnEditorPlugin.html#NM-VPN-EDITOR-PLUGIN-CAPABILITY-EXPORT:CAPS"/>
     <keyword type="constant" name="NM_VPN_EDITOR_PLUGIN_CAPABILITY_IPV6" link="NMVpnEditorPlugin.html#NM-VPN-EDITOR-PLUGIN-CAPABILITY-IPV6:CAPS"/>
+    <keyword type="member" name="NMConnectionInterface.parent" link="NMConnection.html#NMConnectionInterface.parent"/>
+    <keyword type="member" name="NMConnectionInterface.secrets-updated" link="NMConnection.html#NMConnectionInterface.secrets-updated"/>
+    <keyword type="member" name="NMConnectionInterface.secrets-cleared" link="NMConnection.html#NMConnectionInterface.secrets-cleared"/>
+    <keyword type="member" name="NMConnectionInterface.changed" link="NMConnection.html#NMConnectionInterface.changed"/>
+    <keyword type="member" name="NMVpnEditorPluginInterface.get-editor" link="NMVpnEditorPlugin.html#NMVpnEditorPluginInterface.get-editor"/>
+    <keyword type="member" name="NMVpnEditorPluginInterface.get-capabilities" link="NMVpnEditorPlugin.html#NMVpnEditorPluginInterface.get-capabilities"/>
+    <keyword type="member" name="NMVpnEditorPluginInterface.import-from-file" link="NMVpnEditorPlugin.html#NMVpnEditorPluginInterface.import-from-file"/>
+    <keyword type="member" name="NMVpnEditorPluginInterface.export-to-file" link="NMVpnEditorPlugin.html#NMVpnEditorPluginInterface.export-to-file"/>
+    <keyword type="member" name="NMVpnEditorPluginInterface.get-suggested-filename" link="NMVpnEditorPlugin.html#NMVpnEditorPluginInterface.get-suggested-filename"/>
   </functions>
 </book>
