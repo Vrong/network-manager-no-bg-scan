@@ -17,13 +17,13 @@ Closes: #742933
  src/nm-sleep-monitor-systemd.c | 5 +++++
  3 files changed, 9 insertions(+), 1 deletion(-)
 
-Index: network-manager/configure.ac
+Index: ubuntu/configure.ac
 ===================================================================
---- network-manager.orig/configure.ac
-+++ network-manager/configure.ac
-@@ -474,8 +474,9 @@ fi
- case $with_suspend_resume in
-     upower) ;;
+--- ubuntu.orig/configure.ac
++++ ubuntu/configure.ac
+@@ -476,8 +476,9 @@ case $with_suspend_resume in
+         AC_DEFINE([SUSPEND_RESUME_UPOWER], 1, [Define to 1 to use UPower suspend api])
+ 	;;
      systemd)
 +        # Link against libsystemd-daemon for sd_booted()
          PKG_CHECK_MODULES(SYSTEMD_INHIBIT, [libsystemd >= 209],,
@@ -32,10 +32,10 @@ Index: network-manager/configure.ac
          AC_DEFINE([SUSPEND_RESUME_SYSTEMD], 1, [Define to 1 to use systemd suspend api])
          ;;
      consolekit)
-Index: network-manager/src/Makefile.am
+Index: ubuntu/src/Makefile.am
 ===================================================================
---- network-manager.orig/src/Makefile.am
-+++ network-manager/src/Makefile.am
+--- ubuntu.orig/src/Makefile.am
++++ ubuntu/src/Makefile.am
 @@ -474,6 +474,7 @@ AM_CPPFLAGS += \
  	$(SELINUX_CFLAGS) \
  	$(LIBAUDIT_CFLAGS) \
@@ -52,10 +52,10 @@ Index: network-manager/src/Makefile.am
  	$(SYSTEMD_JOURNAL_LIBS) \
  	$(LIBNDP_LIBS) \
  	$(LIBDL) \
-Index: network-manager/src/nm-sleep-monitor.c
+Index: ubuntu/src/nm-sleep-monitor.c
 ===================================================================
---- network-manager.orig/src/nm-sleep-monitor.c
-+++ network-manager/src/nm-sleep-monitor.c
+--- ubuntu.orig/src/nm-sleep-monitor.c
++++ ubuntu/src/nm-sleep-monitor.c
 @@ -25,6 +25,7 @@
  #include <string.h>
  #include <sys/stat.h>
