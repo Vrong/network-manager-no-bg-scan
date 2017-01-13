@@ -6,6 +6,9 @@ network-manager (1.2.6-0ubuntu0.16.04.1) UNRELEASED; urgency=medium
     - manager-fix-state-transition-on-resuming-from-sleep.patch
   * Patches restored for which is relevant again:
     - Don-t-block-network.target-on-NetworkManager-wait-on.patch
+      This patch makes it easy to disable the service by tweaking the service
+      file installation. It was believed not useful some time before, but both
+      Debian/Ubuntu packages re-introduced the patch in post-xenial time.
   * Refresh remaining patches
 
  -- Aron Xu <happyaron@ubuntu.com>  Thu, 12 Jan 2017 00:50:50 +0800
