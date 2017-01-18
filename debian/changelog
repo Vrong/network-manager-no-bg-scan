@@ -1,14 +1,14 @@
-network-manager (1.2.6-0ubuntu0.16.04.1) UNRELEASED; urgency=medium
+network-manager (1.2.6-0ubuntu0.16.04.1) xenial; urgency=medium
 
   * Rebase to upstream 1.2.6 release (LP: #1645698)
-  * debian/rules: allow parallel building
-  * Patches merged upstream and dropped:
+  * debian/rules: allow parallel building (copied from yakkety)
+  * Dropped patch that was included in new release:
     - manager-fix-state-transition-on-resuming-from-sleep.patch
-  * Patches restored for which is relevant again:
-    - Don-t-block-network.target-on-NetworkManager-wait-on.patch
-      This patch makes it easy to disable the service by tweaking the service
-      file installation. It was believed not useful some time before, but both
-      Debian/Ubuntu packages re-introduced the patch in post-xenial time.
+  * Restored Don-t-block-network.target-on-NetworkManager-wait-on.patch
+    - This patch makes it easy to disable the service by tweaking the
+      service file. The patch had been dropped because it didn't seem
+      useful any more, but it was later re-introduced to both Debian and
+      Ubuntu 16.10.
   * Refresh remaining patches
 
  -- Aron Xu <happyaron@ubuntu.com>  Thu, 12 Jan 2017 00:50:50 +0800
