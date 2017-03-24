@@ -85,6 +85,7 @@ enum {
 	ACCESS_POINT_ADDED,
 	ACCESS_POINT_REMOVED,
 	SCANNING_ALLOWED,
+	SCAN_DONE,
 
 	LAST_SIGNAL
 };
@@ -516,36 +517,6 @@ deactivate (NMDevice *device)
 }
 
 static gboolean
-is_adhoc_wpa (NMConnection *connection)
-{
-	NMSettingWireless *s_wifi;
-	NMSettingWirelessSecurity *s_wsec;
-	const char *mode, *key_mgmt;
-
-	/* The kernel doesn't support Ad-Hoc WPA connections well at this time,
-	 * and turns them into open networks.  It's been this way since at least
-	 * 2.6.30 or so; until that's fixed, disable WPA-protected Ad-Hoc networks.
-	 */
-
-	s_wifi = nm_connection_get_setting_wireless (connection);
-	g_return_val_if_fail (s_wifi != NULL, FALSE);
-
-	mode = nm_setting_wireless_get_mode (s_wifi);
-	if (g_strcmp0 (mode, NM_SETTING_WIRELESS_MODE_ADHOC) != 0)
-		return FALSE;
-
-	s_wsec = nm_connection_get_setting_wireless_security (connection);
-	if (!s_wsec)
-		return FALSE;
-
-	key_mgmt = nm_setting_wireless_security_get_key_mgmt (s_wsec);
-	if (g_strcmp0 (key_mgmt, "wpa-none") != 0)
-		return FALSE;
-
-	return TRUE;
-}
-
-static gboolean
 check_connection_compatible (NMDevice *device, NMConnection *connection)
 {
 	NMDeviceWifi *self = NM_DEVICE_WIFI (device);
@@ -589,9 +560,6 @@ check_connection_compatible (NMDevice *device, NMConnection *connection)
 				return FALSE;
 		}
 	} else if (mac)
-		return FALSE;
-
-	if (is_adhoc_wpa (connection))
 		return FALSE;
 
 	/* Early exit if supplicant or device doesn't support requested mode */
@@ -833,21 +801,6 @@ complete_connection (NMDevice *device,
 				g_byte_array_unref (tmp_ssid);
 			return FALSE;
 		}
-	}
-
-	/* The kernel doesn't support Ad-Hoc WPA connections well at this time,
-	 * and turns them into open networks.  It's been this way since at least
-	 * 2.6.30 or so; until that's fixed, disable WPA-protected Ad-Hoc networks.
-	 */
-	if (is_adhoc_wpa (connection)) {
-		g_set_error_literal (error,
-		                     NM_CONNECTION_ERROR,
-		                     NM_CONNECTION_ERROR_INVALID_SETTING,
-		                     _("WPA Ad-Hoc disabled due to kernel bugs"));
-		g_prefix_error (error, "%s: ", NM_SETTING_WIRELESS_SECURITY_SETTING_NAME);
-		if (tmp_ssid)
-			g_byte_array_unref (tmp_ssid);
-		return FALSE;
 	}
 
 	str_ssid = nm_utils_ssid_to_utf8 (ssid->data, ssid->len);
@@ -1130,14 +1083,13 @@ scanning_allowed (NMDeviceWifi *self)
 	case NM_DEVICE_STATE_SECONDARIES:
 	case NM_DEVICE_STATE_DEACTIVATING:
 		/* Don't scan when unusable or activating */
+	case NM_DEVICE_STATE_ACTIVATED:
+		/* Do not scan when activated */
 		return FALSE;
 	case NM_DEVICE_STATE_DISCONNECTED:
 	case NM_DEVICE_STATE_FAILED:
 		/* Can always scan when disconnected */
 		return TRUE;
-	case NM_DEVICE_STATE_ACTIVATED:
-		/* Need to do further checks when activated */
-		break;
 	}
 
 	/* Don't scan if the supplicant is busy */
@@ -1418,6 +1370,7 @@ supplicant_iface_scan_done_cb (NMSupplicantInterface *iface,
 
 	_LOGD (LOGD_WIFI_SCAN, "scan %s", success ? "successful" : "failed");
 
+	g_signal_emit (self, signals[SCAN_DONE], 0, NULL);
 	priv->last_scan = nm_utils_get_monotonic_timestamp_s ();
 	schedule_scan (self, success);
 
@@ -2317,16 +2270,6 @@ act_stage1_prepare (NMDevice *device, NMDeviceStateReason *reason)
 	}
 	g_object_notify (G_OBJECT (self), NM_DEVICE_WIFI_MODE);
 
-	/* The kernel doesn't support Ad-Hoc WPA connections well at this time,
-	 * and turns them into open networks.  It's been this way since at least
-	 * 2.6.30 or so; until that's fixed, disable WPA-protected Ad-Hoc networks.
-	 */
-	if (is_adhoc_wpa (connection)) {
-		_LOGW (LOGD_WIFI, "Ad-Hoc WPA disabled due to kernel bugs");
-		*reason = NM_DEVICE_STATE_REASON_SUPPLICANT_CONFIG_FAILED;
-		return NM_ACT_STAGE_RETURN_FAILURE;
-	}
-
 	/* Set spoof MAC to the interface */
 	cloned_mac = nm_setting_wireless_get_cloned_mac_address (s_wireless);
 	nm_device_set_hw_addr (device, cloned_mac, "set", LOGD_WIFI);
@@ -3151,6 +3094,14 @@ nm_device_wifi_class_init (NMDeviceWifiClass *klass)
 		              G_STRUCT_OFFSET (NMDeviceWifiClass, scanning_allowed),
 		              scanning_allowed_accumulator, NULL, NULL,
 		              G_TYPE_BOOLEAN, 0);
+
+	signals[SCAN_DONE] =
+		g_signal_new ("scan-done",
+					  G_OBJECT_CLASS_TYPE (object_class),
+					  G_SIGNAL_RUN_FIRST,
+					  G_STRUCT_OFFSET (NMDeviceWifiClass, scan_done),
+					  NULL, NULL, NULL,
+					  G_TYPE_NONE, 0);
 
 	nm_exported_object_class_add_interface (NM_EXPORTED_OBJECT_CLASS (klass),
 	                                        NMDBUS_TYPE_DEVICE_WIFI_SKELETON,
